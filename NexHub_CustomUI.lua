@@ -1227,6 +1227,11 @@ function nexhub:Window(GuiConfig)
         local Sections = {}
         local CountSection = 0
         function Sections:AddSection(Title, AlwaysOpen)
+            if type(Title) == "table" then
+                AlwaysOpen = AlwaysOpen == nil and Title.AlwaysOpen or AlwaysOpen
+                Title = Title.Title or Title.Name
+            end
+            if AlwaysOpen == nil then AlwaysOpen = true end
             local Title = Title or "Title"
             local Section = Instance.new("Frame");
             local SectionDecideFrame = Instance.new("Frame");
