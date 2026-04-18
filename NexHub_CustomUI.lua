@@ -989,31 +989,19 @@ function nexhub:Window(GuiConfig)
     NameTab.Name = "NameTab"
     NameTab.Parent = Layers
 
-    local SectionNameLabel = Instance.new("TextLabel")
-    SectionNameLabel.Font = Enum.Font.GothamBold
-    SectionNameLabel.Text = ""
-    SectionNameLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-    SectionNameLabel.TextSize = 13
-    SectionNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    SectionNameLabel.BackgroundTransparency = 1
-    SectionNameLabel.Position = UDim2.new(0, 5, 0, 25)
-    SectionNameLabel.Size = UDim2.new(1, -10, 0, 15)
-    SectionNameLabel.Name = "SectionNameLabel"
-    SectionNameLabel.Parent = Layers
-
     local GlowLine = Instance.new("Frame")
     GlowLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     GlowLine.BorderSizePixel = 0
-    GlowLine.Position = UDim2.new(0, 5, 0, 44)
+    GlowLine.Position = UDim2.new(0, 5, 0, 31) -- Lebih rapat ke judul
     GlowLine.Size = UDim2.new(1, -10, 0, 1)
     GlowLine.Name = "GlowLine"
     GlowLine.Parent = Layers
 
     local GlowGradient = Instance.new("UIGradient")
     GlowGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(155, 89, 255)), -- Ungu
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(155, 89, 255)),
         ColorSequenceKeypoint.new(0.5, Color3.fromRGB(155, 89, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15)) -- Fade out
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
     })
     GlowGradient.Parent = GlowLine
 
@@ -1024,7 +1012,7 @@ function nexhub:Window(GuiConfig)
     LayersReal.BorderSizePixel = 0
     LayersReal.ClipsDescendants = true
     LayersReal.Position = UDim2.new(0, 0, 1, -5)
-    LayersReal.Size = UDim2.new(1, 0, 1, -55) -- Lebih pendek untuk kasih ruang header
+    LayersReal.Size = UDim2.new(1, 0, 1, -43) -- Disesuaikan karena label dihapus
     LayersReal.Name = "LayersReal"
     LayersReal.Parent = Layers
 
@@ -1626,16 +1614,12 @@ function nexhub:Window(GuiConfig)
             SubBtnText.Font = Enum.Font.GothamBold
             SubBtnText.Text = SectionConfig.Title
             SubBtnText.TextColor3 = (SecOrder == 0) and Color3.fromRGB(155, 89, 255) or Color3.fromRGB(180, 180, 180)
-            SubBtnText.TextSize = 12
+            SubBtnText.TextSize = 14 -- Lebih besar
             SubBtnText.BackgroundTransparency = 1
             SubBtnText.Size = UDim2.new(1, 0, 1, 0)
             SubBtnText.Parent = SubBtn
             
-            SubBtn.Size = UDim2.new(0, SubBtnText.TextBounds.X + 10, 0, 26)
-
-            if SecOrder == 0 then
-                SectionNameLabel.Text = SectionConfig.Title
-            end
+            SubBtn.Size = UDim2.new(0, SubBtnText.TextBounds.X + 25, 0, 32) -- Padding +25, Tinggi 32
 
             -- Kontainer Konten Section
             local SectionScroller = Instance.new("ScrollingFrame")
@@ -1671,7 +1655,6 @@ function nexhub:Window(GuiConfig)
                 -- Set aktif
                 TweenService:Create(SubBtnText, TweenInfo.new(0.3), { TextColor3 = Color3.fromRGB(155, 89, 255) }):Play()
                 
-                SectionNameLabel.Text = SectionConfig.Title
                 SectionPageLayout:JumpToIndex(SecOrder)
             end)
             
