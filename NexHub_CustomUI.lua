@@ -977,16 +977,45 @@ function nexhub:Window(GuiConfig)
     NameTab.Font = Enum.Font.GothamBold
     NameTab.Text = ""
     NameTab.TextColor3 = Color3.fromRGB(255, 255, 255)
-    NameTab.TextSize = 24
+    NameTab.TextSize = 22 -- Sedikit lebih kecil agar elegan
     NameTab.TextWrapped = true
     NameTab.TextXAlignment = Enum.TextXAlignment.Left
     NameTab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     NameTab.BackgroundTransparency = 0.9990000128746033
     NameTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
     NameTab.BorderSizePixel = 0
-    NameTab.Size = UDim2.new(1, 0, 0, 30)
+    NameTab.Position = UDim2.new(0, 5, 0, 2)
+    NameTab.Size = UDim2.new(1, -10, 0, 26)
     NameTab.Name = "NameTab"
     NameTab.Parent = Layers
+
+    local SectionNameLabel = Instance.new("TextLabel")
+    SectionNameLabel.Font = Enum.Font.GothamBold
+    SectionNameLabel.Text = ""
+    SectionNameLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    SectionNameLabel.TextSize = 13
+    SectionNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    SectionNameLabel.BackgroundTransparency = 1
+    SectionNameLabel.Position = UDim2.new(0, 5, 0, 25)
+    SectionNameLabel.Size = UDim2.new(1, -10, 0, 15)
+    SectionNameLabel.Name = "SectionNameLabel"
+    SectionNameLabel.Parent = Layers
+
+    local GlowLine = Instance.new("Frame")
+    GlowLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    GlowLine.BorderSizePixel = 0
+    GlowLine.Position = UDim2.new(0, 5, 0, 44)
+    GlowLine.Size = UDim2.new(1, -10, 0, 1)
+    GlowLine.Name = "GlowLine"
+    GlowLine.Parent = Layers
+
+    local GlowGradient = Instance.new("UIGradient")
+    GlowGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(155, 89, 255)), -- Ungu
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(155, 89, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15)) -- Fade out
+    })
+    GlowGradient.Parent = GlowLine
 
     LayersReal.AnchorPoint = Vector2.new(0, 1)
     LayersReal.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -994,8 +1023,8 @@ function nexhub:Window(GuiConfig)
     LayersReal.BorderColor3 = Color3.fromRGB(0, 0, 0)
     LayersReal.BorderSizePixel = 0
     LayersReal.ClipsDescendants = true
-    LayersReal.Position = UDim2.new(0, 0, 1, 0)
-    LayersReal.Size = UDim2.new(1, 0, 1, -33)
+    LayersReal.Position = UDim2.new(0, 0, 1, -5)
+    LayersReal.Size = UDim2.new(1, 0, 1, -55) -- Lebih pendek untuk kasih ruang header
     LayersReal.Name = "LayersReal"
     LayersReal.Parent = Layers
 
@@ -1518,18 +1547,37 @@ function nexhub:Window(GuiConfig)
             end
         end)
         --// Sub-tab Section Layout
+        local SubTabBar = Instance.new("Frame")
+        SubTabBar.Name = "SubTabBar"
+        SubTabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+        SubTabBar.BackgroundTransparency = 0.5
+        SubTabBar.Size = UDim2.new(1, -10, 0, 0) -- Resize otomatis
+        SubTabBar.Position = UDim2.new(0, 5, 0, 0)
+        SubTabBar.Parent = ScrolLayers
+        SubTabBar.LayoutOrder = -100
+
+        local SubBarCorner = Instance.new("UICorner")
+        SubBarCorner.CornerRadius = UDim.new(0, 4)
+        SubBarCorner.Parent = SubTabBar
+
         local SubTabHolder = Instance.new("Frame")
         SubTabHolder.Name = "SubTabHolder"
         SubTabHolder.BackgroundTransparency = 1
-        SubTabHolder.Size = UDim2.new(1, 0, 0, 0) -- Akan resize otomatis
-        SubTabHolder.Parent = ScrolLayers
-        SubTabHolder.LayoutOrder = -100
+        SubTabHolder.Size = UDim2.new(1, 0, 1, 0)
+        SubTabHolder.Parent = SubTabBar
+
+        local SubTabPadding = Instance.new("UIPadding")
+        SubTabPadding.PaddingLeft = UDim.new(0, 5)
+        SubTabPadding.PaddingRight = UDim.new(0, 5)
+        SubTabPadding.PaddingTop = UDim.new(0, 4)
+        SubTabPadding.PaddingBottom = UDim.new(0, 4)
+        SubTabPadding.Parent = SubTabHolder
 
         local SubTabList = Instance.new("UIListLayout")
         SubTabList.FillDirection = Enum.FillDirection.Horizontal
         SubTabList.SortOrder = Enum.SortOrder.LayoutOrder
-        SubTabList.Padding = UDim.new(0, 5)
-        SubTabList.Wraps = true -- MENDUKUNG WRAPPING (BERTINGKAT)
+        SubTabList.Padding = UDim.new(0, 8)
+        SubTabList.Wraps = true 
         SubTabList.Parent = SubTabHolder
 
         local SectionFolder = Instance.new("Frame")
@@ -1544,8 +1592,8 @@ function nexhub:Window(GuiConfig)
         SectionPageLayout.Parent = SectionFolder
 
         SubTabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            SubTabHolder.Size = UDim2.new(1, 0, 0, SubTabList.AbsoluteContentSize.Y + 5)
-            SectionFolder.Size = UDim2.new(1, 0, 1, -(SubTabList.AbsoluteContentSize.Y + 10))
+            SubTabBar.Size = UDim2.new(1, -10, 0, SubTabList.AbsoluteContentSize.Y + 8)
+            SectionFolder.Size = UDim2.new(1, 0, 1, -(SubTabBar.Size.Y.Offset + 10))
             UpdateSizeScroll()
         end)
 
@@ -1568,8 +1616,7 @@ function nexhub:Window(GuiConfig)
             local SubBtnText = Instance.new("TextButton")
             
             SubBtn.Name = "SubBtn"
-            SubBtn.BackgroundColor3 = (SecOrder == 0) and GuiConfig.Color or Color3.fromRGB(255, 255, 255)
-            SubBtn.BackgroundTransparency = (SecOrder == 0) and 0 or 0.94
+            SubBtn.BackgroundTransparency = 1 -- Selalu transparan
             SubBtn.LayoutOrder = SecOrder
             SubBtn.Parent = SubTabHolder
             
@@ -1578,13 +1625,17 @@ function nexhub:Window(GuiConfig)
             
             SubBtnText.Font = Enum.Font.GothamBold
             SubBtnText.Text = SectionConfig.Title
-            SubBtnText.TextColor3 = (SecOrder == 0) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 180)
+            SubBtnText.TextColor3 = (SecOrder == 0) and Color3.fromRGB(155, 89, 255) or Color3.fromRGB(180, 180, 180)
             SubBtnText.TextSize = 12
             SubBtnText.BackgroundTransparency = 1
             SubBtnText.Size = UDim2.new(1, 0, 1, 0)
             SubBtnText.Parent = SubBtn
             
-            SubBtn.Size = UDim2.new(0, SubBtnText.TextBounds.X + 20, 0, 26)
+            SubBtn.Size = UDim2.new(0, SubBtnText.TextBounds.X + 10, 0, 26)
+
+            if SecOrder == 0 then
+                SectionNameLabel.Text = SectionConfig.Title
+            end
 
             -- Kontainer Konten Section
             local SectionScroller = Instance.new("ScrollingFrame")
@@ -1611,7 +1662,6 @@ function nexhub:Window(GuiConfig)
                 -- Reset tombol lain
                 for _, b in pairs(SubTabHolder:GetChildren()) do
                     if b.Name == "SubBtn" then
-                        TweenService:Create(b, TweenInfo.new(0.3), { BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.94 }):Play()
                         local txt = b:FindFirstChildOfClass("TextButton")
                         if txt then
                             TweenService:Create(txt, TweenInfo.new(0.3), { TextColor3 = Color3.fromRGB(180, 180, 180) }):Play()
@@ -1619,9 +1669,9 @@ function nexhub:Window(GuiConfig)
                     end
                 end
                 -- Set aktif
-                TweenService:Create(SubBtn, TweenInfo.new(0.3), { BackgroundColor3 = GuiConfig.Color, BackgroundTransparency = 0 }):Play()
-                TweenService:Create(SubBtnText, TweenInfo.new(0.3), { TextColor3 = Color3.fromRGB(255, 255, 255) }):Play()
+                TweenService:Create(SubBtnText, TweenInfo.new(0.3), { TextColor3 = Color3.fromRGB(155, 89, 255) }):Play()
                 
+                SectionNameLabel.Text = SectionConfig.Title
                 SectionPageLayout:JumpToIndex(SecOrder)
             end)
             
