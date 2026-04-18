@@ -459,7 +459,7 @@ function nexhub:MakeNotify(NotifyConfig)
     return NotifyFunction
 end
 
-function nexhub(msg, delay, color, title, desc)
+function nexhubNotify(msg, delay, color, title, desc)
     return nexhub:MakeNotify({
         Title = title or "NexHub",
         Description = desc or "Notification",
