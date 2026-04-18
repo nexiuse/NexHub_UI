@@ -2708,11 +2708,457 @@ function nexhub:Window(GuiConfig)
                 return SubSection
             end
 
-            function Items:AddTabbox(cfg) return Items end
+            function Items:AddTabbox(cfg)
+                cfg = cfg or {}
+                local tabTitle = cfg.Title or cfg.Name or "Sub Tab"
+                if type(tabTitle) == "table" then tabTitle = tabTitle.Title or tabTitle.Name or "Sub Tab" end
+
+                -- Buat SubTabBar (horizontal bar) jika belum ada di ScrolLayers ini
+                if not ScrolLayers:FindFirstChild("SubTabBar") then
+                    local SubTabBar = Instance.new("Frame")
+                    SubTabBar.Name = "SubTabBar"
+                    SubTabBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    SubTabBar.BackgroundTransparency = 0.94
+                    SubTabBar.BorderSizePixel = 0
+                    SubTabBar.Size = UDim2.new(1, 0, 0, 30)
+                    SubTabBar.LayoutOrder = -999
+                    SubTabBar.Parent = SectionAdd
+                    Instance.new("UICorner", SubTabBar).CornerRadius = UDim.new(0, 4)
+
+                    local barScroll = Instance.new("ScrollingFrame")
+                    barScroll.Name = "BarScroll"
+                    barScroll.BackgroundTransparency = 1
+                    barScroll.BorderSizePixel = 0
+                    barScroll.ScrollBarThickness = 0
+                    barScroll.Size = UDim2.new(1, 0, 1, 0)
+                    barScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+                    barScroll.AutomaticCanvasSize = Enum.AutomaticSize.X
+                    barScroll.ScrollingDirection = Enum.ScrollingDirection.X
+                    barScroll.Parent = SubTabBar
+
+                    local barLayout = Instance.new("UIListLayout")
+                    barLayout.FillDirection = Enum.FillDirection.Horizontal
+                    barLayout.Padding = UDim.new(0, 4)
+                    barLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                    barLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+                    barLayout.Parent = barScroll
+
+                    local barPadding = Instance.new("UIPadding")
+                    barPadding.PaddingLeft = UDim.new(0, 4)
+                    barPadding.PaddingTop = UDim.new(0, 3)
+                    barPadding.PaddingBottom = UDim.new(0, 3)
+                    barPadding.Parent = barScroll
+
+                    -- Kontainer halaman sub-tab
+                    local SubTabPages = Instance.new("Frame")
+                    SubTabPages.Name = "SubTabPages"
+                    SubTabPages.BackgroundTransparency = 1
+                    SubTabPages.BorderSizePixel = 0
+                    SubTabPages.Size = UDim2.new(1, 0, 0, 200)
+                    SubTabPages.LayoutOrder = -998
+                    SubTabPages.ClipsDescendants = true
+                    SubTabPages.Parent = SectionAdd
+                end
+
+                local SubTabBar = SectionAdd:FindFirstChild("SubTabBar")
+                local barScroll = SubTabBar:FindFirstChild("BarScroll")
+                local SubTabPages = SectionAdd:FindFirstChild("SubTabPages")
+
+                -- Hitung jumlah sub-tab saat ini
+                local subTabCount = 0
+                for _, c in barScroll:GetChildren() do
+                    if c:IsA("TextButton") then subTabCount = subTabCount + 1 end
+                end
+
+                -- Buat tombol sub-tab horizontal
+                local subBtn = Instance.new("TextButton")
+                subBtn.Name = "SubTab_" .. tabTitle
+                subBtn.Font = Enum.Font.GothamBold
+                subBtn.Text = tabTitle
+                subBtn.TextSize = 11
+                subBtn.TextColor3 = subTabCount == 0 and GuiConfig.Color or Color3.fromRGB(180, 180, 180)
+                subBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                subBtn.BackgroundTransparency = subTabCount == 0 and 0.88 or 0.96
+                subBtn.BorderSizePixel = 0
+                subBtn.AutomaticSize = Enum.AutomaticSize.X
+                subBtn.Size = UDim2.new(0, 0, 1, -6)
+                subBtn.LayoutOrder = subTabCount
+                subBtn.Parent = barScroll
+                Instance.new("UICorner", subBtn).CornerRadius = UDim.new(0, 4)
+                local btnPad = Instance.new("UIPadding")
+                btnPad.PaddingLeft = UDim.new(0, 8)
+                btnPad.PaddingRight = UDim.new(0, 8)
+                btnPad.Parent = subBtn
+
+                -- Buat halaman konten untuk sub-tab ini
+                local subPage = Instance.new("ScrollingFrame")
+                subPage.Name = "SubPage_" .. tabTitle
+                subPage.BackgroundTransparency = 1
+                subPage.BorderSizePixel = 0
+                subPage.ScrollBarThickness = 0
+                subPage.Size = UDim2.new(1, 0, 1, 0)
+                subPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+                subPage.Visible = (subTabCount == 0)
+                subPage.Parent = SubTabPages
+
+                local pageLayout = Instance.new("UIListLayout")
+                pageLayout.Padding = UDim.new(0, 3)
+                pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                pageLayout.Parent = subPage
+
+                -- Auto-resize canvas
+                pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                    subPage.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 10)
+                    -- Resize SubTabPages agar cukup tinggi
+                    local maxH = 0
+                    for _, pg in SubTabPages:GetChildren() do
+                        if pg:IsA("ScrollingFrame") and pg.Visible then
+                            maxH = math.max(maxH, pg.CanvasSize.Y.Offset)
+                        end
+                    end
+                    SubTabPages.Size = UDim2.new(1, 0, 0, math.max(200, maxH))
+                    UpdateSizeSection()
+                end)
+
+                -- Klik handler: tunjukkan halaman ini, sembunyikan lainnya
+                subBtn.MouseButton1Click:Connect(function()
+                    for _, pg in SubTabPages:GetChildren() do
+                        if pg:IsA("ScrollingFrame") then pg.Visible = false end
+                    end
+                    subPage.Visible = true
+
+                    for _, btn in barScroll:GetChildren() do
+                        if btn:IsA("TextButton") then
+                            TweenService:Create(btn, TweenInfo.new(0.2), {
+                                TextColor3 = Color3.fromRGB(180, 180, 180),
+                                BackgroundTransparency = 0.96
+                            }):Play()
+                        end
+                    end
+                    TweenService:Create(subBtn, TweenInfo.new(0.2), {
+                        TextColor3 = GuiConfig.Color,
+                        BackgroundTransparency = 0.88
+                    }):Play()
+
+                    -- Update tinggi SubTabPages
+                    SubTabPages.Size = UDim2.new(1, 0, 0, math.max(200, subPage.CanvasSize.Y.Offset))
+                    UpdateSizeSection()
+                end)
+
+                -- Return Items baru yang merender ke subPage
+                local SubItems = {}
+                local SubCountItem = 0
+
+                -- ===== CLONE SEMUA FUNGSI ADD KE DALAM SubItems =====
+                -- Helper: parent target untuk elemen adalah subPage
+                local subSectionAdd = subPage
+
+                function SubItems:AddToggle(ToggleConfig)
+                    local ToggleConfig = ToggleConfig or {}
+                    ToggleConfig.Title = ToggleConfig.Title or "Title"
+                    ToggleConfig.Title2 = ToggleConfig.Title2 or ""
+                    ToggleConfig.Content = ToggleConfig.Content or ""
+                    ToggleConfig.Default = ToggleConfig.Default or false
+                    ToggleConfig.Callback = ToggleConfig.Callback or function() end
+
+                    local configKey = "Toggle_" .. ToggleConfig.Title
+                    if ConfigData[configKey] ~= nil then
+                        ToggleConfig.Default = ConfigData[configKey]
+                    end
+
+                    local ToggleFunc = { Value = ToggleConfig.Default }
+
+                    local Toggle = Instance.new("Frame")
+                    Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    Toggle.BackgroundTransparency = 0.935
+                    Toggle.BorderSizePixel = 0
+                    Toggle.LayoutOrder = SubCountItem
+                    Toggle.Name = "Toggle"
+                    Toggle.Parent = subSectionAdd
+
+                    Instance.new("UICorner", Toggle).CornerRadius = UDim.new(0, 4)
+
+                    local ToggleTitle = Instance.new("TextLabel")
+                    ToggleTitle.Font = Enum.Font.GothamBold
+                    ToggleTitle.Text = ToggleConfig.Title
+                    ToggleTitle.TextSize = 13
+                    ToggleTitle.TextColor3 = Color3.fromRGB(231, 231, 231)
+                    ToggleTitle.TextXAlignment = Enum.TextXAlignment.Left
+                    ToggleTitle.TextYAlignment = Enum.TextYAlignment.Top
+                    ToggleTitle.BackgroundTransparency = 1
+                    ToggleTitle.Position = UDim2.new(0, 10, 0, 10)
+                    ToggleTitle.Size = UDim2.new(1, -100, 0, 13)
+                    ToggleTitle.Name = "ToggleTitle"
+                    ToggleTitle.Parent = Toggle
+
+                    local ToggleContent = Instance.new("TextLabel")
+                    ToggleContent.Font = Enum.Font.GothamBold
+                    ToggleContent.Text = ToggleConfig.Content
+                    ToggleContent.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    ToggleContent.TextSize = 12
+                    ToggleContent.TextTransparency = 0.6
+                    ToggleContent.TextXAlignment = Enum.TextXAlignment.Left
+                    ToggleContent.TextYAlignment = Enum.TextYAlignment.Bottom
+                    ToggleContent.BackgroundTransparency = 1
+                    ToggleContent.Position = UDim2.new(0, 10, 0, 23)
+                    ToggleContent.Size = UDim2.new(1, -100, 0, 12)
+                    ToggleContent.Name = "ToggleContent"
+                    ToggleContent.Parent = Toggle
+                    Toggle.Size = UDim2.new(1, 0, 0, 46)
+
+                    local ToggleButton = Instance.new("TextButton")
+                    ToggleButton.Font = Enum.Font.SourceSans
+                    ToggleButton.Text = ""
+                    ToggleButton.BackgroundTransparency = 1
+                    ToggleButton.Size = UDim2.new(1, 0, 1, 0)
+                    ToggleButton.Name = "ToggleButton"
+                    ToggleButton.Parent = Toggle
+
+                    local FeatureFrame2 = Instance.new("Frame")
+                    FeatureFrame2.AnchorPoint = Vector2.new(1, 0.5)
+                    FeatureFrame2.BackgroundTransparency = 0.92
+                    FeatureFrame2.BorderSizePixel = 0
+                    FeatureFrame2.Position = UDim2.new(1, -15, 0.5, 0)
+                    FeatureFrame2.Size = UDim2.new(0, 30, 0, 15)
+                    FeatureFrame2.Name = "FeatureFrame"
+                    FeatureFrame2.Parent = Toggle
+                    Instance.new("UICorner", FeatureFrame2)
+
+                    local UIStroke8 = Instance.new("UIStroke")
+                    UIStroke8.Color = Color3.fromRGB(255, 255, 255)
+                    UIStroke8.Thickness = 2
+                    UIStroke8.Transparency = 0.9
+                    UIStroke8.Parent = FeatureFrame2
+
+                    local ToggleCircle = Instance.new("Frame")
+                    ToggleCircle.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
+                    ToggleCircle.BorderSizePixel = 0
+                    ToggleCircle.Size = UDim2.new(0, 14, 0, 14)
+                    ToggleCircle.Name = "ToggleCircle"
+                    ToggleCircle.Parent = FeatureFrame2
+                    Instance.new("UICorner", ToggleCircle).CornerRadius = UDim.new(0, 15)
+
+                    ToggleButton.Activated:Connect(function()
+                        ToggleFunc.Value = not ToggleFunc.Value
+                        ToggleFunc:Set(ToggleFunc.Value)
+                    end)
+
+                    function ToggleFunc:Set(Value)
+                        if typeof(ToggleConfig.Callback) == "function" then
+                            pcall(ToggleConfig.Callback, Value)
+                        end
+                        ConfigData[configKey] = Value
+                        SaveConfig()
+                        if Value then
+                            TweenService:Create(ToggleTitle, TweenInfo.new(0.2), { TextColor3 = GuiConfig.Color }):Play()
+                            TweenService:Create(ToggleCircle, TweenInfo.new(0.2), { Position = UDim2.new(0, 15, 0, 0) }):Play()
+                            TweenService:Create(UIStroke8, TweenInfo.new(0.2), { Color = GuiConfig.Color, Transparency = 0 }):Play()
+                            TweenService:Create(FeatureFrame2, TweenInfo.new(0.2), { BackgroundColor3 = GuiConfig.Color, BackgroundTransparency = 0 }):Play()
+                        else
+                            TweenService:Create(ToggleTitle, TweenInfo.new(0.2), { TextColor3 = Color3.fromRGB(230, 230, 230) }):Play()
+                            TweenService:Create(ToggleCircle, TweenInfo.new(0.2), { Position = UDim2.new(0, 0, 0, 0) }):Play()
+                            TweenService:Create(UIStroke8, TweenInfo.new(0.2), { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.9 }):Play()
+                            TweenService:Create(FeatureFrame2, TweenInfo.new(0.2), { BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.92 }):Play()
+                        end
+                    end
+
+                    ToggleFunc:Set(ToggleFunc.Value)
+                    SubCountItem = SubCountItem + 1
+                    Elements[configKey] = ToggleFunc
+                    return ToggleFunc
+                end
+
+                function SubItems:AddSlider(SliderConfig)
+                    local SliderConfig = SliderConfig or {}
+                    SliderConfig.Title = SliderConfig.Title or "Slider"
+                    SliderConfig.Increment = SliderConfig.Increment or 1
+                    SliderConfig.Min = SliderConfig.Min or 0
+                    SliderConfig.Max = SliderConfig.Max or 100
+                    SliderConfig.Default = SliderConfig.Default or 50
+                    SliderConfig.Callback = SliderConfig.Callback or function() end
+
+                    local configKey = "Slider_" .. SliderConfig.Title
+                    if ConfigData[configKey] ~= nil then
+                        SliderConfig.Default = ConfigData[configKey]
+                    end
+
+                    local SliderFunc = { Value = SliderConfig.Default }
+
+                    local Slider = Instance.new("Frame")
+                    Slider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    Slider.BackgroundTransparency = 0.935
+                    Slider.BorderSizePixel = 0
+                    Slider.LayoutOrder = SubCountItem
+                    Slider.Size = UDim2.new(1, 0, 0, 46)
+                    Slider.Name = "Slider"
+                    Slider.Parent = subSectionAdd
+                    Instance.new("UICorner", Slider).CornerRadius = UDim.new(0, 4)
+
+                    local SliderTitle = Instance.new("TextLabel")
+                    SliderTitle.Font = Enum.Font.GothamBold
+                    SliderTitle.Text = SliderConfig.Title
+                    SliderTitle.TextColor3 = Color3.fromRGB(231, 231, 231)
+                    SliderTitle.TextSize = 13
+                    SliderTitle.TextXAlignment = Enum.TextXAlignment.Left
+                    SliderTitle.BackgroundTransparency = 1
+                    SliderTitle.Position = UDim2.new(0, 10, 0, 10)
+                    SliderTitle.Size = UDim2.new(1, -180, 0, 13)
+                    SliderTitle.Parent = Slider
+
+                    local TextBox = Instance.new("TextBox")
+                    TextBox.Font = Enum.Font.GothamBold
+                    TextBox.Text = tostring(SliderConfig.Default)
+                    TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    TextBox.TextSize = 13
+                    TextBox.BackgroundTransparency = 1
+                    TextBox.Position = UDim2.new(1, -155, 0.5, -10)
+                    TextBox.Size = UDim2.new(0, 28, 0, 20)
+                    TextBox.Parent = Slider
+
+                    local SliderFrame = Instance.new("Frame")
+                    SliderFrame.AnchorPoint = Vector2.new(1, 0.5)
+                    SliderFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    SliderFrame.BackgroundTransparency = 0.8
+                    SliderFrame.BorderSizePixel = 0
+                    SliderFrame.Position = UDim2.new(1, -20, 0.5, 0)
+                    SliderFrame.Size = UDim2.new(0, 100, 0, 3)
+                    SliderFrame.Name = "SliderFrame"
+                    SliderFrame.Parent = Slider
+                    Instance.new("UICorner", SliderFrame)
+
+                    local SliderDraggable = Instance.new("Frame")
+                    SliderDraggable.BackgroundColor3 = GuiConfig.Color
+                    SliderDraggable.BorderSizePixel = 0
+                    SliderDraggable.Size = UDim2.new(0.5, 0, 0, 1)
+                    SliderDraggable.Name = "SliderDraggable"
+                    SliderDraggable.Parent = SliderFrame
+                    Instance.new("UICorner", SliderDraggable)
+
+                    local SliderCircle = Instance.new("Frame")
+                    SliderCircle.AnchorPoint = Vector2.new(1, 0.5)
+                    SliderCircle.BackgroundColor3 = GuiConfig.Color
+                    SliderCircle.BorderSizePixel = 0
+                    SliderCircle.Position = UDim2.new(1, 4, 0.5, 0)
+                    SliderCircle.Size = UDim2.new(0, 8, 0, 8)
+                    SliderCircle.Parent = SliderDraggable
+                    Instance.new("UICorner", SliderCircle)
+
+                    local Dragging = false
+                    local function Round(Number, Factor)
+                        local Result = math.floor(Number / Factor + (math.sign(Number) * 0.5)) * Factor
+                        if Result < 0 then Result = Result + Factor end
+                        return Result
+                    end
+
+                    function SliderFunc:Set(Value)
+                        Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)
+                        SliderFunc.Value = Value
+                        TextBox.Text = tostring(Value)
+                        TweenService:Create(SliderDraggable, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                            { Size = UDim2.fromScale((Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1) }
+                        ):Play()
+                        SliderConfig.Callback(Value)
+                        ConfigData[configKey] = Value
+                        SaveConfig()
+                    end
+
+                    SliderFrame.InputBegan:Connect(function(Input)
+                        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                            Dragging = true
+                            local SizeScale = math.clamp((Input.Position.X - SliderFrame.AbsolutePosition.X) / SliderFrame.AbsoluteSize.X, 0, 1)
+                            SliderFunc:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))
+                        end
+                    end)
+                    SliderFrame.InputEnded:Connect(function(Input)
+                        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                            Dragging = false
+                        end
+                    end)
+                    UserInputService.InputChanged:Connect(function(Input)
+                        if Dragging and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
+                            local SizeScale = math.clamp((Input.Position.X - SliderFrame.AbsolutePosition.X) / SliderFrame.AbsoluteSize.X, 0, 1)
+                            SliderFunc:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))
+                        end
+                    end)
+
+                    SliderFunc:Set(SliderConfig.Default)
+                    SubCountItem = SubCountItem + 1
+                    Elements[configKey] = SliderFunc
+                    return SliderFunc
+                end
+
+                function SubItems:AddDropdown(DropdownConfig)
+                    -- Delegasikan ke Items:AddDropdown utama karena logikanya kompleks
+                    return Items:AddDropdown(DropdownConfig)
+                end
+
+                function SubItems:AddInput(InputConfig)
+                    return Items:AddInput(InputConfig)
+                end
+
+                function SubItems:AddButton(ButtonConfig)
+                    return Items:AddButton(ButtonConfig)
+                end
+
+                function SubItems:AddParagraph(ParagraphConfig)
+                    local ParagraphConfig = ParagraphConfig or {}
+                    ParagraphConfig.Title = ParagraphConfig.Title or "Title"
+                    ParagraphConfig.Content = ParagraphConfig.Content or "Content"
+
+                    local para = Instance.new("Frame")
+                    para.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    para.BackgroundTransparency = 0.935
+                    para.BorderSizePixel = 0
+                    para.LayoutOrder = SubCountItem
+                    para.Size = UDim2.new(1, 0, 0, 40)
+                    para.Parent = subSectionAdd
+                    Instance.new("UICorner", para).CornerRadius = UDim.new(0, 4)
+
+                    local pTitle = Instance.new("TextLabel")
+                    pTitle.Font = Enum.Font.GothamBold
+                    pTitle.Text = ParagraphConfig.Title
+                    pTitle.TextColor3 = Color3.fromRGB(231, 231, 231)
+                    pTitle.TextSize = 13
+                    pTitle.TextXAlignment = Enum.TextXAlignment.Left
+                    pTitle.BackgroundTransparency = 1
+                    pTitle.Position = UDim2.new(0, 10, 0, 10)
+                    pTitle.Size = UDim2.new(1, -20, 0, 13)
+                    pTitle.Parent = para
+
+                    local pContent = Instance.new("TextLabel")
+                    pContent.Font = Enum.Font.Gotham
+                    pContent.Text = ParagraphConfig.Content
+                    pContent.TextColor3 = Color3.fromRGB(200, 200, 200)
+                    pContent.TextSize = 12
+                    pContent.TextXAlignment = Enum.TextXAlignment.Left
+                    pContent.BackgroundTransparency = 1
+                    pContent.Position = UDim2.new(0, 10, 0, 25)
+                    pContent.Size = UDim2.new(1, -20, 0, 12)
+                    pContent.Parent = para
+
+                    local pFunc = {}
+                    function pFunc:SetContent(c) pContent.Text = c or "" end
+                    SubCountItem = SubCountItem + 1
+                    return pFunc
+                end
+
+                function SubItems:AddDivider()
+                    if Items.AddDivider then return Items:AddDivider() end
+                end
+
+                function SubItems:AddColorpicker(cfg) return {Set = function() end} end
+                function SubItems:AddColorPicker(cfg) return {Set = function() end} end
+                function SubItems:AddKeybind(cfg) return {Set = function() end} end
+                function SubItems:AddTabbox(cfg) return SubItems end
+                function SubItems:AddPanel(cfg) return Items:AddPanel(cfg) end
+
+                SubCountItem = SubCountItem + 1
+                return SubItems
+            end
+
             function Items:AddColorpicker(cfg) return {Set = function() end} end
             function Items:AddColorPicker(cfg) return {Set = function() end} end
             function Items:AddKeybind(cfg) return {Set = function() end} end
-            function Items:AddParagraph(cfg) return Items end
 
             CountSection = CountSection + 1
             return Items
