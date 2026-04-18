@@ -1604,7 +1604,8 @@ function nexhub:Window(GuiConfig)
             local SubBtnText = Instance.new("TextButton")
             
             SubBtn.Name = "SubBtn"
-            SubBtn.BackgroundTransparency = 1 -- Selalu transparan
+            SubBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Beri warna agar terlihat solid
+            SubBtn.BackgroundTransparency = 0.8 -- Transparansi halus
             SubBtn.LayoutOrder = SecOrder
             SubBtn.Parent = SubTabHolder
             
@@ -1614,18 +1615,19 @@ function nexhub:Window(GuiConfig)
             SubBtnText.Font = Enum.Font.GothamBold
             SubBtnText.Text = SectionConfig.Title
             SubBtnText.TextColor3 = (SecOrder == 0) and Color3.fromRGB(155, 89, 255) or Color3.fromRGB(180, 180, 180)
-            SubBtnText.TextSize = 18 -- Ukuran teks ekstra besar
+            SubBtnText.TextSize = 20 -- Jauh lebih besar (Jumbo)
             SubBtnText.BackgroundTransparency = 1
             SubBtnText.Size = UDim2.new(1, 0, 1, 0)
             SubBtnText.Parent = SubBtn
             
-            SubBtn.Size = UDim2.new(0, SubBtnText.TextBounds.X + 50, 0, 45) -- Padding +50, Tinggi 45
+            SubBtn.Size = UDim2.new(0, SubBtnText.TextBounds.X + 60, 0, 55) -- Luas (+60) dan Tinggi (55)
 
             -- Kontainer Konten Section
             local SectionScroller = Instance.new("ScrollingFrame")
             SectionScroller.Name = "SectionPage"
             SectionScroller.BackgroundTransparency = 1
-            SectionScroller.Size = UDim2.new(1, 0, 1, 0)
+            SectionScroller.Position = UDim2.new(0, 0, 0, 65) -- Geser konten ke bawah karena bar tab makin besar
+            SectionScroller.Size = UDim2.new(1, 0, 1, -65)
             SectionScroller.CanvasSize = UDim2.new(0, 0, 0, 0)
             SectionScroller.ScrollBarThickness = 0
             SectionScroller.LayoutOrder = SecOrder
