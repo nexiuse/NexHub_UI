@@ -2713,8 +2713,8 @@ function nexhub:Window(GuiConfig)
                 local tabTitle = cfg.Title or cfg.Name or "Sub Tab"
                 if type(tabTitle) == "table" then tabTitle = tabTitle.Title or tabTitle.Name or "Sub Tab" end
 
-                -- Buat SubTabBar (horizontal bar) jika belum ada di ScrolLayers ini
-                if not ScrolLayers:FindFirstChild("SubTabBar") then
+                -- Buat SubTabBar (horizontal bar) jika belum ada di SectionAdd ini
+                if not SectionAdd:FindFirstChild("SubTabBar") then
                     local SubTabBar = Instance.new("Frame")
                     SubTabBar.Name = "SubTabBar"
                     SubTabBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -2754,9 +2754,9 @@ function nexhub:Window(GuiConfig)
                     SubTabPages.Name = "SubTabPages"
                     SubTabPages.BackgroundTransparency = 1
                     SubTabPages.BorderSizePixel = 0
-                    SubTabPages.Size = UDim2.new(1, 0, 0, 200)
+                    SubTabPages.Size = UDim2.new(1, 0, 0, 300)
                     SubTabPages.LayoutOrder = -998
-                    SubTabPages.ClipsDescendants = true
+                    SubTabPages.ClipsDescendants = false
                     SubTabPages.Parent = SectionAdd
                 end
 
@@ -2796,7 +2796,7 @@ function nexhub:Window(GuiConfig)
                 subPage.BackgroundTransparency = 1
                 subPage.BorderSizePixel = 0
                 subPage.ScrollBarThickness = 0
-                subPage.Size = UDim2.new(1, 0, 1, 0)
+                subPage.Size = UDim2.new(1, 0, 0, 300)
                 subPage.CanvasSize = UDim2.new(0, 0, 0, 0)
                 subPage.Visible = (subTabCount == 0)
                 subPage.Parent = SubTabPages
@@ -2806,19 +2806,23 @@ function nexhub:Window(GuiConfig)
                 pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
                 pageLayout.Parent = subPage
 
-                -- Auto-resize canvas
-                pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                -- Auto-resize canvas & tinggi SubTabPages
+                local function resizeSubPages()
                     subPage.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 10)
-                    -- Resize SubTabPages agar cukup tinggi
+                    local contentH = pageLayout.AbsoluteContentSize.Y + 10
+                    subPage.Size = UDim2.new(1, 0, 0, contentH)
+                    -- Cari halaman tertinggi yang visible
                     local maxH = 0
                     for _, pg in SubTabPages:GetChildren() do
                         if pg:IsA("ScrollingFrame") and pg.Visible then
-                            maxH = math.max(maxH, pg.CanvasSize.Y.Offset)
+                            maxH = math.max(maxH, pg.Size.Y.Offset)
                         end
                     end
-                    SubTabPages.Size = UDim2.new(1, 0, 0, math.max(200, maxH))
+                    SubTabPages.Size = UDim2.new(1, 0, 0, math.max(100, maxH))
                     UpdateSizeSection()
-                end)
+                end
+                pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(resizeSubPages)
+                subPage.ChildAdded:Connect(function() task.defer(resizeSubPages) end)
 
                 -- Klik handler: tunjukkan halaman ini, sembunyikan lainnya
                 subBtn.MouseButton1Click:Connect(function()
@@ -2840,8 +2844,8 @@ function nexhub:Window(GuiConfig)
                         BackgroundTransparency = 0.88
                     }):Play()
 
-                    -- Update tinggi SubTabPages
-                    SubTabPages.Size = UDim2.new(1, 0, 0, math.max(200, subPage.CanvasSize.Y.Offset))
+                    -- Update tinggi SubTabPages sesuai halaman aktif
+                    SubTabPages.Size = UDim2.new(1, 0, 0, math.max(100, subPage.Size.Y.Offset))
                     UpdateSizeSection()
                 end)
 
