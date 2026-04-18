@@ -1985,6 +1985,16 @@ function nexhub:Window(GuiConfig)
 
             function Items:AddSlider(SliderConfig)
                 local SliderConfig = SliderConfig or {}
+                -- Normalizer: handle Value = {Min, Max, Default} format (BloxFruits adapter)
+                if type(SliderConfig.Value) == "table" then
+                    SliderConfig.Min = SliderConfig.Value.Min or SliderConfig.Min
+                    SliderConfig.Max = SliderConfig.Value.Max or SliderConfig.Max
+                    SliderConfig.Default = SliderConfig.Value.Default or SliderConfig.Default
+                end
+                -- Normalizer: handle Step alias for Increment
+                if SliderConfig.Step and not SliderConfig.Increment then
+                    SliderConfig.Increment = SliderConfig.Step
+                end
                 SliderConfig.Title = SliderConfig.Title or "Slider"
                 SliderConfig.Content = SliderConfig.Content or ""
                 SliderConfig.Increment = SliderConfig.Increment or 1
