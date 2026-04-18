@@ -464,9 +464,35 @@ function nexhubNotify(msg, delay, color, title, desc)
         Title = title or "NexHub",
         Description = desc or "Notification",
         Content = msg or "Content",
-        Color = color or Color3.fromRGB(0, 208, 255),
+        Color = color or Color3.fromRGB(155, 89, 255),
         Delay = delay or 4
     })
+end
+
+-- ==============================
+-- COMPATIBILITY STUBS
+-- Fungsi-fungsi yang dipanggil oleh game scripts tapi belum ada di library asli.
+-- Ditambahkan sebagai no-op / pass-through agar tidak crash.
+-- ==============================
+function nexhub:AddTheme(themeConfig)
+    -- No-op: Chloe X/NexHub tidak mendukung tema custom.
+    -- Jika Color diberikan, simpan untuk referensi.
+    if themeConfig and themeConfig.Color and typeof(themeConfig.Color) == "Color3" then
+        -- Bisa digunakan nanti, saat ini diabaikan.
+    end
+end
+
+function nexhub:SetDPIScale(scale)
+    -- No-op: DPI scaling tidak didukung di library ini.
+end
+
+function nexhub:SetFlag(flag, value)
+    -- No-op: Kompatibilitas dengan script yang menyimpan flag global.
+end
+
+function nexhub:Notify(cfg)
+    -- Alias langsung ke MakeNotify
+    return self:MakeNotify(cfg)
 end
 
 function nexhub:Window(GuiConfig)
@@ -2640,6 +2666,10 @@ function nexhub:Window(GuiConfig)
 
                 DropdownFunc:SetValues(DropdownFunc.Options, DropdownFunc.Value)
 
+                function DropdownFunc:Refresh(newList)
+                    self:SetValues(newList or self.Options, self.Value)
+                end
+
                 CountItem = CountItem + 1
                 CountDropdown = CountDropdown + 1
                 Elements[configKey] = DropdownFunc
@@ -3386,6 +3416,11 @@ function nexhub:Window(GuiConfig)
                     end
 
                     DropdownFunc:SetValues(DropdownFunc.Options, DropdownFunc.Value)
+
+                    function DropdownFunc:Refresh(newList)
+                        self:SetValues(newList or self.Options, self.Value)
+                    end
+
                     SubCountItem = SubCountItem + 1
                     CountDropdown = CountDropdown + 1
                     Elements[configKey] = DropdownFunc
@@ -3501,7 +3536,165 @@ function nexhub:Window(GuiConfig)
         CountTab = CountTab + 1
         local safeName = TabConfig.Name:gsub("%s+", "_")
         _G[safeName] = Sections
+
+        -- ==============================
+        -- SHORTCUT METHODS (BloxFruits compatibility)
+        -- Jika script memanggil Tab:Toggle() dll langsung tanpa AddSection
+        -- maka otomatis buat section default lalu delegasikan.
+        -- ==============================
+        local _autoSection = nil
+        local function getAutoSection()
+            if not _autoSection then
+                _autoSection = Sections:AddSection({ Title = TabConfig.Name or "Main" })
+            end
+            return _autoSection
+        end
+
+        function Sections:Toggle(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddToggle(cfg)
+        end
+
+        function Sections:Slider(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddSlider(cfg)
+        end
+
+        function Sections:Dropdown(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddDropdown(cfg)
+        end
+
+        function Sections:Button(cfg)
+            cfg = cfg or {}
+            if type(cfg) == "string" then
+                cfg = { Title = cfg }
+            end
+            return getAutoSection():AddButton(cfg)
+        end
+
+        function Sections:Label(text)
+            local t = text or ""
+            if type(t) == "table" then t = t.Text or t.Title or "" end
+            return getAutoSection():AddParagraph({ Title = tostring(t), Content = "" })
+        end
+
+        function Sections:Textbox(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddInput(cfg)
+        end
+
+        function Sections:Line()
+            pcall(function() getAutoSection():AddDivider() end)
+        end
+
+        function Sections:Seperator()
+            pcall(function() getAutoSection():AddDivider() end)
+        end
+
+        function Sections:AddButton(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddButton(cfg)
+        end
+
+        function Sections:AddToggle(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddToggle(cfg)
+        end
+
+        function Sections:AddSlider(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddSlider(cfg)
+        end
+
+        function Sections:AddDropdown(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddDropdown(cfg)
+        end
+
+        function Sections:AddInput(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddInput(cfg)
+        end
+
+        function Sections:AddParagraph(cfg)
+            cfg = cfg or {}
+            return getAutoSection():AddParagraph(cfg)
+        end
+
         return Sections
+    end
+
+    -- ==============================
+    -- WINDOW-LEVEL STUBS
+    -- Method yang dipanggil di Window oleh berbagai game scripts.
+    -- ==============================
+    Tabs.Flags = setmetatable({}, {
+        __index = function(_, key)
+            -- Cari di Elements config storage
+            if Elements["Toggle_" .. key] then return Elements["Toggle_" .. key] end
+            if Elements["Slider_" .. key] then return Elements["Slider_" .. key] end
+            if Elements["Dropdown_" .. key] then return Elements["Dropdown_" .. key] end
+            return { Value = nil, Set = function() end }
+        end
+    })
+
+    function Tabs:Tag(tag)
+        -- No-op: Kompatibilitas (menampilkan tag di footer/header)
+    end
+
+    function Tabs:SelectTab(tabName)
+        -- No-op: Auto-select tab tertentu
+    end
+
+    function Tabs:ToggleUI()
+        if GuiFunc and GuiFunc.ToggleUI then
+            GuiFunc:ToggleUI()
+        end
+    end
+
+    function Tabs:SetCornerRadius(radius)
+        -- No-op: Kompatibilitas
+    end
+
+    function Tabs:Tab(cfg)
+        -- Alias untuk AddTab (dipanggil oleh FishZar)
+        return self:AddTab(cfg)
+    end
+
+    function Tabs:SaveConfig(name)
+        pcall(function() SaveConfig() end)
+    end
+
+    function Tabs:LoadConfig(name)
+        pcall(function() LoadConfigFromFile() end)
+    end
+
+    function Tabs:DeleteConfig(name)
+        pcall(function()
+            if name and writefile and isfile then
+                local path = "NexHub/Config/" .. tostring(name) .. ".json"
+                if isfile(path) then
+                    delfile(path)
+                end
+            end
+        end)
+    end
+
+    function Tabs:ListConfigs()
+        local configs = {}
+        pcall(function()
+            if listfiles and isfolder then
+                local folder = "NexHub/Config"
+                if isfolder(folder) then
+                    for _, file in ipairs(listfiles(folder)) do
+                        local name = file:match("([^/\\]+)%.json$")
+                        if name then table.insert(configs, name) end
+                    end
+                end
+            end
+        end)
+        return configs
     end
 
     return Tabs
