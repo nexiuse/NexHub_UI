@@ -510,6 +510,7 @@ function nexhub:Window(GuiConfig)
     GuiConfig.Version      = GuiConfig.Version or 1
 
     CURRENT_VERSION        = GuiConfig.Version
+    GuiConfig.Initializing = true -- Aktifkan mode inisialisasi (performa maksimal)
     LoadConfigFromFile()
 
     -- ==============================
@@ -943,7 +944,8 @@ function nexhub:Window(GuiConfig)
     LayersTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
     LayersTab.BorderSizePixel = 0
     LayersTab.Position = UDim2.new(0, 9, 0, 50)
-    LayersTab.Size = UDim2.new(0, GuiConfig["Tab Width"], 1, -59)
+    LayersTab.Size = UDim2.new(0, 0, 1, -59) -- Ukuran 0 agar tidak terlihat
+    LayersTab.Visible = false -- Disembunyikan
     LayersTab.Name = "LayersTab"
     LayersTab.Parent = Main
 
@@ -964,8 +966,8 @@ function nexhub:Window(GuiConfig)
     Layers.BackgroundTransparency = 0.9990000128746033
     Layers.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Layers.BorderSizePixel = 0
-    Layers.Position = UDim2.new(0, GuiConfig["Tab Width"] + 18, 0, 50)
-    Layers.Size = UDim2.new(1, -(GuiConfig["Tab Width"] + 9 + 18), 1, -59)
+    Layers.Position = UDim2.new(0, 10, 0, 50) -- Mulai dari kiri
+    Layers.Size = UDim2.new(1, -20, 1, -59) -- Lebar penuh
     Layers.Name = "Layers"
     Layers.Parent = Main
 
@@ -985,6 +987,40 @@ function nexhub:Window(GuiConfig)
     NameTab.Size = UDim2.new(1, 0, 0, 30)
     NameTab.Name = "NameTab"
     NameTab.Parent = Layers
+    NameTab.Visible = false -- Sembunyikan judul tab karena sudah pakai bar navigasi
+
+    -- Navigation Bar (Horizontal)
+    local NavBar = Instance.new("Frame")
+    NavBar.BackgroundTransparency = 1
+    NavBar.Size = UDim2.new(1, 0, 0, 30)
+    NavBar.Name = "NavBar"
+    NavBar.Parent = Layers
+
+    local ScrollTab = Instance.new("ScrollingFrame");
+    local UIListLayout = Instance.new("UIListLayout");
+
+    ScrollTab.CanvasSize = UDim2.new(0, 0, 0, 0)
+    ScrollTab.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
+    ScrollTab.ScrollBarThickness = 0
+    ScrollTab.Active = true
+    ScrollTab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ScrollTab.BackgroundTransparency = 0.9990000128746033
+    ScrollTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ScrollTab.BorderSizePixel = 0
+    ScrollTab.Size = UDim2.new(1, 0, 1, 0)
+    ScrollTab.Name = "ScrollTab"
+    ScrollTab.Parent = NavBar
+    ScrollTab.ScrollingDirection = Enum.ScrollingDirection.X -- Horizontal scroll
+
+    UIListLayout.Padding = UDim.new(0, 10)
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.FillDirection = Enum.FillDirection.Horizontal -- Arah Horizontal
+    UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    UIListLayout.Parent = ScrollTab
+
+    UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        ScrollTab.CanvasSize = UDim2.new(0, UIListLayout.AbsoluteContentSize.X + 20, 0, 0)
+    end)
 
     LayersReal.AnchorPoint = Vector2.new(0, 1)
     LayersReal.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1003,40 +1039,9 @@ function nexhub:Window(GuiConfig)
     LayersPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
     LayersPageLayout.Name = "LayersPageLayout"
     LayersPageLayout.Parent = LayersFolder
-    LayersPageLayout.TweenTime = 0.5
+    LayersPageLayout.TweenTime = 0.4 -- Sedikit lebih cepat
     LayersPageLayout.EasingDirection = Enum.EasingDirection.InOut
     LayersPageLayout.EasingStyle = Enum.EasingStyle.Quad
-
-    local ScrollTab = Instance.new("ScrollingFrame");
-    local UIListLayout = Instance.new("UIListLayout");
-
-    ScrollTab.CanvasSize = UDim2.new(0, 0, 1.10000002, 0)
-    ScrollTab.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
-    ScrollTab.ScrollBarThickness = 0
-    ScrollTab.Active = true
-    ScrollTab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    ScrollTab.BackgroundTransparency = 0.9990000128746033
-    ScrollTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    ScrollTab.BorderSizePixel = 0
-    ScrollTab.Size = UDim2.new(1, 0, 1, 0)
-    ScrollTab.Name = "ScrollTab"
-    ScrollTab.Parent = LayersTab
-
-    UIListLayout.Padding = UDim.new(0, 3)
-    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    UIListLayout.Parent = ScrollTab
-
-    local function UpdateSize1()
-        local OffsetY = 0
-        for _, child in ScrollTab:GetChildren() do
-            if child.Name ~= "UIListLayout" then
-                OffsetY = OffsetY + 3 + child.Size.Y.Offset
-            end
-        end
-        ScrollTab.CanvasSize = UDim2.new(0, 0, 0, OffsetY)
-    end
-    ScrollTab.ChildAdded:Connect(UpdateSize1)
-    ScrollTab.ChildRemoved:Connect(UpdateSize1)
 
     function GuiFunc:DestroyGui()
         if CoreGui:FindFirstChild("NexHub") then
@@ -1393,9 +1398,10 @@ function nexhub:Window(GuiConfig)
         Tab.BorderColor3 = Color3.fromRGB(0, 0, 0)
         Tab.BorderSizePixel = 0
         Tab.LayoutOrder = CountTab
-        Tab.Size = UDim2.new(1, 0, 0, 30)
+        Tab.Size = UDim2.new(0, 80, 0, 30) -- Ukuran tetap horizontal (akan di-auto-adjust jika teks panjang)
         Tab.Name = "Tab"
         Tab.Parent = ScrollTab
+        Tab.BackgroundTransparency = 1 -- Transparan background utama
 
         UICorner3.CornerRadius = UDim.new(0, 4)
         UICorner3.Parent = Tab
@@ -1404,9 +1410,9 @@ function nexhub:Window(GuiConfig)
         TabButton.Text = ""
         TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
         TabButton.TextSize = 13
-        TabButton.TextXAlignment = Enum.TextXAlignment.Left
+        TabButton.TextXAlignment = Enum.TextXAlignment.Center -- Center alignment
         TabButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        TabButton.BackgroundTransparency = 0.9990000128746033
+        TabButton.BackgroundTransparency = 0.999
         TabButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
         TabButton.BorderSizePixel = 0
         TabButton.Size = UDim2.new(1, 0, 1, 0)
@@ -1414,36 +1420,29 @@ function nexhub:Window(GuiConfig)
         TabButton.Parent = Tab
 
         TabName.Font = Enum.Font.GothamBold
-        TabName.Text = "| " .. tostring(TabConfig.Name)
-        TabName.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TabName.Text = tostring(TabConfig.Name)
+        TabName.TextColor3 = (CountTab == 0) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 180)
         TabName.TextSize = 13
-        TabName.TextXAlignment = Enum.TextXAlignment.Left
+        TabName.TextXAlignment = Enum.TextXAlignment.Center
         TabName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        TabName.BackgroundTransparency = 0.9990000128746033
-        TabName.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        TabName.BackgroundTransparency = 1
         TabName.BorderSizePixel = 0
         TabName.Size = UDim2.new(1, 0, 1, 0)
-        TabName.Position = UDim2.new(0, 30, 0, 0)
         TabName.Name = "TabName"
         TabName.Parent = Tab
 
-        FeatureImg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        FeatureImg.BackgroundTransparency = 0.9990000128746033
-        FeatureImg.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        FeatureImg.BorderSizePixel = 0
-        FeatureImg.Position = UDim2.new(0, 9, 0, 7)
-        FeatureImg.Size = UDim2.new(0, 16, 0, 16)
-        FeatureImg.Name = "FeatureImg"
-        FeatureImg.Parent = Tab
+        -- Auto resize Tab berdasarkan panjang teks
+        Tab.Size = UDim2.new(0, TabName.TextBounds.X + 20, 0, 30)
+
+        FeatureImg.Visible = false -- Sembunyikan icon di horizontal tab agar lebih clean
+
         if CountTab == 0 then
             LayersPageLayout:JumpToIndex(0)
-            NameTab.Text = TabConfig.Name
             local ChooseFrame = Instance.new("Frame");
             ChooseFrame.BackgroundColor3 = GuiConfig.Color
-            ChooseFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
             ChooseFrame.BorderSizePixel = 0
-            ChooseFrame.Position = UDim2.new(0, 2, 0, 9)
-            ChooseFrame.Size = UDim2.new(0, 1, 0, 12)
+            ChooseFrame.Position = UDim2.new(0, 0, 1, -2) -- Garis di bawah
+            ChooseFrame.Size = UDim2.new(1, 0, 0, 2)
             ChooseFrame.Name = "ChooseFrame"
             ChooseFrame.Parent = Tab
 
@@ -1464,50 +1463,31 @@ function nexhub:Window(GuiConfig)
 
         TabButton.Activated:Connect(function()
             CircleClick(TabButton, Mouse.X, Mouse.Y)
-            local FrameChoose
-            for a, s in ScrollTab:GetChildren() do
-                for i, v in s:GetChildren() do
-                    if v.Name == "ChooseFrame" then
-                        FrameChoose = v
-                        break
+            
+            -- Sembunyikan marker dari tab lain
+            for _, t in pairs(ScrollTab:GetChildren()) do
+                if t.Name == "Tab" then
+                    local marker = t:FindFirstChild("ChooseFrame")
+                    if marker then marker:Destroy() end
+                    local txt = t:FindFirstChild("TabName")
+                    if txt then
+                        TweenService:Create(txt, TweenInfo.new(0.3), { TextColor3 = Color3.fromRGB(180, 180, 180) }):Play()
                     end
                 end
             end
-            if FrameChoose ~= nil and Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
-                for _, TabFrame in ScrollTab:GetChildren() do
-                    if TabFrame.Name == "Tab" then
-                        TweenService:Create(
-                            TabFrame,
-                            TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
-                            { BackgroundTransparency = 0.9990000128746033 }
-                        ):Play()
-                    end
-                end
-                TweenService:Create(
-                    Tab,
-                    TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
-                    { BackgroundTransparency = 0.9200000166893005 }
-                ):Play()
-                TweenService:Create(
-                    FrameChoose,
-                    TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
-                    { Position = UDim2.new(0, 2, 0, 9 + (33 * Tab.LayoutOrder)) }
-                ):Play()
-                LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
-                task.wait(0.05)
-                NameTab.Text = TabConfig.Name
-                TweenService:Create(
-                    FrameChoose,
-                    TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
-                    { Size = UDim2.new(0, 1, 0, 20) }
-                ):Play()
-                task.wait(0.2)
-                TweenService:Create(
-                    FrameChoose,
-                    TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
-                    { Size = UDim2.new(0, 1, 0, 12) }
-                ):Play()
-            end
+
+            -- Tampilkan marker di tab ini
+            local marker = Instance.new("Frame")
+            marker.BackgroundColor3 = GuiConfig.Color
+            marker.BorderSizePixel = 0
+            marker.Position = UDim2.new(0, 0, 1, -2)
+            marker.Size = UDim2.new(1, 0, 0, 2)
+            marker.Name = "ChooseFrame"
+            marker.Parent = Tab
+            
+            TweenService:Create(TabName, TweenInfo.new(0.3), { TextColor3 = Color3.fromRGB(255, 255, 255) }):Play()
+            
+            LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
         end)
         --// Section
         local Sections = {}
@@ -1652,31 +1632,32 @@ function nexhub:Window(GuiConfig)
             local OpenSection = false
 
             local function UpdateSizeScroll()
-                local OffsetY = 0
-                for _, child in ScrolLayers:GetChildren() do
-                    if child.Name ~= "UIListLayout" then
-                        OffsetY = OffsetY + 3 + child.Size.Y.Offset
-                    end
+                local layout = ScrolLayers:FindFirstChildOfClass("UIListLayout")
+                if layout then
+                    ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
                 end
-                ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, OffsetY)
             end
 
             local function UpdateSizeSection()
                 if OpenSection then
-                    local SectionSizeYWitdh = 38
-                    for _, v in SectionAdd:GetChildren() do
-                        if v.Name ~= "UIListLayout" and v.Name ~= "UICorner" then
-                            SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
-                        end
+                    local list = SectionAdd:FindFirstChildOfClass("UIListLayout")
+                    local absSize = list and list.AbsoluteContentSize.Y or 0
+                    local SectionSizeYWitdh = 38 + absSize
+                    
+                    if not GuiConfig.Initializing then
+                        TweenService:Create(FeatureFrame, TweenInfo.new(0.3), { Rotation = 90 }):Play()
+                        TweenService:Create(Section, TweenInfo.new(0.3), { Size = UDim2.new(1, 0, 0, SectionSizeYWitdh) }):Play()
+                        TweenService:Create(SectionAdd, TweenInfo.new(0.3), { Size = UDim2.new(1, 0, 0, absSize) }):Play()
+                        TweenService:Create(SectionDecideFrame, TweenInfo.new(0.3), { Size = UDim2.new(1, 0, 0, 2) }):Play()
+                        
+                        task.delay(0.35, UpdateSizeScroll)
+                    else
+                        FeatureFrame.Rotation = 90
+                        Section.Size = UDim2.new(1, 0, 0, SectionSizeYWitdh)
+                        SectionAdd.Size = UDim2.new(1, 0, 0, absSize)
+                        SectionDecideFrame.Size = UDim2.new(1, 0, 0, 2)
+                        UpdateSizeScroll()
                     end
-                    TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 90 }):Play()
-                    TweenService:Create(Section, TweenInfo.new(0.5), { Size = UDim2.new(1, 1, 0, SectionSizeYWitdh) })
-                        :Play()
-                    TweenService:Create(SectionAdd, TweenInfo.new(0.5),
-                        { Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38) }):Play()
-                    TweenService:Create(SectionDecideFrame, TweenInfo.new(0.5), { Size = UDim2.new(1, 0, 0, 2) }):Play()
-                    task.wait(0.5)
-                    UpdateSizeScroll()
                 end
             end
 
@@ -1728,12 +1709,12 @@ function nexhub:Window(GuiConfig)
             SectionAdd.ChildAdded:Connect(UpdateSizeSection)
             SectionAdd.ChildRemoved:Connect(UpdateSizeSection)
 
-            local layout = ScrolLayers:FindFirstChildOfClass("UIListLayout")
-            if layout then
-                layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                    ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-                end)
-            end
+            SectionAdd.ChildAdded:Connect(function(child)
+                if child:IsA("GuiObject") then
+                    UpdateSizeSection()
+                end
+            end)
+            SectionAdd.ChildRemoved:Connect(UpdateSizeSection)
 
             local Items = {}
             local CountItem = 0
@@ -3966,6 +3947,10 @@ function nexhub:Window(GuiConfig)
         end)
         return configs
     end
+
+    task.defer(function()
+        GuiConfig.Initializing = false -- Matikan mode inisialisasi setelah script selesai load
+    end)
 
     return Tabs
 end
