@@ -740,6 +740,38 @@ function NexHubUI:Window(cfg)
                 return {}
             end
 
+            -- ==========================================
+            -- API: AddTabbox (Simulated Grouping)
+            -- ==========================================
+            function SecObj:AddTabbox(opts)
+                local tTitle = opts.Title or "Group"
+                
+                local sepFrame = Instance.new("Frame")
+                sepFrame.Size = UDim2.new(1, 0, 0, 20)
+                sepFrame.BackgroundTransparency = 1
+                sepFrame.Parent = SecFrame
+                
+                local sepLbl = Instance.new("TextLabel")
+                sepLbl.Size = UDim2.new(1, -10, 1, 0)
+                sepLbl.Position = UDim2.new(0, 5, 0, 5)
+                sepLbl.BackgroundTransparency = 1
+                sepLbl.Text = "— " .. tTitle .. " —"
+                sepLbl.Font = Enum.Font.GothamBold
+                sepLbl.TextSize = 12
+                sepLbl.TextColor3 = Theme.Accent
+                sepLbl.TextXAlignment = Enum.TextXAlignment.Center
+                sepLbl.Parent = sepFrame
+
+                return SecObj
+            end
+            
+            -- ==========================================
+            -- API: AddColorpicker / AddKeybind (Dummies to prevent nil calls)
+            -- ==========================================
+            function SecObj:AddColorPicker(...) return { Set = function() end } end
+            function SecObj:AddColorpicker(...) return { Set = function() end } end
+            function SecObj:AddKeybind(...) return { Set = function() end } end
+
             return SecObj
         end
         
@@ -749,6 +781,10 @@ function NexHubUI:Window(cfg)
     -- Fix for some script's adapter format
     function WindowObj:ToggleUI()
         ScreenGui.Enabled = not ScreenGui.Enabled
+    end
+    
+    function WindowObj:Notify(cfg)
+        NexHubUI:MakeNotify(cfg)
     end
 
     return WindowObj
