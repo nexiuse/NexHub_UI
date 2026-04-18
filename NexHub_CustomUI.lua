@@ -512,6 +512,266 @@ function nexhub:Window(GuiConfig)
     CURRENT_VERSION        = GuiConfig.Version
     LoadConfigFromFile()
 
+    -- ==============================
+    -- KEY SYSTEM UI (Blocking)
+    -- Jika GuiConfig.KeySystem diberikan, tampilkan layar key input.
+    -- Yield sampai key valid, baru lanjut ke Window utama.
+    -- ==============================
+    if GuiConfig.KeySystem then
+        local KS = GuiConfig.KeySystem
+        local keyValidated = false
+
+        -- Buat ScreenGui khusus untuk key screen
+        local KeyGui = Instance.new("ScreenGui")
+        KeyGui.Name = "NexHub_KeySystem"
+        KeyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        KeyGui.ResetOnSpawn = false
+        pcall(function()
+            if gethui then KeyGui.Parent = gethui()
+            elseif syn and syn.protect_gui then syn.protect_gui(KeyGui); KeyGui.Parent = game:GetService("CoreGui")
+            else KeyGui.Parent = game:GetService("CoreGui")
+            end
+        end)
+
+        -- Background overlay
+        local Overlay = Instance.new("Frame")
+        Overlay.Size = UDim2.new(1, 0, 1, 0)
+        Overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        Overlay.BackgroundTransparency = 0.3
+        Overlay.BorderSizePixel = 0
+        Overlay.Parent = KeyGui
+
+        -- Main key card
+        local Card = Instance.new("Frame")
+        Card.AnchorPoint = Vector2.new(0.5, 0.5)
+        Card.Position = UDim2.new(0.5, 0, 0.5, 0)
+        Card.Size = UDim2.fromOffset(380, 340)
+        Card.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+        Card.BorderSizePixel = 0
+        Card.Parent = Overlay
+
+        local CardCorner = Instance.new("UICorner")
+        CardCorner.CornerRadius = UDim.new(0, 10)
+        CardCorner.Parent = Card
+
+        local CardStroke = Instance.new("UIStroke")
+        CardStroke.Color = GuiConfig.Color
+        CardStroke.Thickness = 1.5
+        CardStroke.Transparency = 0.5
+        CardStroke.Parent = Card
+
+        -- Title
+        local KeyTitle = Instance.new("TextLabel")
+        KeyTitle.Text = KS.Title or "NexHub - Authentication"
+        KeyTitle.Size = UDim2.new(1, -20, 0, 30)
+        KeyTitle.Position = UDim2.new(0, 10, 0, 15)
+        KeyTitle.BackgroundTransparency = 1
+        KeyTitle.TextColor3 = GuiConfig.Color
+        KeyTitle.TextSize = 18
+        KeyTitle.Font = Enum.Font.GothamBold
+        KeyTitle.TextXAlignment = Enum.TextXAlignment.Center
+        KeyTitle.Parent = Card
+
+        -- Steps / Info text
+        local stepsText = ""
+        if KS.Steps and type(KS.Steps) == "table" then
+            for i, step in ipairs(KS.Steps) do
+                stepsText = stepsText .. step
+                if i < #KS.Steps then stepsText = stepsText .. "\n" end
+            end
+        end
+
+        local StepsLabel = Instance.new("TextLabel")
+        StepsLabel.Text = stepsText
+        StepsLabel.Size = UDim2.new(1, -30, 0, 60)
+        StepsLabel.Position = UDim2.new(0, 15, 0, 50)
+        StepsLabel.BackgroundTransparency = 1
+        StepsLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
+        StepsLabel.TextSize = 12
+        StepsLabel.Font = Enum.Font.Gotham
+        StepsLabel.TextXAlignment = Enum.TextXAlignment.Left
+        StepsLabel.TextYAlignment = Enum.TextYAlignment.Top
+        StepsLabel.TextWrapped = true
+        StepsLabel.Parent = Card
+
+        -- Key Input Frame
+        local InputFrame = Instance.new("Frame")
+        InputFrame.Size = UDim2.new(1, -30, 0, 38)
+        InputFrame.Position = UDim2.new(0, 15, 0, 120)
+        InputFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 35)
+        InputFrame.BorderSizePixel = 0
+        InputFrame.Parent = Card
+
+        local InputCorner = Instance.new("UICorner")
+        InputCorner.CornerRadius = UDim.new(0, 8)
+        InputCorner.Parent = InputFrame
+
+        local InputStroke = Instance.new("UIStroke")
+        InputStroke.Color = Color3.fromRGB(60, 60, 70)
+        InputStroke.Thickness = 1
+        InputStroke.Parent = InputFrame
+
+        local KeyInput = Instance.new("TextBox")
+        KeyInput.Size = UDim2.new(1, -16, 1, 0)
+        KeyInput.Position = UDim2.new(0, 8, 0, 0)
+        KeyInput.BackgroundTransparency = 1
+        KeyInput.PlaceholderText = KS.Placeholder or "Enter your key..."
+        KeyInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 110)
+        KeyInput.Text = KS.Default or ""
+        KeyInput.TextColor3 = Color3.fromRGB(220, 220, 230)
+        KeyInput.TextSize = 14
+        KeyInput.Font = Enum.Font.GothamMedium
+        KeyInput.TextXAlignment = Enum.TextXAlignment.Left
+        KeyInput.ClearTextOnFocus = false
+        KeyInput.Parent = InputFrame
+
+        -- Status label
+        local StatusLabel = Instance.new("TextLabel")
+        StatusLabel.Text = ""
+        StatusLabel.Size = UDim2.new(1, -30, 0, 18)
+        StatusLabel.Position = UDim2.new(0, 15, 0, 163)
+        StatusLabel.BackgroundTransparency = 1
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        StatusLabel.TextSize = 11
+        StatusLabel.Font = Enum.Font.Gotham
+        StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+        StatusLabel.Parent = Card
+
+        -- Submit Button
+        local SubmitBtn = Instance.new("TextButton")
+        SubmitBtn.Size = UDim2.new(1, -30, 0, 36)
+        SubmitBtn.Position = UDim2.new(0, 15, 0, 190)
+        SubmitBtn.BackgroundColor3 = GuiConfig.Color
+        SubmitBtn.BorderSizePixel = 0
+        SubmitBtn.Text = "Verify Key"
+        SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        SubmitBtn.TextSize = 14
+        SubmitBtn.Font = Enum.Font.GothamBold
+        SubmitBtn.AutoButtonColor = true
+        SubmitBtn.Parent = Card
+
+        local SubmitCorner = Instance.new("UICorner")
+        SubmitCorner.CornerRadius = UDim.new(0, 8)
+        SubmitCorner.Parent = SubmitBtn
+
+        -- Discord Button (optional)
+        if KS.DiscordUrl then
+            local DiscordBtn = Instance.new("TextButton")
+            DiscordBtn.Size = UDim2.new(1, -30, 0, 32)
+            DiscordBtn.Position = UDim2.new(0, 15, 0, 235)
+            DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242) -- Discord blue
+            DiscordBtn.BorderSizePixel = 0
+            DiscordBtn.Text = KS.DiscordText or "Join Discord"
+            DiscordBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            DiscordBtn.TextSize = 13
+            DiscordBtn.Font = Enum.Font.GothamMedium
+            DiscordBtn.AutoButtonColor = true
+            DiscordBtn.Parent = Card
+
+            local DiscordCorner = Instance.new("UICorner")
+            DiscordCorner.CornerRadius = UDim.new(0, 8)
+            DiscordCorner.Parent = DiscordBtn
+
+            DiscordBtn.MouseButton1Click:Connect(function()
+                pcall(function()
+                    if setclipboard then
+                        setclipboard(KS.DiscordUrl)
+                        StatusLabel.Text = "Discord link copied!"
+                        StatusLabel.TextColor3 = Color3.fromRGB(100, 200, 100)
+                    end
+                end)
+            end)
+        end
+
+        -- Get Key Links (optional)
+        if KS.Links and type(KS.Links) == "table" then
+            local yOff = KS.DiscordUrl and 275 or 235
+            for i, link in ipairs(KS.Links) do
+                local LinkBtn = Instance.new("TextButton")
+                LinkBtn.Size = UDim2.new(1, -30, 0, 28)
+                LinkBtn.Position = UDim2.new(0, 15, 0, yOff + (i - 1) * 34)
+                LinkBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+                LinkBtn.BorderSizePixel = 0
+                LinkBtn.Text = link.Name or "Link"
+                LinkBtn.TextColor3 = GuiConfig.Color
+                LinkBtn.TextSize = 12
+                LinkBtn.Font = Enum.Font.GothamMedium
+                LinkBtn.AutoButtonColor = true
+                LinkBtn.Parent = Card
+
+                local LinkCorner = Instance.new("UICorner")
+                LinkCorner.CornerRadius = UDim.new(0, 6)
+                LinkCorner.Parent = LinkBtn
+
+                if link.Url then
+                    LinkBtn.MouseButton1Click:Connect(function()
+                        pcall(function()
+                            if setclipboard then
+                                setclipboard(link.Url)
+                                StatusLabel.Text = "Link copied!"
+                                StatusLabel.TextColor3 = Color3.fromRGB(100, 200, 100)
+                            end
+                        end)
+                    end)
+                end
+            end
+            -- Adjust card height
+            Card.Size = UDim2.fromOffset(380, yOff + #KS.Links * 34 + 15)
+        end
+
+        -- Submit logic
+        local isProcessing = false
+        SubmitBtn.MouseButton1Click:Connect(function()
+            if isProcessing then return end
+            isProcessing = true
+
+            local keyText = KeyInput.Text or ""
+            if keyText == "" then
+                StatusLabel.Text = "Please enter a key!"
+                StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+                isProcessing = false
+                return
+            end
+
+            StatusLabel.Text = "Verifying..."
+            StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 100)
+            SubmitBtn.Text = "Verifying..."
+            SubmitBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+
+            local callbackOk, isValid = pcall(function()
+                return KS.Callback(keyText)
+            end)
+
+            if callbackOk and isValid then
+                StatusLabel.Text = "Key Valid! Loading..."
+                StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                SubmitBtn.Text = "Success!"
+                SubmitBtn.BackgroundColor3 = Color3.fromRGB(50, 180, 80)
+                task.wait(0.5)
+                keyValidated = true
+            else
+                if not callbackOk then
+                    StatusLabel.Text = "Verification error: " .. tostring(isValid)
+                else
+                    StatusLabel.Text = "Invalid key! Try again."
+                end
+                StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+                SubmitBtn.Text = "Verify Key"
+                SubmitBtn.BackgroundColor3 = GuiConfig.Color
+                isProcessing = false
+            end
+        end)
+
+        -- Yield / Block execution sampai key valid
+        while not keyValidated do
+            task.wait(0.1)
+        end
+
+        -- Destroy key screen
+        pcall(function() KeyGui:Destroy() end)
+        task.wait(0.3)
+    end
+
     local GuiFunc = {}
 
     local NexHub = Instance.new("ScreenGui");
