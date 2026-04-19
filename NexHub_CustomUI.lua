@@ -1,17 +1,17 @@
 local HttpService = game:GetService("HttpService")
 
-if not isfolder("Chloe X") then
-    makefolder("Chloe X")
+if not isfolder("NexHub") then
+    makefolder("NexHub")
 end
-if not isfolder("Chloe X/Config") then
-    makefolder("Chloe X/Config")
+if not isfolder("NexHub/Config") then
+    makefolder("NexHub/Config")
 end
 
 local gameName   = tostring(game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name)
 gameName         = gameName:gsub("[^%w_ ]", "")
 gameName         = gameName:gsub("%s+", "_")
 
-local ConfigFile = "Chloe X/Config/Chloe_" .. gameName .. ".json"
+local ConfigFile = "NexHub/Config/NexHub_" .. gameName .. ".json"
 
 ConfigData       = {}
 Elements         = {}
@@ -263,10 +263,10 @@ function CircleClick(Button, X, Y)
     end)
 end
 
-local Chloex = {}
-function Chloex:MakeNotify(NotifyConfig)
+local NexHubLib = {}
+function NexHubLib:MakeNotify(NotifyConfig)
     local NotifyConfig = NotifyConfig or {}
-    NotifyConfig.Title = NotifyConfig.Title or "Chloe X"
+    NotifyConfig.Title = NotifyConfig.Title or "NexHub"
     NotifyConfig.Description = NotifyConfig.Description or "Notification"
     NotifyConfig.Content = NotifyConfig.Content or "Content"
     NotifyConfig.Color = NotifyConfig.Color or Color3.fromRGB(255, 0, 255)
@@ -463,7 +463,7 @@ function Chloex:MakeNotify(NotifyConfig)
 end
 
 function nexhub(msg, delay, color, title, desc)
-    return Chloex:MakeNotify({
+    return NexHubLib:MakeNotify({
         Title = title or "NexHub",
         Description = desc or "Notification",
         Content = msg or "Content",
@@ -472,7 +472,7 @@ function nexhub(msg, delay, color, title, desc)
     })
 end
 
-function Chloex:Window(GuiConfig)
+function NexHubLib:Window(GuiConfig)
     GuiConfig              = GuiConfig or {}
     GuiConfig.Title        = GuiConfig.Title or "NexHub"
     GuiConfig.Footer       = GuiConfig.Footer or "developed by Nex"
@@ -488,7 +488,7 @@ function Chloex:Window(GuiConfig)
 
     local GuiFunc = {}
 
-    local Chloeex = Instance.new("ScreenGui");
+    local NexHubGui = Instance.new("ScreenGui");
     local DropShadowHolder = Instance.new("Frame");
     local DropShadow = Instance.new("ImageLabel");
     local Main = Instance.new("Frame");
@@ -508,13 +508,13 @@ function Chloex:Window(GuiConfig)
     local UICorner6 = Instance.new("UICorner");
     local NameTab = Instance.new("TextLabel");
     local LayersReal = Instance.new("Frame");
-    local LayersFolder = Instance.new("Folder");
+    local LayersFolder = Instance.new("Frame");
     local LayersPageLayout = Instance.new("UIPageLayout");
 
-    Chloeex.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    Chloeex.Name = "Chloeex"
-    Chloeex.ResetOnSpawn = false
-    Chloeex.Parent = game:GetService("CoreGui")
+    NexHubGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    NexHubGui.Name = "NexHubGui"
+    NexHubGui.ResetOnSpawn = false
+    NexHubGui.Parent = game:GetService("CoreGui")
 
     DropShadowHolder.BackgroundTransparency = 1
     DropShadowHolder.BorderSizePixel = 0
@@ -527,10 +527,10 @@ function Chloex:Window(GuiConfig)
     end
     DropShadowHolder.ZIndex = 0
     DropShadowHolder.Name = "DropShadowHolder"
-    DropShadowHolder.Parent = Chloeex
+    DropShadowHolder.Parent = NexHubGui
 
-    DropShadowHolder.Position = UDim2.new(0, (Chloeex.AbsoluteSize.X // 2 - DropShadowHolder.Size.X.Offset // 2), 0,
-        (Chloeex.AbsoluteSize.Y // 2 - DropShadowHolder.Size.Y.Offset // 2))
+    DropShadowHolder.Position = UDim2.new(0, (NexHubGui.AbsoluteSize.X // 2 - DropShadowHolder.Size.X.Offset // 2), 0,
+        (NexHubGui.AbsoluteSize.Y // 2 - DropShadowHolder.Size.Y.Offset // 2))
     DropShadow.Image = "rbxassetid://6015897843"
     DropShadow.ImageColor3 = Color3.fromRGB(15, 15, 15)
     DropShadow.ImageTransparency = 1
@@ -688,7 +688,7 @@ function Chloex:Window(GuiConfig)
 
     -- NameTab dihapus
 
-    LayersReal.AnchorPoint = Vector2.new(0, 1)
+    LayersReal.AnchorPoint = Vector2.new(0, 0)
     LayersReal.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     LayersReal.BackgroundTransparency = 0.9990000128746033
     LayersReal.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -700,6 +700,11 @@ function Chloex:Window(GuiConfig)
     LayersReal.Parent = Layers
 
     LayersFolder.Name = "LayersFolder"
+    LayersFolder.BackgroundTransparency = 1
+    LayersFolder.BorderSizePixel = 0
+    LayersFolder.Size = UDim2.new(1, 0, 1, 0)
+    LayersFolder.Position = UDim2.new(0, 0, 0, 0)
+    LayersFolder.ClipsDescendants = true
     LayersFolder.Parent = LayersReal
 
     LayersPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -741,8 +746,8 @@ function Chloex:Window(GuiConfig)
     ScrollTab.ChildRemoved:Connect(UpdateSize1)
 
     function GuiFunc:DestroyGui()
-        if CoreGui:FindFirstChild("Chloeex") then
-            Chloeex:Destroy()
+        if CoreGui:FindFirstChild("NexHubGui") then
+            NexHubGui:Destroy()
         end
     end
 
@@ -848,7 +853,7 @@ function Chloex:Window(GuiConfig)
         Instance.new("UICorner", Cancel).CornerRadius = UDim.new(0, 6)
 
         Yes.MouseButton1Click:Connect(function()
-            if Chloeex then Chloeex:Destroy() end
+            if NexHubGui then NexHubGui:Destroy() end
             if game.CoreGui:FindFirstChild("ToggleUIButton") then
                 game.CoreGui.ToggleUIButton:Destroy()
             end
@@ -1000,7 +1005,7 @@ function Chloex:Window(GuiConfig)
     local UICorner36 = Instance.new("UICorner");
     local UIStroke14 = Instance.new("UIStroke");
     local DropdownSelectReal = Instance.new("Frame");
-    local DropdownFolder = Instance.new("Folder");
+    local DropdownFolder = Instance.new("Frame");
     local DropPageLayout = Instance.new("UIPageLayout");
 
     DropdownSelect.AnchorPoint = Vector2.new(1, 0.5)
@@ -1042,6 +1047,11 @@ function Chloex:Window(GuiConfig)
     DropdownSelectReal.Parent = DropdownSelect
 
     DropdownFolder.Name = "DropdownFolder"
+    DropdownFolder.BackgroundTransparency = 1
+    DropdownFolder.BorderSizePixel = 0
+    DropdownFolder.Size = UDim2.new(1, 0, 1, 0)
+    DropdownFolder.Position = UDim2.new(0, 0, 0, 0)
+    DropdownFolder.ClipsDescendants = true
     DropdownFolder.Parent = DropdownSelectReal
 
     DropPageLayout.EasingDirection = Enum.EasingDirection.InOut
@@ -1556,8 +1566,14 @@ function Chloex:Window(GuiConfig)
                     SectionSubTabHolder.ChildAdded:Connect(AdjustSTCanvas)
                     SectionSubTabHolder.ChildRemoved:Connect(AdjustSTCanvas)
 
-                    SectionSubFolder = Instance.new("Folder")
+                    SectionSubFolder = Instance.new("Frame")
                     SectionSubFolder.Name = "SectionSubFolder"
+                    SectionSubFolder.BackgroundTransparency = 1
+                    SectionSubFolder.BorderSizePixel = 0
+                    SectionSubFolder.Size = UDim2.new(1, 0, 0, 100)
+                    SectionSubFolder.Position = UDim2.new(0, 0, 0, 0)
+                    SectionSubFolder.LayoutOrder = 1
+                    SectionSubFolder.ClipsDescendants = true
                     SectionSubFolder.Parent = SectionAdd
 
                     SectionSubPageLayout = Instance.new("UIPageLayout")
@@ -2931,4 +2947,4 @@ function Chloex:Window(GuiConfig)
     return Tabs
 end
 
-return Chloex
+return NexHubLib
