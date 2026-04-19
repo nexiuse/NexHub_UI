@@ -3354,8 +3354,8 @@ function Chloex:Window(GuiConfig)
     task.delay(0.3, function()
         Chloeex.Enabled = true
     end)
-    -- Re-enable notifications after init is complete
-    task.delay(1.5, function()
+    -- Re-enable notifications after init is complete (3s should cover all element creation)
+    task.delay(3, function()
         _notifySuppressed = false
         _G._NexHubNotifySuppressed = false
     end)
