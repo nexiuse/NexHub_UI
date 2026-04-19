@@ -385,6 +385,12 @@ function Chloex:Window(GuiConfig)
     -- ══════════════════════════════════════════════════════════════
     -- GUI UTAMA
     -- ══════════════════════════════════════════════════════════════
+    for _, v in ipairs(game:GetService("CoreGui"):GetChildren()) do
+        if v.Name == "VelarisUI" then
+            pcall(function() v:Destroy() end)
+        end
+    end
+
     local Chloeex           = Instance.new("ScreenGui")
     local DropShadowHolder  = Instance.new("Frame")
     local DropShadow        = Instance.new("ImageLabel")
