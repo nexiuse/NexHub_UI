@@ -96,6 +96,29 @@ local Mouse = LocalPlayer:GetMouse()
 local CoreGui = game:GetService("CoreGui")
 local viewport = workspace.CurrentCamera.ViewportSize
 
+local function NormalizeColor(input, fallback)
+    if typeof(input) == "Color3" then
+        return input
+    end
+    if type(input) == "string" then
+        local hex = input:gsub("%s+", "")
+        hex = hex:gsub("^#", "")
+        if #hex == 6 and hex:match("^[%x]+$") then
+            local r = tonumber(hex:sub(1, 2), 16)
+            local g = tonumber(hex:sub(3, 4), 16)
+            local b = tonumber(hex:sub(5, 6), 16)
+            if r and g and b then
+                return Color3.fromRGB(r, g, b)
+            end
+        end
+        local rs, gs, bs = input:match("(%d+)%s*,%s*(%d+)%s*,%s*(%d+)")
+        if rs and gs and bs then
+            return Color3.fromRGB(tonumber(rs), tonumber(gs), tonumber(bs))
+        end
+    end
+    return fallback
+end
+
 local function isMobileDevice()
     return UserInputService.TouchEnabled
         and not UserInputService.KeyboardEnabled
@@ -266,7 +289,7 @@ function Chloex:MakeNotify(NotifyConfig)
     NotifyConfig.Title = NotifyConfig.Title or "Chloe X"
     NotifyConfig.Description = NotifyConfig.Description or "Notification"
     NotifyConfig.Content = NotifyConfig.Content or "Content"
-    NotifyConfig.Color = NotifyConfig.Color or Color3.fromRGB(255, 0, 255)
+    NotifyConfig.Color = NormalizeColor(NotifyConfig.Color, Color3.fromRGB(255, 0, 255))
     NotifyConfig.Time = NotifyConfig.Time or 0.5
     NotifyConfig.Delay = NotifyConfig.Delay or 5
     local NotifyFunction = {}
@@ -473,7 +496,7 @@ function Chloex:Window(GuiConfig)
     GuiConfig              = GuiConfig or {}
     GuiConfig.Title        = GuiConfig.Title or "Chloe X"
     GuiConfig.Footer       = GuiConfig.Footer or "Chloee :3"
-    GuiConfig.Color        = GuiConfig.Color or Color3.fromRGB(255, 0, 255)
+    GuiConfig.Color        = NormalizeColor(GuiConfig.Color, Color3.fromRGB(255, 0, 255))
     GuiConfig["Tab Width"] = GuiConfig["Tab Width"] or 120
     GuiConfig.Version      = GuiConfig.Version or 1
 
@@ -502,7 +525,7 @@ function Chloex:Window(GuiConfig)
     local UICorner6 = Instance.new("UICorner");
     local NameTab = Instance.new("TextLabel");
     local LayersReal = Instance.new("Frame");
-    local LayersFolder = Instance.new("Folder");
+    local LayersFolder = Instance.new("Frame");
     local LayersPageLayout = Instance.new("UIPageLayout");
 
     Chloeex.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -706,6 +729,11 @@ function Chloex:Window(GuiConfig)
     LayersReal.Parent = Layers
 
     LayersFolder.Name = "LayersFolder"
+    LayersFolder.BackgroundTransparency = 1
+    LayersFolder.BorderSizePixel = 0
+    LayersFolder.Size = UDim2.new(1, 0, 1, 0)
+    LayersFolder.Position = UDim2.new(0, 0, 0, 0)
+    LayersFolder.ClipsDescendants = true
     LayersFolder.Parent = LayersReal
 
     LayersPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1000,7 +1028,7 @@ function Chloex:Window(GuiConfig)
     local UICorner36 = Instance.new("UICorner");
     local UIStroke14 = Instance.new("UIStroke");
     local DropdownSelectReal = Instance.new("Frame");
-    local DropdownFolder = Instance.new("Folder");
+    local DropdownFolder = Instance.new("Frame");
     local DropPageLayout = Instance.new("UIPageLayout");
 
     DropdownSelect.AnchorPoint = Vector2.new(1, 0.5)
@@ -1042,6 +1070,11 @@ function Chloex:Window(GuiConfig)
     DropdownSelectReal.Parent = DropdownSelect
 
     DropdownFolder.Name = "DropdownFolder"
+    DropdownFolder.BackgroundTransparency = 1
+    DropdownFolder.BorderSizePixel = 0
+    DropdownFolder.Size = UDim2.new(1, 0, 1, 0)
+    DropdownFolder.Position = UDim2.new(0, 0, 0, 0)
+    DropdownFolder.ClipsDescendants = true
     DropdownFolder.Parent = DropdownSelectReal
 
     DropPageLayout.EasingDirection = Enum.EasingDirection.InOut
