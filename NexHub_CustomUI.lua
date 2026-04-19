@@ -1052,47 +1052,49 @@ function Chloex:Window(GuiConfig)
         TabConfig.Name = TabConfig.Name or "Tab"
         TabConfig.Icon = TabConfig.Icon or ""
 
-        local ScrolLayers = Instance.new("Frame"); -- Mengganti ScrollFrame agar pinned
+        local PageFrame = Instance.new("Frame");
         local SubTabHolder = Instance.new("ScrollingFrame");
+        local UIListLayoutST = Instance.new("UIListLayout");
+        local UIPaddingST = Instance.new("UIPadding");
+        local ScrolLayers = Instance.new("ScrollingFrame");
         local UIListLayout1 = Instance.new("UIListLayout");
-        local UIPadding1 = Instance.new("UIPadding");
-        local SectionFolder = Instance.new("Folder");
-        local SectionPageLayout = Instance.new("UIPageLayout");
 
-        ScrolLayers.LayoutOrder = CountTab
-        ScrolLayers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        ScrolLayers.BackgroundTransparency = 0.9990000128746033
-        ScrolLayers.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        ScrolLayers.BorderSizePixel = 0
-        ScrolLayers.Size = UDim2.new(1, 0, 1, 0)
-        ScrolLayers.Name = "ScrolLayers"
-        ScrolLayers.Parent = LayersFolder
+        PageFrame.LayoutOrder = CountTab
+        PageFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        PageFrame.BackgroundTransparency = 1
+        PageFrame.BorderSizePixel = 0
+        PageFrame.Size = UDim2.new(1, 0, 1, 0)
+        PageFrame.Name = "PageFrame"
+        PageFrame.Parent = LayersFolder
 
         -- Bagian bar horizontal untuk tombol SubTab (ESP Settings, dsb)
         SubTabHolder.Name = "SubTabHolder"
-        SubTabHolder.Parent = ScrolLayers
-        SubTabHolder.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        SubTabHolder.Parent = PageFrame
+        SubTabHolder.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
         SubTabHolder.BackgroundTransparency = 0.999
-        SubTabHolder.Size = UDim2.new(1, 0, 0, 32)
+        SubTabHolder.Size = UDim2.new(1, 0, 0, 0) -- Default height 0, terbuka jika AddTabbox dipanggil
         SubTabHolder.Position = UDim2.new(0, 0, 0, 0)
         SubTabHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
         SubTabHolder.ScrollBarThickness = 0
         SubTabHolder.ScrollingDirection = Enum.ScrollingDirection.X
+        SubTabHolder.Visible = false
 
-        UIListLayout1.Padding = UDim.new(0, 5)
-        UIListLayout1.FillDirection = Enum.FillDirection.Horizontal
-        UIListLayout1.SortOrder = Enum.SortOrder.LayoutOrder
-        UIListLayout1.VerticalAlignment = Enum.VerticalAlignment.Center
-        UIListLayout1.Parent = SubTabHolder
+        UIListLayoutST.Padding = UDim.new(0, 5)
+        UIListLayoutST.FillDirection = Enum.FillDirection.Horizontal
+        UIListLayoutST.SortOrder = Enum.SortOrder.LayoutOrder
+        UIListLayoutST.VerticalAlignment = Enum.VerticalAlignment.Center
+        UIListLayoutST.Parent = SubTabHolder
 
-        UIPadding1.PaddingLeft = UDim.new(0, 2)
-        UIPadding1.PaddingRight = UDim.new(0, 2)
-        UIPadding1.Parent = SubTabHolder
+        UIPaddingST.PaddingLeft = UDim.new(0, 5)
+        UIPaddingST.PaddingRight = UDim.new(0, 5)
+        UIPaddingST.Parent = SubTabHolder
 
         local function UpdateSubSize()
             local OffsetX = 0
+            local hasChild = false
             for _, child in SubTabHolder:GetChildren() do
-                if child:IsA("GuiObject") then
+                if child:IsA("TextButton") then
+                    hasChild = true
                     OffsetX = OffsetX + 5 + child.Size.X.Offset
                 end
             end
@@ -1102,15 +1104,21 @@ function Chloex:Window(GuiConfig)
         SubTabHolder.ChildRemoved:Connect(UpdateSubSize)
 
         -- Wadah terpisah untuk konten setiap SubTab agar tidak nge-bounce
-        SectionFolder.Name = "SectionFolder"
-        SectionFolder.Parent = ScrolLayers
-        
-        SectionPageLayout.Name = "SectionPageLayout"
-        SectionPageLayout.Parent = SectionFolder
-        SectionPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        SectionPageLayout.EasingDirection = Enum.EasingDirection.InOut
-        SectionPageLayout.EasingStyle = Enum.EasingStyle.Quad
-        SectionPageLayout.TweenTime = 0.35
+        -- SectionFolder dan SectionPageLayout digabungkan dalam logikan ScrolLayers
+        ScrolLayers.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
+        ScrolLayers.ScrollBarThickness = 0
+        ScrolLayers.Active = true
+        ScrolLayers.BackgroundColor3 = Color3.fromRGB(244, 244, 244)
+        ScrolLayers.BackgroundTransparency = 0.999
+        ScrolLayers.BorderSizePixel = 0
+        ScrolLayers.Size = UDim2.new(1, 0, 1, 0) -- Full size jika tak ada SubTab
+        ScrolLayers.Position = UDim2.new(0, 0, 0, 0)
+        ScrolLayers.Name = "ScrolLayers"
+        ScrolLayers.Parent = PageFrame
+
+        UIListLayout1.Padding = UDim.new(0, 3)
+        UIListLayout1.SortOrder = Enum.SortOrder.LayoutOrder
+        UIListLayout1.Parent = ScrolLayers
 
         local Tab = Instance.new("Frame");
         local UICorner3 = Instance.new("UICorner");
