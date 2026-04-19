@@ -106,13 +106,13 @@ local viewport = workspace.CurrentCamera.ViewportSize
 
 -- Theme color presets (VelarisUI compatibility)
 local ThemeColors = {
-    ["default"]  = Color3.fromRGB(0, 208, 255),
+    ["default"]  = Color3.fromRGB(147, 51, 234),
     ["nex"]      = Color3.fromRGB(20, 173, 199),
     ["success"]  = Color3.fromRGB(0, 255, 100),
     ["error"]    = Color3.fromRGB(255, 50, 50),
     ["warning"]  = Color3.fromRGB(255, 170, 0),
     ["info"]     = Color3.fromRGB(0, 170, 255),
-    ["purple"]   = Color3.fromRGB(170, 85, 255),
+    ["purple"]   = Color3.fromRGB(147, 51, 234),
     ["pink"]     = Color3.fromRGB(255, 0, 255),
     ["cyan"]     = Color3.fromRGB(0, 208, 255),
     ["red"]      = Color3.fromRGB(255, 50, 50),
@@ -150,7 +150,7 @@ local function NormalizeColor(input, fallback)
             return Color3.fromRGB(tonumber(rs), tonumber(gs), tonumber(bs))
         end
     end
-    return fallback or Color3.fromRGB(0, 208, 255)
+    return fallback or Color3.fromRGB(147, 51, 234)
 end
 
 local function isMobileDevice()
@@ -343,7 +343,7 @@ function Chloex:MakeNotify(NotifyConfig)
     NotifyConfig.Title = NotifyConfig.Title or "Chloe X"
     NotifyConfig.Description = NotifyConfig.Description or "Notification"
     NotifyConfig.Content = NotifyConfig.Content or "Content"
-    NotifyConfig.Color = NormalizeColor(NotifyConfig.Color, Color3.fromRGB(0, 208, 255))
+    NotifyConfig.Color = NormalizeColor(NotifyConfig.Color, Color3.fromRGB(147, 51, 234))
     NotifyConfig.Time = NotifyConfig.Time or 0.5
     -- VelarisUI uses "Duration", Chloe X uses "Delay"
     NotifyConfig.Delay = NotifyConfig.Delay or NotifyConfig.Duration or 5
@@ -542,7 +542,7 @@ function chloex(msg, delay, color, title, desc)
         Title = title or "Chloe X",
         Description = desc or "Notification",
         Content = msg or "Content",
-        Color = color or Color3.fromRGB(0, 208, 255),
+        Color = color or Color3.fromRGB(147, 51, 234),
         Delay = delay or 4
     })
 end
@@ -553,7 +553,7 @@ function nexhub(msg, delay, color, title, desc)
         Title = title or "NexHub",
         Description = desc or "Notification",
         Content = msg or "Content",
-        Color = color or Color3.fromRGB(0, 208, 255),
+        Color = color or Color3.fromRGB(147, 51, 234),
         Delay = delay or 4
     })
 end
@@ -564,7 +564,7 @@ Nt = function(msg, delay, color)
         Title = "NexHub",
         Description = "Notification",
         Content = tostring(msg or "Content"),
-        Color = NormalizeColor(color, Color3.fromRGB(0, 208, 255)),
+        Color = NormalizeColor(color, Color3.fromRGB(147, 51, 234)),
         Delay = delay or 4
     })
 end
@@ -577,7 +577,7 @@ Library.Notify = function(self, cfg)
         Title = cfg.Title or "NexHub",
         Description = cfg.Description or "Notification",
         Content = cfg.Content or "",
-        Color = NormalizeColor(cfg.Color, Color3.fromRGB(0, 208, 255)),
+        Color = NormalizeColor(cfg.Color, Color3.fromRGB(147, 51, 234)),
         Delay = cfg.Duration or cfg.Delay or cfg.Time or 4
     })
 end
@@ -586,7 +586,7 @@ function Chloex:Window(GuiConfig)
     GuiConfig              = GuiConfig or {}
     GuiConfig.Title        = GuiConfig.Title or "Chloe X"
     GuiConfig.Footer       = GuiConfig.Footer or "Chloee :3"
-    GuiConfig.Color        = NormalizeColor(GuiConfig.Color, Color3.fromRGB(0, 208, 255))
+    GuiConfig.Color        = NormalizeColor(GuiConfig.Color, Color3.fromRGB(147, 51, 234))
     GuiConfig["Tab Width"] = GuiConfig["Tab Width"] or 120
     GuiConfig.Version      = GuiConfig.Version or 1
     -- VelarisUI extra params silently handled: Image, Icon, Content, Author, Folder,
@@ -1199,6 +1199,7 @@ function Chloex:Window(GuiConfig)
     local CountTab = 0
     local CountDropdown = 0
     local TabOverlayPairs = {}
+    local currentTabIndex = 0  -- manual tracking for tab click responsiveness
     local function ApplyOverlayVisibility(activeIndex)
         for _, info in ipairs(TabOverlayPairs) do
             local show = (info.Index == activeIndex) and info.State.Enabled
@@ -1307,10 +1308,9 @@ function Chloex:Window(GuiConfig)
         local function EnsureSubTabsEnabled()
             if OverlayState.Enabled then return end
             OverlayState.Enabled = true
-            -- Hide NameTab when subtabs are active
-            NameTab.Visible = false
-            SubTabHolder.Size = UDim2.new(1, 0, 0, 36)
-            SubTabHolder.Position = UDim2.new(0, 0, 0, 0)
+            -- Position subtabs BELOW NameTab (30px)
+            SubTabHolder.Size = UDim2.new(1, 0, 0, 32)
+            SubTabHolder.Position = UDim2.new(0, 0, 0, 30)
             -- Hide all section content inside ScrolLayers (UIPageLayout may reset Visible)
             for _, child in ipairs(ScrolLayers:GetChildren()) do
                 if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
@@ -1318,8 +1318,8 @@ function Chloex:Window(GuiConfig)
                 end
             end
             ScrolLayers.Visible = false
-            SubTabPages.Position = UDim2.new(0, 0, 0, 40)
-            SubTabPages.Size = UDim2.new(1, 0, 1, -40)
+            SubTabPages.Position = UDim2.new(0, 0, 0, 64)
+            SubTabPages.Size = UDim2.new(1, 0, 1, -64)
             ApplyOverlayVisibility(Tab.LayoutOrder)
         end
 
@@ -1419,23 +1419,19 @@ function Chloex:Window(GuiConfig)
         end
 
         TabButton.Activated:Connect(function()
+            if Tab.LayoutOrder == currentTabIndex then return end
             CircleClick(TabButton, Mouse.X, Mouse.Y)
             local FrameChoose
-            for a, s in ScrollTab:GetChildren() do
+            for _, s in ipairs(ScrollTab:GetChildren()) do
                 if s:IsA("Frame") then
-                    for i, v in s:GetChildren() do
-                        if v.Name == "ChooseFrame" then
-                            FrameChoose = v
-                            break
-                        end
-                    end
+                    local fc = s:FindFirstChild("ChooseFrame")
+                    if fc then FrameChoose = fc break end
                 end
-                if FrameChoose then break end
             end
             if not FrameChoose then return end
-            if Tab.LayoutOrder == LayersPageLayout.CurrentPage.LayoutOrder then return end
 
-            for _, TabFrame in ScrollTab:GetChildren() do
+            currentTabIndex = Tab.LayoutOrder
+            for _, TabFrame in ipairs(ScrollTab:GetChildren()) do
                 if TabFrame.Name == "Tab" then
                     TweenService:Create(
                         TabFrame,
@@ -1455,16 +1451,6 @@ function Chloex:Window(GuiConfig)
                 { Position = UDim2.new(0, 2, 0, 9 + (33 * Tab.LayoutOrder)) }
             ):Play()
             LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
-            -- Show/hide NameTab based on whether this tab uses subtabs
-            local tabInfo
-            for _, info in ipairs(TabOverlayPairs) do
-                if info.Index == Tab.LayoutOrder then tabInfo = info break end
-            end
-            if tabInfo and tabInfo.State.Enabled then
-                NameTab.Visible = false
-            else
-                NameTab.Visible = true
-            end
             NameTab.Text = TabConfig.Name
             ApplyOverlayVisibility(Tab.LayoutOrder)
             spawn(function()
@@ -3100,7 +3086,7 @@ function Chloex:Window(GuiConfig)
             Title = cfg.Title or "NexHub",
             Description = cfg.Description or "Notification",
             Content = cfg.Content or "",
-            Color = NormalizeColor(cfg.Color, Color3.fromRGB(0, 208, 255)),
+            Color = NormalizeColor(cfg.Color, Color3.fromRGB(147, 51, 234)),
             Delay = cfg.Duration or cfg.Delay or cfg.Time or 4,
         })
     end
@@ -3353,8 +3339,10 @@ function Chloex:Window(GuiConfig)
         end
     end
 
-    -- Show UI now that everything is built (prevents flickering)
-    Chloeex.Enabled = true
+    -- Show UI after a short delay so all elements are built first (prevents flickering)
+    task.delay(0.3, function()
+        Chloeex.Enabled = true
+    end)
     return Tabs
 end
 
