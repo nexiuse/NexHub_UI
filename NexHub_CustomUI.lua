@@ -1,17 +1,17 @@
 local HttpService = game:GetService("HttpService")
 
-if not isfolder("NexHub") then
-    makefolder("NexHub")
+if not isfolder("Chloe X") then
+    makefolder("Chloe X")
 end
-if not isfolder("NexHub/Config") then
-    makefolder("NexHub/Config")
+if not isfolder("Chloe X/Config") then
+    makefolder("Chloe X/Config")
 end
 
 local gameName   = tostring(game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name)
 gameName         = gameName:gsub("[^%w_ ]", "")
 gameName         = gameName:gsub("%s+", "_")
 
-local ConfigFile = "NexHub/Config/NexHub_" .. gameName .. ".json"
+local ConfigFile = "Chloe X/Config/Chloe_" .. gameName .. ".json"
 
 ConfigData       = {}
 Elements         = {}
@@ -260,10 +260,10 @@ function CircleClick(Button, X, Y)
     end)
 end
 
-local nexhub = {}
-function nexhub:MakeNotify(NotifyConfig)
+local Chloex = {}
+function Chloex:MakeNotify(NotifyConfig)
     local NotifyConfig = NotifyConfig or {}
-    NotifyConfig.Title = NotifyConfig.Title or "NexHub"
+    NotifyConfig.Title = NotifyConfig.Title or "Chloe X"
     NotifyConfig.Description = NotifyConfig.Description or "Notification"
     NotifyConfig.Content = NotifyConfig.Content or "Content"
     NotifyConfig.Color = NotifyConfig.Color or Color3.fromRGB(255, 0, 255)
@@ -459,323 +459,30 @@ function nexhub:MakeNotify(NotifyConfig)
     return NotifyFunction
 end
 
-function nexhubNotify(msg, delay, color, title, desc)
-    return nexhub:MakeNotify({
-        Title = title or "NexHub",
+function chloex(msg, delay, color, title, desc)
+    return Chloex:MakeNotify({
+        Title = title or "Chloe X",
         Description = desc or "Notification",
         Content = msg or "Content",
-        Color = color or Color3.fromRGB(155, 89, 255),
+        Color = color or Color3.fromRGB(0, 208, 255),
         Delay = delay or 4
     })
 end
 
--- ==============================
--- COMPATIBILITY STUBS
--- Fungsi-fungsi yang dipanggil oleh game scripts tapi belum ada di library asli.
--- Ditambahkan sebagai no-op / pass-through agar tidak crash.
--- ==============================
-function nexhub:AddTheme(themeConfig)
-    -- No-op: Chloe X/NexHub tidak mendukung tema custom.
-    -- Jika Color diberikan, simpan untuk referensi.
-    if themeConfig and themeConfig.Color and typeof(themeConfig.Color) == "Color3" then
-        -- Bisa digunakan nanti, saat ini diabaikan.
-    end
-end
-
-function nexhub:SetDPIScale(scale)
-    -- No-op: DPI scaling tidak didukung di library ini.
-end
-
-function nexhub:SetFlag(flag, value)
-    -- No-op: Kompatibilitas dengan script yang menyimpan flag global.
-end
-
-function nexhub:Notify(cfg)
-    -- Alias langsung ke MakeNotify
-    return self:MakeNotify(cfg)
-end
-
-function nexhub:Window(GuiConfig)
+function Chloex:Window(GuiConfig)
     GuiConfig              = GuiConfig or {}
-    GuiConfig.Title        = GuiConfig.Title or "NexHub"
-    GuiConfig.Footer       = GuiConfig.Footer or "NexHub"
-    
-    if type(GuiConfig.Color) == "string" then
-        GuiConfig.Color = Color3.fromRGB(155, 89, 255)
-    else
-        GuiConfig.Color = GuiConfig.Color or Color3.fromRGB(155, 89, 255)
-    end
-    
+    GuiConfig.Title        = GuiConfig.Title or "Chloe X"
+    GuiConfig.Footer       = GuiConfig.Footer or "Chloee :3"
+    GuiConfig.Color        = GuiConfig.Color or Color3.fromRGB(255, 0, 255)
     GuiConfig["Tab Width"] = GuiConfig["Tab Width"] or 120
     GuiConfig.Version      = GuiConfig.Version or 1
 
     CURRENT_VERSION        = GuiConfig.Version
-    GuiConfig.Initializing = true -- Aktifkan mode inisialisasi (performa maksimal)
     LoadConfigFromFile()
-
-    -- ==============================
-    -- KEY SYSTEM UI (Blocking)
-    -- Jika GuiConfig.KeySystem diberikan, tampilkan layar key input.
-    -- Yield sampai key valid, baru lanjut ke Window utama.
-    -- ==============================
-    if GuiConfig.KeySystem then
-        local KS = GuiConfig.KeySystem
-        local keyValidated = false
-
-        -- Buat ScreenGui khusus untuk key screen
-        local KeyGui = Instance.new("ScreenGui")
-        KeyGui.Name = "NexHub_KeySystem"
-        KeyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-        KeyGui.ResetOnSpawn = false
-        pcall(function()
-            if gethui then KeyGui.Parent = gethui()
-            elseif syn and syn.protect_gui then syn.protect_gui(KeyGui); KeyGui.Parent = game:GetService("CoreGui")
-            else KeyGui.Parent = game:GetService("CoreGui")
-            end
-        end)
-
-        -- Background overlay
-        local Overlay = Instance.new("Frame")
-        Overlay.Size = UDim2.new(1, 0, 1, 0)
-        Overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        Overlay.BackgroundTransparency = 0.3
-        Overlay.BorderSizePixel = 0
-        Overlay.Parent = KeyGui
-
-        -- Main key card
-        local Card = Instance.new("Frame")
-        Card.AnchorPoint = Vector2.new(0.5, 0.5)
-        Card.Position = UDim2.new(0.5, 0, 0.5, 0)
-        Card.Size = UDim2.fromOffset(380, 340)
-        Card.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-        Card.BorderSizePixel = 0
-        Card.Parent = Overlay
-
-        local CardCorner = Instance.new("UICorner")
-        CardCorner.CornerRadius = UDim.new(0, 10)
-        CardCorner.Parent = Card
-
-        local CardStroke = Instance.new("UIStroke")
-        CardStroke.Color = GuiConfig.Color
-        CardStroke.Thickness = 1.5
-        CardStroke.Transparency = 0.5
-        CardStroke.Parent = Card
-
-        -- Title
-        local KeyTitle = Instance.new("TextLabel")
-        KeyTitle.Text = KS.Title or "NexHub - Authentication"
-        KeyTitle.Size = UDim2.new(1, -20, 0, 30)
-        KeyTitle.Position = UDim2.new(0, 10, 0, 15)
-        KeyTitle.BackgroundTransparency = 1
-        KeyTitle.TextColor3 = GuiConfig.Color
-        KeyTitle.TextSize = 18
-        KeyTitle.Font = Enum.Font.GothamBold
-        KeyTitle.TextXAlignment = Enum.TextXAlignment.Center
-        KeyTitle.Parent = Card
-
-        -- Steps / Info text
-        local stepsText = ""
-        if KS.Steps and type(KS.Steps) == "table" then
-            for i, step in ipairs(KS.Steps) do
-                stepsText = stepsText .. step
-                if i < #KS.Steps then stepsText = stepsText .. "\n" end
-            end
-        end
-
-        local StepsLabel = Instance.new("TextLabel")
-        StepsLabel.Text = stepsText
-        StepsLabel.Size = UDim2.new(1, -30, 0, 60)
-        StepsLabel.Position = UDim2.new(0, 15, 0, 50)
-        StepsLabel.BackgroundTransparency = 1
-        StepsLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
-        StepsLabel.TextSize = 12
-        StepsLabel.Font = Enum.Font.Gotham
-        StepsLabel.TextXAlignment = Enum.TextXAlignment.Left
-        StepsLabel.TextYAlignment = Enum.TextYAlignment.Top
-        StepsLabel.TextWrapped = true
-        StepsLabel.Parent = Card
-
-        -- Key Input Frame
-        local InputFrame = Instance.new("Frame")
-        InputFrame.Size = UDim2.new(1, -30, 0, 38)
-        InputFrame.Position = UDim2.new(0, 15, 0, 120)
-        InputFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 35)
-        InputFrame.BorderSizePixel = 0
-        InputFrame.Parent = Card
-
-        local InputCorner = Instance.new("UICorner")
-        InputCorner.CornerRadius = UDim.new(0, 8)
-        InputCorner.Parent = InputFrame
-
-        local InputStroke = Instance.new("UIStroke")
-        InputStroke.Color = Color3.fromRGB(60, 60, 70)
-        InputStroke.Thickness = 1
-        InputStroke.Parent = InputFrame
-
-        local KeyInput = Instance.new("TextBox")
-        KeyInput.Size = UDim2.new(1, -16, 1, 0)
-        KeyInput.Position = UDim2.new(0, 8, 0, 0)
-        KeyInput.BackgroundTransparency = 1
-        KeyInput.PlaceholderText = KS.Placeholder or "Enter your key..."
-        KeyInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 110)
-        KeyInput.Text = KS.Default or ""
-        KeyInput.TextColor3 = Color3.fromRGB(220, 220, 230)
-        KeyInput.TextSize = 14
-        KeyInput.Font = Enum.Font.GothamMedium
-        KeyInput.TextXAlignment = Enum.TextXAlignment.Left
-        KeyInput.ClearTextOnFocus = false
-        KeyInput.Parent = InputFrame
-
-        -- Status label
-        local StatusLabel = Instance.new("TextLabel")
-        StatusLabel.Text = ""
-        StatusLabel.Size = UDim2.new(1, -30, 0, 18)
-        StatusLabel.Position = UDim2.new(0, 15, 0, 163)
-        StatusLabel.BackgroundTransparency = 1
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        StatusLabel.TextSize = 11
-        StatusLabel.Font = Enum.Font.Gotham
-        StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
-        StatusLabel.Parent = Card
-
-        -- Submit Button
-        local SubmitBtn = Instance.new("TextButton")
-        SubmitBtn.Size = UDim2.new(1, -30, 0, 36)
-        SubmitBtn.Position = UDim2.new(0, 15, 0, 190)
-        SubmitBtn.BackgroundColor3 = GuiConfig.Color
-        SubmitBtn.BorderSizePixel = 0
-        SubmitBtn.Text = "Verify Key"
-        SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        SubmitBtn.TextSize = 14
-        SubmitBtn.Font = Enum.Font.GothamBold
-        SubmitBtn.AutoButtonColor = true
-        SubmitBtn.Parent = Card
-
-        local SubmitCorner = Instance.new("UICorner")
-        SubmitCorner.CornerRadius = UDim.new(0, 8)
-        SubmitCorner.Parent = SubmitBtn
-
-        -- Discord Button (optional)
-        if KS.DiscordUrl then
-            local DiscordBtn = Instance.new("TextButton")
-            DiscordBtn.Size = UDim2.new(1, -30, 0, 32)
-            DiscordBtn.Position = UDim2.new(0, 15, 0, 235)
-            DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242) -- Discord blue
-            DiscordBtn.BorderSizePixel = 0
-            DiscordBtn.Text = KS.DiscordText or "Join Discord"
-            DiscordBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            DiscordBtn.TextSize = 13
-            DiscordBtn.Font = Enum.Font.GothamMedium
-            DiscordBtn.AutoButtonColor = true
-            DiscordBtn.Parent = Card
-
-            local DiscordCorner = Instance.new("UICorner")
-            DiscordCorner.CornerRadius = UDim.new(0, 8)
-            DiscordCorner.Parent = DiscordBtn
-
-            DiscordBtn.MouseButton1Click:Connect(function()
-                pcall(function()
-                    if setclipboard then
-                        setclipboard(KS.DiscordUrl)
-                        StatusLabel.Text = "Discord link copied!"
-                        StatusLabel.TextColor3 = Color3.fromRGB(100, 200, 100)
-                    end
-                end)
-            end)
-        end
-
-        -- Get Key Links (optional)
-        if KS.Links and type(KS.Links) == "table" then
-            local yOff = KS.DiscordUrl and 275 or 235
-            for i, link in ipairs(KS.Links) do
-                local LinkBtn = Instance.new("TextButton")
-                LinkBtn.Size = UDim2.new(1, -30, 0, 28)
-                LinkBtn.Position = UDim2.new(0, 15, 0, yOff + (i - 1) * 34)
-                LinkBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-                LinkBtn.BorderSizePixel = 0
-                LinkBtn.Text = link.Name or "Link"
-                LinkBtn.TextColor3 = GuiConfig.Color
-                LinkBtn.TextSize = 12
-                LinkBtn.Font = Enum.Font.GothamMedium
-                LinkBtn.AutoButtonColor = true
-                LinkBtn.Parent = Card
-
-                local LinkCorner = Instance.new("UICorner")
-                LinkCorner.CornerRadius = UDim.new(0, 6)
-                LinkCorner.Parent = LinkBtn
-
-                if link.Url then
-                    LinkBtn.MouseButton1Click:Connect(function()
-                        pcall(function()
-                            if setclipboard then
-                                setclipboard(link.Url)
-                                StatusLabel.Text = "Link copied!"
-                                StatusLabel.TextColor3 = Color3.fromRGB(100, 200, 100)
-                            end
-                        end)
-                    end)
-                end
-            end
-            -- Adjust card height
-            Card.Size = UDim2.fromOffset(380, yOff + #KS.Links * 34 + 15)
-        end
-
-        -- Submit logic
-        local isProcessing = false
-        SubmitBtn.MouseButton1Click:Connect(function()
-            if isProcessing then return end
-            isProcessing = true
-
-            local keyText = KeyInput.Text or ""
-            if keyText == "" then
-                StatusLabel.Text = "Please enter a key!"
-                StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-                isProcessing = false
-                return
-            end
-
-            StatusLabel.Text = "Verifying..."
-            StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 100)
-            SubmitBtn.Text = "Verifying..."
-            SubmitBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
-
-            local callbackOk, isValid = pcall(function()
-                return KS.Callback(keyText)
-            end)
-
-            if callbackOk and isValid then
-                StatusLabel.Text = "Key Valid! Loading..."
-                StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-                SubmitBtn.Text = "Success!"
-                SubmitBtn.BackgroundColor3 = Color3.fromRGB(50, 180, 80)
-                task.wait(0.5)
-                keyValidated = true
-            else
-                if not callbackOk then
-                    StatusLabel.Text = "Verification error: " .. tostring(isValid)
-                else
-                    StatusLabel.Text = "Invalid key! Try again."
-                end
-                StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-                SubmitBtn.Text = "Verify Key"
-                SubmitBtn.BackgroundColor3 = GuiConfig.Color
-                isProcessing = false
-            end
-        end)
-
-        -- Yield / Block execution sampai key valid
-        while not keyValidated do
-            task.wait(0.1)
-        end
-
-        -- Destroy key screen
-        pcall(function() KeyGui:Destroy() end)
-        task.wait(0.3)
-    end
 
     local GuiFunc = {}
 
-    local NexHub = Instance.new("ScreenGui");
+    local Chloeex = Instance.new("ScreenGui");
     local DropShadowHolder = Instance.new("Frame");
     local DropShadow = Instance.new("ImageLabel");
     local Main = Instance.new("Frame");
@@ -798,10 +505,10 @@ function nexhub:Window(GuiConfig)
     local LayersFolder = Instance.new("Folder");
     local LayersPageLayout = Instance.new("UIPageLayout");
 
-    NexHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    NexHub.Name = "NexHub"
-    NexHub.ResetOnSpawn = false
-    NexHub.Parent = game:GetService("CoreGui")
+    Chloeex.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    Chloeex.Name = "Chloeex"
+    Chloeex.ResetOnSpawn = false
+    Chloeex.Parent = game:GetService("CoreGui")
 
     DropShadowHolder.BackgroundTransparency = 1
     DropShadowHolder.BorderSizePixel = 0
@@ -814,10 +521,10 @@ function nexhub:Window(GuiConfig)
     end
     DropShadowHolder.ZIndex = 0
     DropShadowHolder.Name = "DropShadowHolder"
-    DropShadowHolder.Parent = NexHub
+    DropShadowHolder.Parent = Chloeex
 
-    DropShadowHolder.Position = UDim2.new(0, (NexHub.AbsoluteSize.X // 2 - DropShadowHolder.Size.X.Offset // 2), 0,
-        (NexHub.AbsoluteSize.Y // 2 - DropShadowHolder.Size.Y.Offset // 2))
+    DropShadowHolder.Position = UDim2.new(0, (Chloeex.AbsoluteSize.X // 2 - DropShadowHolder.Size.X.Offset // 2), 0,
+        (Chloeex.AbsoluteSize.Y // 2 - DropShadowHolder.Size.Y.Offset // 2))
     DropShadow.Image = "rbxassetid://6015897843"
     DropShadow.ImageColor3 = Color3.fromRGB(15, 15, 15)
     DropShadow.ImageTransparency = 1
@@ -943,9 +650,9 @@ function nexhub:Window(GuiConfig)
     LayersTab.BackgroundTransparency = 0.9990000128746033
     LayersTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
     LayersTab.BorderSizePixel = 0
-    LayersTab.Position = UDim2.new(0, 9, 0, 50)
-    LayersTab.Size = UDim2.new(0, GuiConfig["Tab Width"], 1, -59)
-    LayersTab.Visible = true
+    -- Memindah tab ke atas, format horisontal 
+    LayersTab.Position = UDim2.new(0, 10, 0, 42)
+    LayersTab.Size = UDim2.new(1, -20, 0, 36)
     LayersTab.Name = "LayersTab"
     LayersTab.Parent = Main
 
@@ -957,6 +664,7 @@ function nexhub:Window(GuiConfig)
     DecideFrame.BackgroundTransparency = 0.85
     DecideFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     DecideFrame.BorderSizePixel = 0
+    -- Memindahkan decide frame ke bawah Top menu
     DecideFrame.Position = UDim2.new(0.5, 0, 0, 38)
     DecideFrame.Size = UDim2.new(1, 0, 0, 1)
     DecideFrame.Name = "DecideFrame"
@@ -966,8 +674,9 @@ function nexhub:Window(GuiConfig)
     Layers.BackgroundTransparency = 0.9990000128746033
     Layers.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Layers.BorderSizePixel = 0
-    Layers.Position = UDim2.new(0, GuiConfig["Tab Width"] + 18, 0, 50)
-    Layers.Size = UDim2.new(1, -(GuiConfig["Tab Width"] + 28), 1, -59)
+    -- Konten diturunkan full-width
+    Layers.Position = UDim2.new(0, 10, 0, 80)
+    Layers.Size = UDim2.new(1, -20, 1, -85)
     Layers.Name = "Layers"
     Layers.Parent = Main
 
@@ -977,35 +686,16 @@ function nexhub:Window(GuiConfig)
     NameTab.Font = Enum.Font.GothamBold
     NameTab.Text = ""
     NameTab.TextColor3 = Color3.fromRGB(255, 255, 255)
-    NameTab.TextSize = 22
+    NameTab.TextSize = 24
     NameTab.TextWrapped = true
     NameTab.TextXAlignment = Enum.TextXAlignment.Left
     NameTab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     NameTab.BackgroundTransparency = 0.9990000128746033
     NameTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
     NameTab.BorderSizePixel = 0
-    NameTab.Position = UDim2.new(0, 5, 0, 2)
-    NameTab.Size = UDim2.new(1, -10, 0, 26)
+    NameTab.Size = UDim2.new(1, 0, 0, 30)
     NameTab.Name = "NameTab"
     NameTab.Parent = Layers
-
-    -- SectionNameLabel dihapus agar tidak bentrok atau membingungkan
-    
-    local GlowLine = Instance.new("Frame")
-    GlowLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    GlowLine.BorderSizePixel = 0
-    GlowLine.Position = UDim2.new(0, 5, 0, 44)
-    GlowLine.Size = UDim2.new(1, -10, 0, 1)
-    GlowLine.Name = "GlowLine"
-    GlowLine.Parent = Layers
-
-    local GlowGradient = Instance.new("UIGradient")
-    GlowGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(155, 89, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(155, 89, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
-    })
-    GlowGradient.Parent = GlowLine
 
     LayersReal.AnchorPoint = Vector2.new(0, 1)
     LayersReal.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1013,8 +703,8 @@ function nexhub:Window(GuiConfig)
     LayersReal.BorderColor3 = Color3.fromRGB(0, 0, 0)
     LayersReal.BorderSizePixel = 0
     LayersReal.ClipsDescendants = true
-    LayersReal.Position = UDim2.new(0, 0, 1, -5)
-    LayersReal.Size = UDim2.new(1, 0, 1, -55)
+    LayersReal.Position = UDim2.new(0, 0, 1, 0)
+    LayersReal.Size = UDim2.new(1, 0, 1, -33)
     LayersReal.Name = "LayersReal"
     LayersReal.Parent = Layers
 
@@ -1031,7 +721,9 @@ function nexhub:Window(GuiConfig)
     local ScrollTab = Instance.new("ScrollingFrame");
     local UIListLayout = Instance.new("UIListLayout");
 
-    ScrollTab.CanvasSize = UDim2.new(0, 0, 1.10000002, 0)
+    -- Horizontal scrolling untuk main tabs di atas layar
+    ScrollTab.CanvasSize = UDim2.new(0, 0, 0, 0)
+    ScrollTab.ScrollingDirection = Enum.ScrollingDirection.X
     ScrollTab.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
     ScrollTab.ScrollBarThickness = 0
     ScrollTab.Active = true
@@ -1043,30 +735,27 @@ function nexhub:Window(GuiConfig)
     ScrollTab.Name = "ScrollTab"
     ScrollTab.Parent = LayersTab
 
-    UIListLayout.Padding = UDim.new(0, 3)
+    UIListLayout.Padding = UDim.new(0, 5)
+    UIListLayout.FillDirection = Enum.FillDirection.Horizontal
     UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     UIListLayout.Parent = ScrollTab
 
     local function UpdateSize1()
-        local OffsetY = 0
+        local OffsetX = 0
         for _, child in ScrollTab:GetChildren() do
             if child.Name ~= "UIListLayout" then
-                OffsetY = OffsetY + 3 + child.Size.Y.Offset
+                OffsetX = OffsetX + 5 + child.Size.X.Offset
             end
         end
-        ScrollTab.CanvasSize = UDim2.new(0, 0, 0, OffsetY)
+        ScrollTab.CanvasSize = UDim2.new(0, OffsetX, 0, 0)
     end
     ScrollTab.ChildAdded:Connect(UpdateSize1)
     ScrollTab.ChildRemoved:Connect(UpdateSize1)
 
     function GuiFunc:DestroyGui()
-        if CoreGui:FindFirstChild("NexHub") then
-            NexHub:Destroy()
+        if CoreGui:FindFirstChild("Chloeex") then
+            Chloeex:Destroy()
         end
-    end
-
-    function GuiFunc:ToggleUI()
-        DropShadowHolder.Visible = not DropShadowHolder.Visible
     end
 
     Min.Activated:Connect(function()
@@ -1122,7 +811,7 @@ function nexhub:Window(GuiConfig)
         Title.Position = UDim2.new(0, 0, 0, 4)
         Title.BackgroundTransparency = 1
         Title.Font = Enum.Font.GothamBold
-        Title.Text = "NexHub Window"
+        Title.Text = "Chloe X Window"
         Title.TextSize = 22
         Title.TextColor3 = Color3.fromRGB(255, 255, 255)
         Title.ZIndex = 52
@@ -1171,7 +860,7 @@ function nexhub:Window(GuiConfig)
         Instance.new("UICorner", Cancel).CornerRadius = UDim.new(0, 6)
 
         Yes.MouseButton1Click:Connect(function()
-            if NexHub then NexHub:Destroy() end
+            if Chloeex then Chloeex:Destroy() end
             if game.CoreGui:FindFirstChild("ToggleUIButton") then
                 game.CoreGui.ToggleUIButton:Destroy()
             end
@@ -1378,9 +1067,12 @@ function nexhub:Window(GuiConfig)
         TabConfig.Name = TabConfig.Name or "Tab"
         TabConfig.Icon = TabConfig.Icon or ""
 
-        local ScrolLayers = Instance.new("Frame");
+        local ScrolLayers = Instance.new("ScrollingFrame");
         local UIListLayout1 = Instance.new("UIListLayout");
 
+        ScrolLayers.ScrollBarImageColor3 = Color3.fromRGB(80.00000283122063, 80.00000283122063, 80.00000283122063)
+        ScrolLayers.ScrollBarThickness = 0
+        ScrolLayers.Active = true
         ScrolLayers.LayoutOrder = CountTab
         ScrolLayers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ScrolLayers.BackgroundTransparency = 0.9990000128746033
@@ -1402,20 +1094,19 @@ function nexhub:Window(GuiConfig)
         local UIStroke2 = Instance.new("UIStroke");
         local UICorner4 = Instance.new("UICorner");
 
-        Tab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Tab.BackgroundColor3 = GuiConfig.Color
         if CountTab == 0 then
-            Tab.BackgroundTransparency = 0.9200000166893005
+            Tab.BackgroundTransparency = 0.05
         else
-            Tab.BackgroundTransparency = 0.9990000128746033
+            Tab.BackgroundTransparency = 0.85
         end
         Tab.BorderColor3 = Color3.fromRGB(0, 0, 0)
         Tab.BorderSizePixel = 0
         Tab.LayoutOrder = CountTab
-        Tab.Size = UDim2.new(1, 0, 0, 30)
         Tab.Name = "Tab"
         Tab.Parent = ScrollTab
 
-        UICorner3.CornerRadius = UDim.new(0, 4)
+        UICorner3.CornerRadius = UDim.new(0, 6)
         UICorner3.Parent = Tab
 
         TabButton.Font = Enum.Font.GothamBold
@@ -1424,7 +1115,7 @@ function nexhub:Window(GuiConfig)
         TabButton.TextSize = 13
         TabButton.TextXAlignment = Enum.TextXAlignment.Left
         TabButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        TabButton.BackgroundTransparency = 0.9990000128746033
+        TabButton.BackgroundTransparency = 0.999
         TabButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
         TabButton.BorderSizePixel = 0
         TabButton.Size = UDim2.new(1, 0, 1, 0)
@@ -1432,50 +1123,36 @@ function nexhub:Window(GuiConfig)
         TabButton.Parent = Tab
 
         TabName.Font = Enum.Font.GothamBold
-        TabName.Text = "| " .. tostring(TabConfig.Name)
+        TabName.Text = tostring(TabConfig.Name)
         TabName.TextColor3 = Color3.fromRGB(255, 255, 255)
         TabName.TextSize = 13
         TabName.TextXAlignment = Enum.TextXAlignment.Left
         TabName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        TabName.BackgroundTransparency = 0.9990000128746033
+        TabName.BackgroundTransparency = 0.999
         TabName.BorderColor3 = Color3.fromRGB(0, 0, 0)
         TabName.BorderSizePixel = 0
-        TabName.Size = UDim2.new(1, 0, 1, 0)
-        TabName.Position = UDim2.new(0, 30, 0, 0)
+        TabName.Position = UDim2.new(0, 28, 0, 0)
+        TabName.Size = UDim2.new(1, -28, 1, 0)
         TabName.Name = "TabName"
         TabName.Parent = Tab
 
         FeatureImg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        FeatureImg.BackgroundTransparency = 0.9990000128746033
+        FeatureImg.BackgroundTransparency = 0.999
         FeatureImg.BorderColor3 = Color3.fromRGB(0, 0, 0)
         FeatureImg.BorderSizePixel = 0
-        FeatureImg.Position = UDim2.new(0, 9, 0, 7)
+        FeatureImg.Position = UDim2.new(0, 8, 0, 10)
         FeatureImg.Size = UDim2.new(0, 16, 0, 16)
         FeatureImg.Name = "FeatureImg"
         FeatureImg.Parent = Tab
-        if Icons and Icons[TabConfig.Icon] then
-            FeatureImg.Image = Icons[TabConfig.Icon]
-        else
-            FeatureImg.Image = TabConfig.Image or TabConfig.Icon or ""
-        end
 
+        -- Auto-sizing Horizontal Tab Based On Text
+        local textW = TabName.TextBounds.X
+        if textW < 30 then textW = 30 end
+        Tab.Size = UDim2.new(0, textW + 40, 1, 0)
         if CountTab == 0 then
             LayersPageLayout:JumpToIndex(0)
             NameTab.Text = TabConfig.Name
-            local ChooseFrame = Instance.new("Frame");
-            ChooseFrame.BackgroundColor3 = GuiConfig.Color
-            ChooseFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            ChooseFrame.BorderSizePixel = 0
-            ChooseFrame.Position = UDim2.new(0, 2, 0, 9)
-            ChooseFrame.Size = UDim2.new(0, 1, 0, 12)
-            ChooseFrame.Name = "ChooseFrame"
-            ChooseFrame.Parent = Tab
-
-            UIStroke2.Color = GuiConfig.Color
-            UIStroke2.Thickness = 1.600000023841858
-            UIStroke2.Parent = ChooseFrame
-
-            UICorner4.Parent = ChooseFrame
+            -- Penanda vertical (ChooseFrame) dihapus.
         end
 
         if TabConfig.Icon ~= "" then
@@ -1488,181 +1165,247 @@ function nexhub:Window(GuiConfig)
 
         TabButton.Activated:Connect(function()
             CircleClick(TabButton, Mouse.X, Mouse.Y)
-            local FrameChoose
-            for a, s in ScrollTab:GetChildren() do
-                for i, v in s:GetChildren() do
-                    if v.Name == "ChooseFrame" then
-                        FrameChoose = v
-                        break
-                    end
-                end
-            end
-            if FrameChoose ~= nil and Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
+            if Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
                 for _, TabFrame in ScrollTab:GetChildren() do
                     if TabFrame.Name == "Tab" then
                         TweenService:Create(
                             TabFrame,
-                            TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
-                            { BackgroundTransparency = 0.9990000128746033 }
+                            TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+                            { BackgroundTransparency = 0.85 }
                         ):Play()
                     end
                 end
                 TweenService:Create(
                     Tab,
-                    TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
-                    { BackgroundTransparency = 0.9200000166893005 }
+                    TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+                    { BackgroundTransparency = 0.05 }
                 ):Play()
-                TweenService:Create(
-                    FrameChoose,
-                    TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
-                    { Position = UDim2.new(0, 2, 0, 9 + (33 * Tab.LayoutOrder)) }
-                ):Play()
+                
                 LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
                 task.wait(0.05)
                 NameTab.Text = TabConfig.Name
-                TweenService:Create(
-                    FrameChoose,
-                    TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
-                    { Size = UDim2.new(0, 1, 0, 20) }
-                ):Play()
-                task.wait(0.2)
-                TweenService:Create(
-                    FrameChoose,
-                    TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
-                    { Size = UDim2.new(0, 1, 0, 12) }
-                ):Play()
             end
         end)
-        --// Container Utama Box (Meniru Photo 3 STA)
-        local SubTabHolder = Instance.new("Frame")
-        SubTabHolder.Name = "SubTabHolder"
-        SubTabHolder.BackgroundTransparency = 1
-        SubTabHolder.Size = UDim2.new(1, -10, 0, 0)
-        SubTabHolder.Position = UDim2.new(0, 5, 0, 5)
-        SubTabHolder.Parent = ScrolLayers
-        SubTabHolder.LayoutOrder = 1
-
-        local SubTabList = Instance.new("UIListLayout")
-        SubTabList.FillDirection = Enum.FillDirection.Horizontal
-        SubTabList.SortOrder = Enum.SortOrder.LayoutOrder
-        SubTabList.Padding = UDim.new(0, 6) 
-        SubTabList.Wraps = true
-        SubTabList.Parent = SubTabHolder
-
-        local SectionFolder = Instance.new("Frame")
-        SectionFolder.Name = "SectionFolder"
-        SectionFolder.BackgroundTransparency = 1
-        SectionFolder.Size = UDim2.new(1, -10, 1, -10)
-        SectionFolder.Position = UDim2.new(0, 5, 0, 5) 
-        SectionFolder.Parent = ScrolLayers
-        SectionFolder.ClipsDescendants = true
-        SectionFolder.LayoutOrder = 2
-
-        local SectionPageLayout = Instance.new("UIPageLayout")
-        SectionPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        SectionPageLayout.TweenTime = 0.4
-        SectionPageLayout.Parent = SectionFolder
-        
-        local function UpdateSizeScroll()
-            -- Adjust section CanvasSizes dynamically to prevent scrolling loop issues inside pages
-            for _, sf in pairs(SectionFolder:GetChildren()) do
-                if sf:IsA("ScrollingFrame") then
-                    local list = sf:FindFirstChildOfClass("UIListLayout")
-                    if list then
-                        sf.CanvasSize = UDim2.new(0, 0, 0, list.AbsoluteContentSize.Y + 20)
-                    end
-                end
-            end
-            
-            -- SubTabHolder auto adjusts its outer height to fit wrapped tabs
-            if SubTabHolder and SubTabList then
-                SubTabHolder.Size = UDim2.new(1, -10, 0, SubTabList.AbsoluteContentSize.Y)
-                -- Expand SectionFolder's remaining layout space below the SubTabHolder safely
-                SectionFolder.Size = UDim2.new(1, -10, 1, -(SubTabList.AbsoluteContentSize.Y + 15))
-            end
-        end
-
-        SubTabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateSizeScroll)
-
+        --// Section
         local Sections = {}
         local CountSection = 0
         function Sections:AddSection(Title, AlwaysOpen)
-            local SectionConfig = {}
-            if type(Title) == "table" then
-                SectionConfig = Title
-            else
-                SectionConfig.Title = Title
-                SectionConfig.AlwaysOpen = AlwaysOpen
-            end
+            local Title = Title or "Title"
+            local Section = Instance.new("Frame");
+            local SectionDecideFrame = Instance.new("Frame");
+            local UICorner1 = Instance.new("UICorner");
+            local UIGradient = Instance.new("UIGradient");
 
-            local SecOrder = CountSection
-            CountSection = CountSection + 1
-            
-            -- Buat Tombol Sub-tab
-            local SubBtn = Instance.new("Frame")
-            local SubBtnCorner = Instance.new("UICorner")
-            local SubBtnText = Instance.new("TextButton")
-            
-            SubBtn.Name = "SubBtn"
-            SubBtn.BackgroundColor3 = (SecOrder == 0) and GuiConfig.Color or Color3.fromRGB(45, 45, 45)
-            SubBtn.BackgroundTransparency = (SecOrder == 0) and 0 or 0.5
-            SubBtn.LayoutOrder = SecOrder
-            SubBtn.Parent = SubTabHolder
-            
-            SubBtnCorner.CornerRadius = UDim.new(0, 6)
-            SubBtnCorner.Parent = SubBtn
-            
-            SubBtnText.Font = Enum.Font.GothamBold
-            SubBtnText.Text = SectionConfig.Title
-            SubBtnText.TextColor3 = (SecOrder == 0) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 200, 200)
-            SubBtnText.TextSize = 15 -- Increased font size
-            SubBtnText.BackgroundTransparency = 1
-            SubBtnText.Size = UDim2.new(1, 0, 1, 0)
-            SubBtnText.Parent = SubBtn
-            
-            -- Menambahkan padding agar kotak subtab lebih luas & tombol gampang diklik
-            SubBtn.Size = UDim2.new(0, SubBtnText.TextBounds.X + 36, 0, 36)
+            Section.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Section.BackgroundTransparency = 0.9990000128746033
+            Section.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            Section.BorderSizePixel = 0
+            Section.LayoutOrder = CountSection
+            Section.ClipsDescendants = true
+            Section.LayoutOrder = 1
+            Section.Size = UDim2.new(1, 0, 0, 30)
+            Section.Name = "Section"
+            Section.Parent = ScrolLayers
 
-            -- (SectionNameLabel sudah dihapus global jadi trigger if SecOrder == 0 kita hapus juga)
+            local SectionReal = Instance.new("Frame");
+            local UICorner = Instance.new("UICorner");
+            local UIStroke = Instance.new("UIStroke");
+            local SectionButton = Instance.new("TextButton");
+            local FeatureFrame = Instance.new("Frame");
+            local FeatureImg = Instance.new("ImageLabel");
+            local SectionTitle = Instance.new("TextLabel");
 
-            -- Kontainer Konten Section
-            local SectionScroller = Instance.new("ScrollingFrame")
-            SectionScroller.Name = "SectionPage"
-            SectionScroller.BackgroundTransparency = 1
-            SectionScroller.Size = UDim2.new(1, 0, 1, 0)
-            SectionScroller.CanvasSize = UDim2.new(0, 0, 0, 0)
-            SectionScroller.ScrollBarThickness = 0
-            SectionScroller.LayoutOrder = SecOrder
-            SectionScroller.Parent = SectionFolder
-            
-            local SectionList = Instance.new("UIListLayout")
-            SectionList.Padding = UDim.new(0, 5)
-            SectionList.SortOrder = Enum.SortOrder.LayoutOrder
-            SectionList.Parent = SectionScroller
-            
-            SectionList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateSizeScroll)
+            SectionReal.AnchorPoint = Vector2.new(0.5, 0)
+            SectionReal.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            SectionReal.BackgroundTransparency = 0.9350000023841858
+            SectionReal.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            SectionReal.BorderSizePixel = 0
+            SectionReal.LayoutOrder = 1
+            SectionReal.Position = UDim2.new(0.5, 0, 0, 0)
+            SectionReal.Size = UDim2.new(1, 1, 0, 30)
+            SectionReal.Name = "SectionReal"
+            SectionReal.Parent = Section
 
-            local SectionAdd = SectionScroller
+            UICorner.CornerRadius = UDim.new(0, 4)
+            UICorner.Parent = SectionReal
 
-            SubBtnText.MouseButton1Click:Connect(function()
-                -- Reset tombol lain
-                for _, b in pairs(SubTabHolder:GetChildren()) do
-                    if b.Name == "SubBtn" then
-                        TweenService:Create(b, TweenInfo.new(0.3), { BackgroundColor3 = Color3.fromRGB(45, 45, 45), BackgroundTransparency = 0.5 }):Play()
-                        local txt = b:FindFirstChildOfClass("TextButton")
-                        if txt then
-                            TweenService:Create(txt, TweenInfo.new(0.3), { TextColor3 = Color3.fromRGB(180, 180, 180) }):Play()
-                        end
+            SectionButton.Font = Enum.Font.SourceSans
+            SectionButton.Text = ""
+            SectionButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+            SectionButton.TextSize = 14
+            SectionButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            SectionButton.BackgroundTransparency = 0.9990000128746033
+            SectionButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            SectionButton.BorderSizePixel = 0
+            SectionButton.Size = UDim2.new(1, 0, 1, 0)
+            SectionButton.Name = "SectionButton"
+            SectionButton.Parent = SectionReal
+
+            FeatureFrame.AnchorPoint = Vector2.new(1, 0.5)
+            FeatureFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            FeatureFrame.BackgroundTransparency = 0.9990000128746033
+            FeatureFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            FeatureFrame.BorderSizePixel = 0
+            FeatureFrame.Position = UDim2.new(1, -5, 0.5, 0)
+            FeatureFrame.Size = UDim2.new(0, 20, 0, 20)
+            FeatureFrame.Name = "FeatureFrame"
+            FeatureFrame.Parent = SectionReal
+
+            FeatureImg.Image = "rbxassetid://16851841101"
+            FeatureImg.AnchorPoint = Vector2.new(0.5, 0.5)
+            FeatureImg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            FeatureImg.BackgroundTransparency = 0.9990000128746033
+            FeatureImg.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            FeatureImg.BorderSizePixel = 0
+            FeatureImg.Position = UDim2.new(0.5, 0, 0.5, 0)
+            FeatureImg.Rotation = -90
+            FeatureImg.Size = UDim2.new(1, 6, 1, 6)
+            FeatureImg.Name = "FeatureImg"
+            FeatureImg.Parent = FeatureFrame
+
+            SectionTitle.Font = Enum.Font.GothamBold
+            SectionTitle.Text = Title
+            SectionTitle.TextColor3 = Color3.fromRGB(230.77499270439148, 230.77499270439148, 230.77499270439148)
+            SectionTitle.TextSize = 13
+            SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
+            SectionTitle.TextYAlignment = Enum.TextYAlignment.Top
+            SectionTitle.AnchorPoint = Vector2.new(0, 0.5)
+            SectionTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            SectionTitle.BackgroundTransparency = 0.9990000128746033
+            SectionTitle.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            SectionTitle.BorderSizePixel = 0
+            SectionTitle.Position = UDim2.new(0, 10, 0.5, 0)
+            SectionTitle.Size = UDim2.new(1, -50, 0, 13)
+            SectionTitle.Name = "SectionTitle"
+            SectionTitle.Parent = SectionReal
+
+            SectionDecideFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            SectionDecideFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            SectionDecideFrame.AnchorPoint = Vector2.new(0.5, 0)
+            SectionDecideFrame.BorderSizePixel = 0
+            SectionDecideFrame.Position = UDim2.new(0.5, 0, 0, 33)
+            SectionDecideFrame.Size = UDim2.new(0, 0, 0, 2)
+            SectionDecideFrame.Name = "SectionDecideFrame"
+            SectionDecideFrame.Parent = Section
+
+            UICorner1.Parent = SectionDecideFrame
+
+            UIGradient.Color = ColorSequence.new {
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
+                ColorSequenceKeypoint.new(0.5, GuiConfig.Color),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
+            }
+            UIGradient.Parent = SectionDecideFrame
+
+            --// Section Add
+            local SectionAdd = Instance.new("Frame");
+            local UICorner8 = Instance.new("UICorner");
+            local UIListLayout2 = Instance.new("UIListLayout");
+
+            SectionAdd.AnchorPoint = Vector2.new(0.5, 0)
+            SectionAdd.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            SectionAdd.BackgroundTransparency = 0.9990000128746033
+            SectionAdd.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            SectionAdd.BorderSizePixel = 0
+            SectionAdd.ClipsDescendants = true
+            SectionAdd.LayoutOrder = 1
+            SectionAdd.Position = UDim2.new(0.5, 0, 0, 38)
+            SectionAdd.Size = UDim2.new(1, 0, 0, 100)
+            SectionAdd.Name = "SectionAdd"
+            SectionAdd.Parent = Section
+
+            UICorner8.CornerRadius = UDim.new(0, 2)
+            UICorner8.Parent = SectionAdd
+
+            UIListLayout2.Padding = UDim.new(0, 3)
+            UIListLayout2.SortOrder = Enum.SortOrder.LayoutOrder
+            UIListLayout2.Parent = SectionAdd
+
+            local OpenSection = false
+
+            local function UpdateSizeScroll()
+                local OffsetY = 0
+                for _, child in ScrolLayers:GetChildren() do
+                    if child.Name ~= "UIListLayout" then
+                        OffsetY = OffsetY + 3 + child.Size.Y.Offset
                     end
                 end
-                -- Set aktif
-                TweenService:Create(SubBtn, TweenInfo.new(0.3), { BackgroundColor3 = GuiConfig.Color, BackgroundTransparency = 0 }):Play()
-                TweenService:Create(SubBtnText, TweenInfo.new(0.3), { TextColor3 = Color3.fromRGB(255, 255, 255) }):Play()
-                
-                SectionPageLayout:JumpToIndex(SecOrder)
-                -- Pastikan GUI dirender stabil sebelum adjust height untuk mencegah bounce
-                task.delay(0.05, UpdateSizeScroll) 
-            end)
+                ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, OffsetY)
+            end
+
+            local function UpdateSizeSection()
+                if OpenSection then
+                    local SectionSizeYWitdh = 38
+                    for _, v in SectionAdd:GetChildren() do
+                        if v.Name ~= "UIListLayout" and v.Name ~= "UICorner" then
+                            SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
+                        end
+                    end
+                    TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 90 }):Play()
+                    TweenService:Create(Section, TweenInfo.new(0.5), { Size = UDim2.new(1, 1, 0, SectionSizeYWitdh) })
+                        :Play()
+                    TweenService:Create(SectionAdd, TweenInfo.new(0.5),
+                        { Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38) }):Play()
+                    TweenService:Create(SectionDecideFrame, TweenInfo.new(0.5), { Size = UDim2.new(1, 0, 0, 2) }):Play()
+                    task.wait(0.5)
+                    UpdateSizeScroll()
+                end
+            end
+
+            if AlwaysOpen == true then
+                SectionButton:Destroy()
+                FeatureFrame:Destroy()
+                OpenSection = true
+                UpdateSizeSection()
+            elseif AlwaysOpen == false then
+                OpenSection = true
+                UpdateSizeSection()
+            else
+                OpenSection = false
+            end
+
+            if AlwaysOpen ~= true then
+                SectionButton.Activated:Connect(function()
+                    CircleClick(SectionButton, Mouse.X, Mouse.Y)
+                    if OpenSection then
+                        TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 0 }):Play()
+                        TweenService:Create(Section, TweenInfo.new(0.5), { Size = UDim2.new(1, 1, 0, 30) }):Play()
+                        TweenService:Create(SectionDecideFrame, TweenInfo.new(0.5), { Size = UDim2.new(0, 0, 0, 2) })
+                            :Play()
+                        OpenSection = false
+                        task.wait(0.5)
+                        UpdateSizeScroll()
+                    else
+                        OpenSection = true
+                        UpdateSizeSection()
+                    end
+                end)
+            end
+
+            if AlwaysOpen == true or AlwaysOpen == false then
+                OpenSection = true
+                local SectionSizeYWitdh = 38
+                for _, v in SectionAdd:GetChildren() do
+                    if v.Name ~= "UIListLayout" and v.Name ~= "UICorner" then
+                        SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
+                    end
+                end
+                FeatureFrame.Rotation = 90
+                Section.Size = UDim2.new(1, 1, 0, SectionSizeYWitdh)
+                SectionAdd.Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38)
+                SectionDecideFrame.Size = UDim2.new(1, 0, 0, 2)
+                UpdateSizeScroll()
+            end
+
+            SectionAdd.ChildAdded:Connect(UpdateSizeSection)
+            SectionAdd.ChildRemoved:Connect(UpdateSizeSection)
+
+            local layout = ScrolLayers:FindFirstChildOfClass("UIListLayout")
+            if layout then
+                layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                    ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+                end)
+            end
 
             local Items = {}
             local CountItem = 0
@@ -2174,16 +1917,6 @@ function nexhub:Window(GuiConfig)
 
             function Items:AddSlider(SliderConfig)
                 local SliderConfig = SliderConfig or {}
-                -- Normalizer: handle Value = {Min, Max, Default} format (BloxFruits adapter)
-                if type(SliderConfig.Value) == "table" then
-                    SliderConfig.Min = SliderConfig.Value.Min or SliderConfig.Min
-                    SliderConfig.Max = SliderConfig.Value.Max or SliderConfig.Max
-                    SliderConfig.Default = SliderConfig.Value.Default or SliderConfig.Default
-                end
-                -- Normalizer: handle Step alias for Increment
-                if SliderConfig.Step and not SliderConfig.Increment then
-                    SliderConfig.Increment = SliderConfig.Step
-                end
                 SliderConfig.Title = SliderConfig.Title or "Slider"
                 SliderConfig.Content = SliderConfig.Content or ""
                 SliderConfig.Increment = SliderConfig.Increment or 1
@@ -2865,10 +2598,6 @@ function nexhub:Window(GuiConfig)
 
                 DropdownFunc:SetValues(DropdownFunc.Options, DropdownFunc.Value)
 
-                function DropdownFunc:Refresh(newList)
-                    self:SetValues(newList or self.Options, self.Value)
-                end
-
                 CountItem = CountItem + 1
                 CountDropdown = CountDropdown + 1
                 Elements[configKey] = DropdownFunc
@@ -2928,7 +2657,7 @@ function nexhub:Window(GuiConfig)
                 Label.Size = UDim2.new(1, -20, 1, 0)
                 Label.BackgroundTransparency = 1
                 Label.Font = Enum.Font.GothamBold
-                Label.Text = "â”€â”€ [ " .. title .. " ] â”€â”€"
+                Label.Text = "── [ " .. title .. " ] ──"
                 Label.TextColor3 = Color3.fromRGB(230, 230, 230)
                 Label.TextSize = 12
                 Label.TextXAlignment = Enum.TextXAlignment.Left
@@ -2937,797 +2666,6 @@ function nexhub:Window(GuiConfig)
                 return SubSection
             end
 
-            function Items:AddTabbox(cfg)
-                cfg = cfg or {}
-                local tabTitle = cfg.Title or cfg.Name or "Sub Tab"
-                if type(tabTitle) == "table" then tabTitle = tabTitle.Title or tabTitle.Name or "Sub Tab" end
-
-                -- Buat SubTabBar (horizontal bar) jika belum ada di SectionAdd ini
-                if not SectionAdd:FindFirstChild("SubTabBar") then
-                    local SubTabBar = Instance.new("Frame")
-                    SubTabBar.Name = "SubTabBar"
-                    SubTabBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    SubTabBar.BackgroundTransparency = 0.94
-                    SubTabBar.BorderSizePixel = 0
-                    SubTabBar.Size = UDim2.new(1, 0, 0, 30)
-                    SubTabBar.LayoutOrder = -999
-                    SubTabBar.Parent = SectionAdd
-                    Instance.new("UICorner", SubTabBar).CornerRadius = UDim.new(0, 4)
-
-                    local barScroll = Instance.new("ScrollingFrame")
-                    barScroll.Name = "BarScroll"
-                    barScroll.BackgroundTransparency = 1
-                    barScroll.BorderSizePixel = 0
-                    barScroll.ScrollBarThickness = 0
-                    barScroll.Size = UDim2.new(1, 0, 1, 0)
-                    barScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-                    barScroll.AutomaticCanvasSize = Enum.AutomaticSize.X
-                    barScroll.ScrollingDirection = Enum.ScrollingDirection.X
-                    barScroll.Parent = SubTabBar
-
-                    local barLayout = Instance.new("UIListLayout")
-                    barLayout.FillDirection = Enum.FillDirection.Horizontal
-                    barLayout.Padding = UDim.new(0, 4)
-                    barLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                    barLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-                    barLayout.Parent = barScroll
-
-                    local barPadding = Instance.new("UIPadding")
-                    barPadding.PaddingLeft = UDim.new(0, 4)
-                    barPadding.PaddingTop = UDim.new(0, 3)
-                    barPadding.PaddingBottom = UDim.new(0, 3)
-                    barPadding.Parent = barScroll
-
-                    -- Kontainer halaman sub-tab
-                    local SubTabPages = Instance.new("Frame")
-                    SubTabPages.Name = "SubTabPages"
-                    SubTabPages.BackgroundTransparency = 1
-                    SubTabPages.BorderSizePixel = 0
-                    SubTabPages.Size = UDim2.new(1, 0, 0, 300)
-                    SubTabPages.LayoutOrder = -998
-                    SubTabPages.ClipsDescendants = false
-                    SubTabPages.Parent = SectionAdd
-                end
-
-                local SubTabBar = SectionAdd:FindFirstChild("SubTabBar")
-                local barScroll = SubTabBar:FindFirstChild("BarScroll")
-                local SubTabPages = SectionAdd:FindFirstChild("SubTabPages")
-
-                -- Hitung jumlah sub-tab saat ini
-                local subTabCount = 0
-                for _, c in barScroll:GetChildren() do
-                    if c:IsA("TextButton") then subTabCount = subTabCount + 1 end
-                end
-
-                -- Buat tombol sub-tab horizontal
-                local subBtn = Instance.new("TextButton")
-                subBtn.Name = "SubTab_" .. tabTitle
-                subBtn.Font = Enum.Font.GothamBold
-                subBtn.Text = tabTitle
-                subBtn.TextSize = 11
-                subBtn.TextColor3 = subTabCount == 0 and GuiConfig.Color or Color3.fromRGB(180, 180, 180)
-                subBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                subBtn.BackgroundTransparency = subTabCount == 0 and 0.88 or 0.96
-                subBtn.BorderSizePixel = 0
-                subBtn.AutomaticSize = Enum.AutomaticSize.X
-                subBtn.Size = UDim2.new(0, 0, 1, -6)
-                subBtn.LayoutOrder = subTabCount
-                subBtn.Parent = barScroll
-                Instance.new("UICorner", subBtn).CornerRadius = UDim.new(0, 4)
-                local btnPad = Instance.new("UIPadding")
-                btnPad.PaddingLeft = UDim.new(0, 8)
-                btnPad.PaddingRight = UDim.new(0, 8)
-                btnPad.Parent = subBtn
-
-                -- Buat halaman konten untuk sub-tab ini
-                local subPage = Instance.new("ScrollingFrame")
-                subPage.Name = "SubPage_" .. tabTitle
-                subPage.BackgroundTransparency = 1
-                subPage.BorderSizePixel = 0
-                subPage.ScrollBarThickness = 0
-                subPage.Size = UDim2.new(1, 0, 0, 300)
-                subPage.CanvasSize = UDim2.new(0, 0, 0, 0)
-                subPage.Visible = (subTabCount == 0)
-                subPage.Parent = SubTabPages
-
-                local pageLayout = Instance.new("UIListLayout")
-                pageLayout.Padding = UDim.new(0, 3)
-                pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                pageLayout.Parent = subPage
-
-                -- Auto-resize canvas & tinggi SubTabPages
-                local function resizeSubPages()
-                    subPage.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 10)
-                    local contentH = pageLayout.AbsoluteContentSize.Y + 10
-                    subPage.Size = UDim2.new(1, 0, 0, contentH)
-                    -- Cari halaman tertinggi yang visible
-                    local maxH = 0
-                    for _, pg in SubTabPages:GetChildren() do
-                        if pg:IsA("ScrollingFrame") and pg.Visible then
-                            maxH = math.max(maxH, pg.Size.Y.Offset)
-                        end
-                    end
-                    SubTabPages.Size = UDim2.new(1, 0, 0, math.max(100, maxH))
-                    UpdateSizeSection()
-                end
-                pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(resizeSubPages)
-                subPage.ChildAdded:Connect(function() task.defer(resizeSubPages) end)
-
-                -- Klik handler: tunjukkan halaman ini, sembunyikan lainnya
-                subBtn.MouseButton1Click:Connect(function()
-                    for _, pg in SubTabPages:GetChildren() do
-                        if pg:IsA("ScrollingFrame") then pg.Visible = false end
-                    end
-                    subPage.Visible = true
-
-                    for _, btn in barScroll:GetChildren() do
-                        if btn:IsA("TextButton") then
-                            TweenService:Create(btn, TweenInfo.new(0.2), {
-                                TextColor3 = Color3.fromRGB(180, 180, 180),
-                                BackgroundTransparency = 0.96
-                            }):Play()
-                        end
-                    end
-                    TweenService:Create(subBtn, TweenInfo.new(0.2), {
-                        TextColor3 = GuiConfig.Color,
-                        BackgroundTransparency = 0.88
-                    }):Play()
-
-                    -- Update tinggi SubTabPages sesuai halaman aktif
-                    SubTabPages.Size = UDim2.new(1, 0, 0, math.max(100, subPage.Size.Y.Offset))
-                    UpdateSizeSection()
-                end)
-
-                -- Return Items baru yang merender ke subPage
-                local SubItems = {}
-                local SubCountItem = 0
-
-                -- ===== CLONE SEMUA FUNGSI ADD KE DALAM SubItems =====
-                -- Helper: parent target untuk elemen adalah subPage
-                local subSectionAdd = subPage
-
-                function SubItems:AddToggle(ToggleConfig)
-                    local ToggleConfig = ToggleConfig or {}
-                    ToggleConfig.Title = ToggleConfig.Title or "Title"
-                    ToggleConfig.Title2 = ToggleConfig.Title2 or ""
-                    ToggleConfig.Content = ToggleConfig.Content or ""
-                    ToggleConfig.Default = ToggleConfig.Default or false
-                    ToggleConfig.Callback = ToggleConfig.Callback or function() end
-
-                    local configKey = "Toggle_" .. ToggleConfig.Title
-                    if ConfigData[configKey] ~= nil then
-                        ToggleConfig.Default = ConfigData[configKey]
-                    end
-
-                    local ToggleFunc = { Value = ToggleConfig.Default }
-
-                    local Toggle = Instance.new("Frame")
-                    Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    Toggle.BackgroundTransparency = 0.935
-                    Toggle.BorderSizePixel = 0
-                    Toggle.LayoutOrder = SubCountItem
-                    Toggle.Name = "Toggle"
-                    Toggle.Parent = subSectionAdd
-
-                    Instance.new("UICorner", Toggle).CornerRadius = UDim.new(0, 4)
-
-                    local ToggleTitle = Instance.new("TextLabel")
-                    ToggleTitle.Font = Enum.Font.GothamBold
-                    ToggleTitle.Text = ToggleConfig.Title
-                    ToggleTitle.TextSize = 13
-                    ToggleTitle.TextColor3 = Color3.fromRGB(231, 231, 231)
-                    ToggleTitle.TextXAlignment = Enum.TextXAlignment.Left
-                    ToggleTitle.TextYAlignment = Enum.TextYAlignment.Top
-                    ToggleTitle.BackgroundTransparency = 1
-                    ToggleTitle.Position = UDim2.new(0, 10, 0, 10)
-                    ToggleTitle.Size = UDim2.new(1, -100, 0, 13)
-                    ToggleTitle.Name = "ToggleTitle"
-                    ToggleTitle.Parent = Toggle
-
-                    local ToggleContent = Instance.new("TextLabel")
-                    ToggleContent.Font = Enum.Font.GothamBold
-                    ToggleContent.Text = ToggleConfig.Content
-                    ToggleContent.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    ToggleContent.TextSize = 12
-                    ToggleContent.TextTransparency = 0.6
-                    ToggleContent.TextXAlignment = Enum.TextXAlignment.Left
-                    ToggleContent.TextYAlignment = Enum.TextYAlignment.Top
-                    ToggleContent.TextWrapped = true
-                    ToggleContent.BackgroundTransparency = 1
-                    ToggleContent.Position = UDim2.new(0, 10, 0, 25)
-                    ToggleContent.Size = UDim2.new(1, -60, 0, 30)
-                    ToggleContent.AutomaticSize = Enum.AutomaticSize.Y
-                    ToggleContent.Name = "ToggleContent"
-                    ToggleContent.Parent = Toggle
-
-                    -- Auto-height: sesuaikan tinggi Toggle berdasarkan konten
-                    local baseH = 46
-                    if ToggleConfig.Content ~= "" then
-                        local contentH = ToggleContent.TextBounds.Y
-                        if contentH > 14 then
-                            baseH = 25 + contentH + 10
-                        end
-                    end
-                    Toggle.Size = UDim2.new(1, 0, 0, baseH)
-                    ToggleContent:GetPropertyChangedSignal("TextBounds"):Connect(function()
-                        local h = math.max(46, 25 + ToggleContent.TextBounds.Y + 10)
-                        Toggle.Size = UDim2.new(1, 0, 0, h)
-                    end)
-
-                    local ToggleButton = Instance.new("TextButton")
-                    ToggleButton.Font = Enum.Font.SourceSans
-                    ToggleButton.Text = ""
-                    ToggleButton.BackgroundTransparency = 1
-                    ToggleButton.Size = UDim2.new(1, 0, 1, 0)
-                    ToggleButton.Name = "ToggleButton"
-                    ToggleButton.Parent = Toggle
-
-                    local FeatureFrame2 = Instance.new("Frame")
-                    FeatureFrame2.AnchorPoint = Vector2.new(1, 0.5)
-                    FeatureFrame2.BackgroundTransparency = 0.92
-                    FeatureFrame2.BorderSizePixel = 0
-                    FeatureFrame2.Position = UDim2.new(1, -15, 0.5, 0)
-                    FeatureFrame2.Size = UDim2.new(0, 30, 0, 15)
-                    FeatureFrame2.Name = "FeatureFrame"
-                    FeatureFrame2.Parent = Toggle
-                    Instance.new("UICorner", FeatureFrame2)
-
-                    local UIStroke8 = Instance.new("UIStroke")
-                    UIStroke8.Color = Color3.fromRGB(255, 255, 255)
-                    UIStroke8.Thickness = 2
-                    UIStroke8.Transparency = 0.9
-                    UIStroke8.Parent = FeatureFrame2
-
-                    local ToggleCircle = Instance.new("Frame")
-                    ToggleCircle.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
-                    ToggleCircle.BorderSizePixel = 0
-                    ToggleCircle.Size = UDim2.new(0, 14, 0, 14)
-                    ToggleCircle.Name = "ToggleCircle"
-                    ToggleCircle.Parent = FeatureFrame2
-                    Instance.new("UICorner", ToggleCircle).CornerRadius = UDim.new(0, 15)
-
-                    ToggleButton.Activated:Connect(function()
-                        ToggleFunc.Value = not ToggleFunc.Value
-                        ToggleFunc:Set(ToggleFunc.Value)
-                    end)
-
-                    function ToggleFunc:Set(Value)
-                        if typeof(ToggleConfig.Callback) == "function" then
-                            pcall(ToggleConfig.Callback, Value)
-                        end
-                        ConfigData[configKey] = Value
-                        SaveConfig()
-                        if Value then
-                            TweenService:Create(ToggleTitle, TweenInfo.new(0.2), { TextColor3 = GuiConfig.Color }):Play()
-                            TweenService:Create(ToggleCircle, TweenInfo.new(0.2), { Position = UDim2.new(0, 15, 0, 0) }):Play()
-                            TweenService:Create(UIStroke8, TweenInfo.new(0.2), { Color = GuiConfig.Color, Transparency = 0 }):Play()
-                            TweenService:Create(FeatureFrame2, TweenInfo.new(0.2), { BackgroundColor3 = GuiConfig.Color, BackgroundTransparency = 0 }):Play()
-                        else
-                            TweenService:Create(ToggleTitle, TweenInfo.new(0.2), { TextColor3 = Color3.fromRGB(230, 230, 230) }):Play()
-                            TweenService:Create(ToggleCircle, TweenInfo.new(0.2), { Position = UDim2.new(0, 0, 0, 0) }):Play()
-                            TweenService:Create(UIStroke8, TweenInfo.new(0.2), { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.9 }):Play()
-                            TweenService:Create(FeatureFrame2, TweenInfo.new(0.2), { BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.92 }):Play()
-                        end
-                    end
-
-                    ToggleFunc:Set(ToggleFunc.Value)
-                    SubCountItem = SubCountItem + 1
-                    Elements[configKey] = ToggleFunc
-                    return ToggleFunc
-                end
-
-                function SubItems:AddSlider(SliderConfig)
-                    local SliderConfig = SliderConfig or {}
-                    SliderConfig.Title = SliderConfig.Title or "Slider"
-                    SliderConfig.Increment = SliderConfig.Increment or 1
-                    SliderConfig.Min = SliderConfig.Min or 0
-                    SliderConfig.Max = SliderConfig.Max or 100
-                    SliderConfig.Default = SliderConfig.Default or 50
-                    SliderConfig.Callback = SliderConfig.Callback or function() end
-
-                    local configKey = "Slider_" .. SliderConfig.Title
-                    if ConfigData[configKey] ~= nil then
-                        SliderConfig.Default = ConfigData[configKey]
-                    end
-
-                    local SliderFunc = { Value = SliderConfig.Default }
-
-                    local Slider = Instance.new("Frame")
-                    Slider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    Slider.BackgroundTransparency = 0.935
-                    Slider.BorderSizePixel = 0
-                    Slider.LayoutOrder = SubCountItem
-                    Slider.Size = UDim2.new(1, 0, 0, 46)
-                    Slider.Name = "Slider"
-                    Slider.Parent = subSectionAdd
-                    Instance.new("UICorner", Slider).CornerRadius = UDim.new(0, 4)
-
-                    local SliderTitle = Instance.new("TextLabel")
-                    SliderTitle.Font = Enum.Font.GothamBold
-                    SliderTitle.Text = SliderConfig.Title
-                    SliderTitle.TextColor3 = Color3.fromRGB(231, 231, 231)
-                    SliderTitle.TextSize = 13
-                    SliderTitle.TextXAlignment = Enum.TextXAlignment.Left
-                    SliderTitle.BackgroundTransparency = 1
-                    SliderTitle.Position = UDim2.new(0, 10, 0, 10)
-                    SliderTitle.Size = UDim2.new(1, -180, 0, 13)
-                    SliderTitle.Parent = Slider
-
-                    local TextBox = Instance.new("TextBox")
-                    TextBox.Font = Enum.Font.GothamBold
-                    TextBox.Text = tostring(SliderConfig.Default)
-                    TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    TextBox.TextSize = 13
-                    TextBox.BackgroundTransparency = 1
-                    TextBox.Position = UDim2.new(1, -155, 0.5, -10)
-                    TextBox.Size = UDim2.new(0, 28, 0, 20)
-                    TextBox.Parent = Slider
-
-                    local SliderFrame = Instance.new("Frame")
-                    SliderFrame.AnchorPoint = Vector2.new(1, 0.5)
-                    SliderFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    SliderFrame.BackgroundTransparency = 0.8
-                    SliderFrame.BorderSizePixel = 0
-                    SliderFrame.Position = UDim2.new(1, -20, 0.5, 0)
-                    SliderFrame.Size = UDim2.new(0, 100, 0, 3)
-                    SliderFrame.Name = "SliderFrame"
-                    SliderFrame.Parent = Slider
-                    Instance.new("UICorner", SliderFrame)
-
-                    local SliderDraggable = Instance.new("Frame")
-                    SliderDraggable.BackgroundColor3 = GuiConfig.Color
-                    SliderDraggable.BorderSizePixel = 0
-                    SliderDraggable.Size = UDim2.new(0.5, 0, 0, 1)
-                    SliderDraggable.Name = "SliderDraggable"
-                    SliderDraggable.Parent = SliderFrame
-                    Instance.new("UICorner", SliderDraggable)
-
-                    local SliderCircle = Instance.new("Frame")
-                    SliderCircle.AnchorPoint = Vector2.new(1, 0.5)
-                    SliderCircle.BackgroundColor3 = GuiConfig.Color
-                    SliderCircle.BorderSizePixel = 0
-                    SliderCircle.Position = UDim2.new(1, 4, 0.5, 0)
-                    SliderCircle.Size = UDim2.new(0, 8, 0, 8)
-                    SliderCircle.Parent = SliderDraggable
-                    Instance.new("UICorner", SliderCircle)
-
-                    local Dragging = false
-                    local function Round(Number, Factor)
-                        local Result = math.floor(Number / Factor + (math.sign(Number) * 0.5)) * Factor
-                        if Result < 0 then Result = Result + Factor end
-                        return Result
-                    end
-
-                    function SliderFunc:Set(Value)
-                        Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)
-                        SliderFunc.Value = Value
-                        TextBox.Text = tostring(Value)
-                        TweenService:Create(SliderDraggable, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-                            { Size = UDim2.fromScale((Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1) }
-                        ):Play()
-                        SliderConfig.Callback(Value)
-                        ConfigData[configKey] = Value
-                        SaveConfig()
-                    end
-
-                    SliderFrame.InputBegan:Connect(function(Input)
-                        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                            Dragging = true
-                            local SizeScale = math.clamp((Input.Position.X - SliderFrame.AbsolutePosition.X) / SliderFrame.AbsoluteSize.X, 0, 1)
-                            SliderFunc:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))
-                        end
-                    end)
-                    SliderFrame.InputEnded:Connect(function(Input)
-                        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                            Dragging = false
-                        end
-                    end)
-                    UserInputService.InputChanged:Connect(function(Input)
-                        if Dragging and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
-                            local SizeScale = math.clamp((Input.Position.X - SliderFrame.AbsolutePosition.X) / SliderFrame.AbsoluteSize.X, 0, 1)
-                            SliderFunc:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))
-                        end
-                    end)
-
-                    SliderFunc:Set(SliderConfig.Default)
-                    SubCountItem = SubCountItem + 1
-                    Elements[configKey] = SliderFunc
-                    return SliderFunc
-                end
-
-                function SubItems:AddDropdown(DropdownConfig)
-                    local DropdownConfig = DropdownConfig or {}
-                    DropdownConfig.Title = DropdownConfig.Title or "Title"
-                    DropdownConfig.Content = DropdownConfig.Content or ""
-                    DropdownConfig.Multi = DropdownConfig.Multi or false
-                    DropdownConfig.Options = DropdownConfig.Options or {}
-                    DropdownConfig.Default = DropdownConfig.Default or (DropdownConfig.Multi and {} or nil)
-                    DropdownConfig.Callback = DropdownConfig.Callback or function() end
-
-                    local configKey = "Dropdown_" .. DropdownConfig.Title
-                    if ConfigData[configKey] ~= nil then
-                        DropdownConfig.Default = ConfigData[configKey]
-                    end
-
-                    local DropdownFunc = { Value = DropdownConfig.Default, Options = DropdownConfig.Options }
-
-                    local Dropdown = Instance.new("Frame")
-                    Dropdown.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    Dropdown.BackgroundTransparency = 0.935
-                    Dropdown.BorderSizePixel = 0
-                    Dropdown.LayoutOrder = SubCountItem
-                    Dropdown.Size = UDim2.new(1, 0, 0, 46)
-                    Dropdown.Name = "Dropdown"
-                    Dropdown.Parent = subSectionAdd
-                    Instance.new("UICorner", Dropdown).CornerRadius = UDim.new(0, 4)
-
-                    local DropdownTitle = Instance.new("TextLabel")
-                    DropdownTitle.Font = Enum.Font.GothamBold
-                    DropdownTitle.Text = DropdownConfig.Title
-                    DropdownTitle.TextColor3 = Color3.fromRGB(230, 230, 230)
-                    DropdownTitle.TextSize = 13
-                    DropdownTitle.TextWrapped = true
-                    DropdownTitle.TextXAlignment = Enum.TextXAlignment.Left
-                    DropdownTitle.BackgroundTransparency = 1
-                    DropdownTitle.Position = UDim2.new(0, 10, 0, 5)
-                    DropdownTitle.Size = UDim2.new(0.5, -10, 0, 13)
-                    DropdownTitle.Parent = Dropdown
-
-                    local DropdownContent = Instance.new("TextLabel")
-                    DropdownContent.Font = Enum.Font.Gotham
-                    DropdownContent.Text = DropdownConfig.Content
-                    DropdownContent.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    DropdownContent.TextSize = 11
-                    DropdownContent.TextTransparency = 0.6
-                    DropdownContent.TextWrapped = true
-                    DropdownContent.TextXAlignment = Enum.TextXAlignment.Left
-                    DropdownContent.BackgroundTransparency = 1
-                    DropdownContent.Position = UDim2.new(0, 10, 0, 20)
-                    DropdownContent.Size = UDim2.new(0.5, -10, 0, 24)
-                    DropdownContent.AutomaticSize = Enum.AutomaticSize.Y
-                    DropdownContent.Parent = Dropdown
-
-                    -- Auto-height dropdown berdasarkan deskripsi
-                    DropdownContent:GetPropertyChangedSignal("TextBounds"):Connect(function()
-                        local h = math.max(46, 5 + 13 + 4 + DropdownContent.TextBounds.Y + 5)
-                        Dropdown.Size = UDim2.new(1, 0, 0, h)
-                    end)
-
-                    local SelectOptionsFrame = Instance.new("Frame")
-                    SelectOptionsFrame.AnchorPoint = Vector2.new(1, 0.5)
-                    SelectOptionsFrame.BackgroundTransparency = 0.95
-                    SelectOptionsFrame.Position = UDim2.new(1, -7, 0.5, 0)
-                    SelectOptionsFrame.Size = UDim2.new(0.45, -5, 0, 30)
-                    SelectOptionsFrame.Name = "SelectOptionsFrame"
-                    SelectOptionsFrame.LayoutOrder = CountDropdown
-                    SelectOptionsFrame.Parent = Dropdown
-                    Instance.new("UICorner", SelectOptionsFrame).CornerRadius = UDim.new(0, 4)
-
-                    local OptionSelecting = Instance.new("TextLabel")
-                    OptionSelecting.Font = Enum.Font.GothamBold
-                    OptionSelecting.Text = DropdownConfig.Multi and "Select Options" or "Select Option"
-                    OptionSelecting.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    OptionSelecting.TextSize = 12
-                    OptionSelecting.TextTransparency = 0.6
-                    OptionSelecting.TextXAlignment = Enum.TextXAlignment.Left
-                    OptionSelecting.AnchorPoint = Vector2.new(0, 0.5)
-                    OptionSelecting.BackgroundTransparency = 1
-                    OptionSelecting.Position = UDim2.new(0, 5, 0.5, 0)
-                    OptionSelecting.Size = UDim2.new(1, -30, 1, -8)
-                    OptionSelecting.Parent = SelectOptionsFrame
-
-                    local OptionImg = Instance.new("ImageLabel")
-                    OptionImg.Image = "rbxassetid://16851841101"
-                    OptionImg.ImageColor3 = Color3.fromRGB(230, 230, 230)
-                    OptionImg.AnchorPoint = Vector2.new(1, 0.5)
-                    OptionImg.BackgroundTransparency = 1
-                    OptionImg.Position = UDim2.new(1, 0, 0.5, 0)
-                    OptionImg.Size = UDim2.new(0, 25, 0, 25)
-                    OptionImg.Parent = SelectOptionsFrame
-
-                    -- Gunakan panel dropdown utama yang sudah ada
-                    local DropdownContainer = Instance.new("Frame")
-                    DropdownContainer.Size = UDim2.new(1, 0, 1, 0)
-                    DropdownContainer.BackgroundTransparency = 1
-                    DropdownContainer.Parent = DropdownFolder
-
-                    local SearchBox = Instance.new("TextBox")
-                    SearchBox.PlaceholderText = "Search"
-                    SearchBox.Font = Enum.Font.Gotham
-                    SearchBox.Text = ""
-                    SearchBox.TextSize = 12
-                    SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    SearchBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-                    SearchBox.BackgroundTransparency = 0.9
-                    SearchBox.BorderSizePixel = 0
-                    SearchBox.Size = UDim2.new(1, 0, 0, 25)
-                    SearchBox.ClearTextOnFocus = false
-                    SearchBox.Parent = DropdownContainer
-
-                    local ScrollSelect = Instance.new("ScrollingFrame")
-                    ScrollSelect.Size = UDim2.new(1, 0, 1, -30)
-                    ScrollSelect.Position = UDim2.new(0, 0, 0, 30)
-                    ScrollSelect.ScrollBarImageTransparency = 1
-                    ScrollSelect.BorderSizePixel = 0
-                    ScrollSelect.BackgroundTransparency = 1
-                    ScrollSelect.ScrollBarThickness = 0
-                    ScrollSelect.CanvasSize = UDim2.new(0, 0, 0, 0)
-                    ScrollSelect.Parent = DropdownContainer
-
-                    local UIListLayout4 = Instance.new("UIListLayout")
-                    UIListLayout4.Padding = UDim.new(0, 3)
-                    UIListLayout4.SortOrder = Enum.SortOrder.LayoutOrder
-                    UIListLayout4.Parent = ScrollSelect
-
-                    UIListLayout4:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                        ScrollSelect.CanvasSize = UDim2.new(0, 0, 0, UIListLayout4.AbsoluteContentSize.Y)
-                    end)
-
-                    SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
-                        local query = string.lower(SearchBox.Text)
-                        for _, option in pairs(ScrollSelect:GetChildren()) do
-                            if option.Name == "Option" and option:FindFirstChild("OptionText") then
-                                option.Visible = query == "" or string.find(string.lower(option.OptionText.Text), query, 1, true)
-                            end
-                        end
-                    end)
-
-                    local DropdownButton = Instance.new("TextButton")
-                    DropdownButton.Text = ""
-                    DropdownButton.BackgroundTransparency = 1
-                    DropdownButton.Size = UDim2.new(1, 0, 1, 0)
-                    DropdownButton.Parent = Dropdown
-
-                    DropdownButton.Activated:Connect(function()
-                        if not MoreBlur.Visible then
-                            MoreBlur.Visible = true
-                            DropPageLayout:JumpToIndex(SelectOptionsFrame.LayoutOrder)
-                            TweenService:Create(MoreBlur, TweenInfo.new(0.3), { BackgroundTransparency = 1 }):Play()
-                            TweenService:Create(DropdownSelect, TweenInfo.new(0.3), { Position = UDim2.new(1, -11, 0.5, 0) }):Play()
-                        end
-                    end)
-
-                    local DropCount = 0
-
-                    function DropdownFunc:Clear()
-                        for _, DropFrame in ScrollSelect:GetChildren() do
-                            if DropFrame.Name == "Option" then DropFrame:Destroy() end
-                        end
-                        DropdownFunc.Value = DropdownConfig.Multi and {} or nil
-                        DropdownFunc.Options = {}
-                        OptionSelecting.Text = DropdownConfig.Multi and "Select Options" or "Select Option"
-                        DropCount = 0
-                    end
-
-                    function DropdownFunc:AddOption(option)
-                        local label, value
-                        if typeof(option) == "table" and option.Label and option.Value ~= nil then
-                            label = tostring(option.Label)
-                            value = option.Value
-                        else
-                            label = tostring(option)
-                            value = option
-                        end
-
-                        local Option = Instance.new("Frame")
-                        Option.BackgroundTransparency = 1
-                        Option.Size = UDim2.new(1, 0, 0, 30)
-                        Option.Name = "Option"
-                        Option.Parent = ScrollSelect
-                        Instance.new("UICorner", Option).CornerRadius = UDim.new(0, 3)
-
-                        local OptionButton = Instance.new("TextButton")
-                        OptionButton.BackgroundTransparency = 1
-                        OptionButton.Size = UDim2.new(1, 0, 1, 0)
-                        OptionButton.Text = ""
-                        OptionButton.Parent = Option
-
-                        local OptionText = Instance.new("TextLabel")
-                        OptionText.Font = Enum.Font.GothamBold
-                        OptionText.Text = label
-                        OptionText.TextSize = 13
-                        OptionText.TextColor3 = Color3.fromRGB(230, 230, 230)
-                        OptionText.Position = UDim2.new(0, 8, 0, 8)
-                        OptionText.Size = UDim2.new(1, -100, 0, 13)
-                        OptionText.BackgroundTransparency = 1
-                        OptionText.TextXAlignment = Enum.TextXAlignment.Left
-                        OptionText.Name = "OptionText"
-                        OptionText.Parent = Option
-
-                        Option:SetAttribute("RealValue", value)
-
-                        local ChooseFrame = Instance.new("Frame")
-                        ChooseFrame.AnchorPoint = Vector2.new(0, 0.5)
-                        ChooseFrame.BackgroundColor3 = GuiConfig.Color
-                        ChooseFrame.Position = UDim2.new(0, 2, 0.5, 0)
-                        ChooseFrame.Size = UDim2.new(0, 0, 0, 0)
-                        ChooseFrame.Name = "ChooseFrame"
-                        ChooseFrame.Parent = Option
-
-                        local UIStroke15 = Instance.new("UIStroke")
-                        UIStroke15.Color = GuiConfig.Color
-                        UIStroke15.Thickness = 1.6
-                        UIStroke15.Transparency = 0.999
-                        UIStroke15.Parent = ChooseFrame
-                        Instance.new("UICorner", ChooseFrame)
-
-                        OptionButton.Activated:Connect(function()
-                            if DropdownConfig.Multi then
-                                if not table.find(DropdownFunc.Value, value) then
-                                    table.insert(DropdownFunc.Value, value)
-                                else
-                                    for i, v in pairs(DropdownFunc.Value) do
-                                        if v == value then table.remove(DropdownFunc.Value, i); break end
-                                    end
-                                end
-                            else
-                                DropdownFunc.Value = value
-                            end
-                            DropdownFunc:Set(DropdownFunc.Value)
-                        end)
-                    end
-
-                    function DropdownFunc:Set(Value)
-                        if DropdownConfig.Multi then
-                            DropdownFunc.Value = type(Value) == "table" and Value or {}
-                        else
-                            DropdownFunc.Value = (type(Value) == "table" and Value[1]) or Value
-                        end
-                        ConfigData[configKey] = DropdownFunc.Value
-                        SaveConfig()
-
-                        local texts = {}
-                        for _, Drop in ScrollSelect:GetChildren() do
-                            if Drop.Name == "Option" and Drop:FindFirstChild("OptionText") then
-                                local v = Drop:GetAttribute("RealValue")
-                                local selected = DropdownConfig.Multi and table.find(DropdownFunc.Value, v) or DropdownFunc.Value == v
-                                if selected then
-                                    TweenService:Create(Drop.ChooseFrame, TweenInfo.new(0.2), { Size = UDim2.new(0, 1, 0, 12) }):Play()
-                                    TweenService:Create(Drop.ChooseFrame.UIStroke, TweenInfo.new(0.2), { Transparency = 0 }):Play()
-                                    TweenService:Create(Drop, TweenInfo.new(0.2), { BackgroundTransparency = 0.935 }):Play()
-                                    table.insert(texts, Drop.OptionText.Text)
-                                else
-                                    TweenService:Create(Drop.ChooseFrame, TweenInfo.new(0.1), { Size = UDim2.new(0, 0, 0, 0) }):Play()
-                                    TweenService:Create(Drop.ChooseFrame.UIStroke, TweenInfo.new(0.1), { Transparency = 0.999 }):Play()
-                                    TweenService:Create(Drop, TweenInfo.new(0.1), { BackgroundTransparency = 0.999 }):Play()
-                                end
-                            end
-                        end
-                        OptionSelecting.Text = (#texts == 0) and (DropdownConfig.Multi and "Select Options" or "Select Option") or table.concat(texts, ", ")
-                        if DropdownConfig.Callback then
-                            if DropdownConfig.Multi then
-                                DropdownConfig.Callback(DropdownFunc.Value)
-                            else
-                                DropdownConfig.Callback(DropdownFunc.Value ~= nil and tostring(DropdownFunc.Value) or "")
-                            end
-                        end
-                    end
-
-                    function DropdownFunc:SetValue(val) self:Set(val) end
-                    function DropdownFunc:GetValue() return self.Value end
-                    function DropdownFunc:SetValues(newList, selecting)
-                        newList = newList or {}
-                        selecting = selecting or (DropdownConfig.Multi and {} or nil)
-                        DropdownFunc:Clear()
-                        for _, v in ipairs(newList) do DropdownFunc:AddOption(v) end
-                        DropdownFunc.Options = newList
-                        DropdownFunc:Set(selecting)
-                    end
-
-                    DropdownFunc:SetValues(DropdownFunc.Options, DropdownFunc.Value)
-
-                    function DropdownFunc:Refresh(newList)
-                        self:SetValues(newList or self.Options, self.Value)
-                    end
-
-                    SubCountItem = SubCountItem + 1
-                    CountDropdown = CountDropdown + 1
-                    Elements[configKey] = DropdownFunc
-                    return DropdownFunc
-                end
-
-                function SubItems:AddInput(InputConfig)
-                    return Items:AddInput(InputConfig)
-                end
-
-                function SubItems:AddButton(ButtonConfig)
-                    local ButtonConfig = ButtonConfig or {}
-                    ButtonConfig.Title = ButtonConfig.Title or "Button"
-                    ButtonConfig.Callback = ButtonConfig.Callback or function() end
-
-                    local Button = Instance.new("Frame")
-                    Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    Button.BackgroundTransparency = 0.935
-                    Button.BorderSizePixel = 0
-                    Button.LayoutOrder = SubCountItem
-                    Button.Size = UDim2.new(1, 0, 0, 36)
-                    Button.Parent = subSectionAdd
-                    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 4)
-
-                    local BtnLabel = Instance.new("TextLabel")
-                    BtnLabel.Font = Enum.Font.GothamBold
-                    BtnLabel.Text = ButtonConfig.Title
-                    BtnLabel.TextColor3 = Color3.fromRGB(231, 231, 231)
-                    BtnLabel.TextSize = 13
-                    BtnLabel.BackgroundTransparency = 1
-                    BtnLabel.Position = UDim2.new(0, 10, 0, 0)
-                    BtnLabel.Size = UDim2.new(1, -20, 1, 0)
-                    BtnLabel.TextXAlignment = Enum.TextXAlignment.Left
-                    BtnLabel.Parent = Button
-
-                    local BtnClick = Instance.new("TextButton")
-                    BtnClick.Text = ""
-                    BtnClick.BackgroundTransparency = 1
-                    BtnClick.Size = UDim2.new(1, 0, 1, 0)
-                    BtnClick.Parent = Button
-                    BtnClick.Activated:Connect(function()
-                        pcall(ButtonConfig.Callback)
-                    end)
-
-                    SubCountItem = SubCountItem + 1
-                    return Button
-                end
-
-                function SubItems:AddParagraph(ParagraphConfig)
-                    local ParagraphConfig = ParagraphConfig or {}
-                    ParagraphConfig.Title = ParagraphConfig.Title or "Title"
-                    ParagraphConfig.Content = ParagraphConfig.Content or "Content"
-
-                    local para = Instance.new("Frame")
-                    para.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    para.BackgroundTransparency = 0.935
-                    para.BorderSizePixel = 0
-                    para.LayoutOrder = SubCountItem
-                    para.Size = UDim2.new(1, 0, 0, 40)
-                    para.Parent = subSectionAdd
-                    Instance.new("UICorner", para).CornerRadius = UDim.new(0, 4)
-
-                    local pTitle = Instance.new("TextLabel")
-                    pTitle.Font = Enum.Font.GothamBold
-                    pTitle.Text = ParagraphConfig.Title
-                    pTitle.TextColor3 = Color3.fromRGB(231, 231, 231)
-                    pTitle.TextSize = 13
-                    pTitle.TextXAlignment = Enum.TextXAlignment.Left
-                    pTitle.BackgroundTransparency = 1
-                    pTitle.Position = UDim2.new(0, 10, 0, 10)
-                    pTitle.Size = UDim2.new(1, -20, 0, 13)
-                    pTitle.Parent = para
-
-                    local pContent = Instance.new("TextLabel")
-                    pContent.Font = Enum.Font.Gotham
-                    pContent.Text = ParagraphConfig.Content
-                    pContent.TextColor3 = Color3.fromRGB(200, 200, 200)
-                    pContent.TextSize = 12
-                    pContent.TextXAlignment = Enum.TextXAlignment.Left
-                    pContent.BackgroundTransparency = 1
-                    pContent.Position = UDim2.new(0, 10, 0, 25)
-                    pContent.Size = UDim2.new(1, -20, 0, 12)
-                    pContent.Parent = para
-
-                    local pFunc = {}
-                    function pFunc:SetContent(c) pContent.Text = c or "" end
-                    SubCountItem = SubCountItem + 1
-                    return pFunc
-                end
-
-                function SubItems:AddDivider()
-                    if Items.AddDivider then return Items:AddDivider() end
-                end
-
-                function SubItems:AddColorpicker(cfg) return {Set = function() end} end
-                function SubItems:AddColorPicker(cfg) return {Set = function() end} end
-                function SubItems:AddKeybind(cfg) return {Set = function() end} end
-                function SubItems:AddTabbox(cfg) return SubItems end
-                function SubItems:AddPanel(cfg) return Items:AddPanel(cfg) end
-
-                SubCountItem = SubCountItem + 1
-                return SubItems
-            end
-
-            function Items:AddColorpicker(cfg) return {Set = function() end} end
-            function Items:AddColorPicker(cfg) return {Set = function() end} end
-            function Items:AddKeybind(cfg) return {Set = function() end} end
-
             CountSection = CountSection + 1
             return Items
         end
@@ -3735,172 +2673,10 @@ function nexhub:Window(GuiConfig)
         CountTab = CountTab + 1
         local safeName = TabConfig.Name:gsub("%s+", "_")
         _G[safeName] = Sections
-
-        -- ==============================
-        -- SHORTCUT METHODS (BloxFruits compatibility)
-        -- Jika script memanggil Tab:Toggle() dll langsung tanpa AddSection
-        -- maka otomatis buat section default lalu delegasikan.
-        -- ==============================
-        local _autoSection = nil
-        local function getAutoSection()
-            if not _autoSection then
-                _autoSection = Sections:AddSection({ Title = TabConfig.Name or "Main" })
-            end
-            return _autoSection
-        end
-
-        function Sections:Toggle(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddToggle(cfg)
-        end
-
-        function Sections:Slider(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddSlider(cfg)
-        end
-
-        function Sections:Dropdown(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddDropdown(cfg)
-        end
-
-        function Sections:Button(cfg)
-            cfg = cfg or {}
-            if type(cfg) == "string" then
-                cfg = { Title = cfg }
-            end
-            return getAutoSection():AddButton(cfg)
-        end
-
-        function Sections:Label(text)
-            local t = text or ""
-            if type(t) == "table" then t = t.Text or t.Title or "" end
-            return getAutoSection():AddParagraph({ Title = tostring(t), Content = "" })
-        end
-
-        function Sections:Textbox(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddInput(cfg)
-        end
-
-        function Sections:Line()
-            pcall(function() getAutoSection():AddDivider() end)
-        end
-
-        function Sections:Seperator()
-            pcall(function() getAutoSection():AddDivider() end)
-        end
-
-        function Sections:AddButton(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddButton(cfg)
-        end
-
-        function Sections:AddToggle(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddToggle(cfg)
-        end
-
-        function Sections:AddSlider(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddSlider(cfg)
-        end
-
-        function Sections:AddDropdown(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddDropdown(cfg)
-        end
-
-        function Sections:AddInput(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddInput(cfg)
-        end
-
-        function Sections:AddParagraph(cfg)
-            cfg = cfg or {}
-            return getAutoSection():AddParagraph(cfg)
-        end
-
         return Sections
     end
-
-    -- ==============================
-    -- WINDOW-LEVEL STUBS
-    -- Method yang dipanggil di Window oleh berbagai game scripts.
-    -- ==============================
-    Tabs.Flags = setmetatable({}, {
-        __index = function(_, key)
-            -- Cari di Elements config storage
-            if Elements["Toggle_" .. key] then return Elements["Toggle_" .. key] end
-            if Elements["Slider_" .. key] then return Elements["Slider_" .. key] end
-            if Elements["Dropdown_" .. key] then return Elements["Dropdown_" .. key] end
-            return { Value = nil, Set = function() end }
-        end
-    })
-
-    function Tabs:Tag(tag)
-        -- No-op: Kompatibilitas (menampilkan tag di footer/header)
-    end
-
-    function Tabs:SelectTab(tabName)
-        -- No-op: Auto-select tab tertentu
-    end
-
-    function Tabs:ToggleUI()
-        if GuiFunc and GuiFunc.ToggleUI then
-            GuiFunc:ToggleUI()
-        end
-    end
-
-    function Tabs:SetCornerRadius(radius)
-        -- No-op: Kompatibilitas
-    end
-
-    function Tabs:Tab(cfg)
-        -- Alias untuk AddTab (dipanggil oleh FishZar)
-        return self:AddTab(cfg)
-    end
-
-    function Tabs:SaveConfig(name)
-        pcall(function() SaveConfig() end)
-    end
-
-    function Tabs:LoadConfig(name)
-        pcall(function() LoadConfigFromFile() end)
-    end
-
-    function Tabs:DeleteConfig(name)
-        pcall(function()
-            if name and writefile and isfile then
-                local path = "NexHub/Config/" .. tostring(name) .. ".json"
-                if isfile(path) then
-                    delfile(path)
-                end
-            end
-        end)
-    end
-
-    function Tabs:ListConfigs()
-        local configs = {}
-        pcall(function()
-            if listfiles and isfolder then
-                local folder = "NexHub/Config"
-                if isfolder(folder) then
-                    for _, file in ipairs(listfiles(folder)) do
-                        local name = file:match("([^/\\]+)%.json$")
-                        if name then table.insert(configs, name) end
-                    end
-                end
-            end
-        end)
-        return configs
-    end
-
-    task.defer(function()
-        GuiConfig.Initializing = false -- Matikan mode inisialisasi setelah script selesai load
-    end)
 
     return Tabs
 end
 
-return nexhub
+return Chloex
