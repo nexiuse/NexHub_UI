@@ -1546,37 +1546,118 @@ function nexhub:Window(GuiConfig)
                 ):Play()
             end
         end)
+        --// Container Utama Box (Meniru Photo 3 STA)
+        local MainSection = Instance.new("Frame")
+        local MainCorner = Instance.new("UICorner")
+        local MainTitle = Instance.new("TextLabel")
+        local MainDecideFrame = Instance.new("Frame")
+        local MainUICorner1 = Instance.new("UICorner")
+        local MainUIGradient = Instance.new("UIGradient")
+
+        MainSection.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        MainSection.BackgroundTransparency = 0.935
+        MainSection.BorderSizePixel = 0
+        MainSection.Position = UDim2.new(0.5, 0, 0, 0)
+        MainSection.AnchorPoint = Vector2.new(0.5, 0)
+        MainSection.Size = UDim2.new(1, 0, 0, 150) -- Akan resize di UpdateScrollSize
+        MainSection.Name = "MainSection"
+        MainSection.Parent = ScrolLayers
+        MainSection.ClipsDescendants = true
+        MainSection.LayoutOrder = -101
+
+        MainCorner.CornerRadius = UDim.new(0, 4)
+        MainCorner.Parent = MainSection
+
+        MainTitle.Font = Enum.Font.GothamBold
+        MainTitle.Text = TabConfig.Name
+        MainTitle.TextColor3 = Color3.fromRGB(230, 230, 230)
+        MainTitle.TextSize = 13
+        MainTitle.TextXAlignment = Enum.TextXAlignment.Left
+        MainTitle.AnchorPoint = Vector2.new(0, 0)
+        MainTitle.BackgroundTransparency = 1
+        MainTitle.Position = UDim2.new(0, 10, 0, 10)
+        MainTitle.Size = UDim2.new(1, -20, 0, 15)
+        MainTitle.Name = "MainTitle"
+        MainTitle.Parent = MainSection
+
+        MainDecideFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        MainDecideFrame.BorderSizePixel = 0
+        MainDecideFrame.AnchorPoint = Vector2.new(0.5, 0)
+        MainDecideFrame.Position = UDim2.new(0.5, 0, 0, 33)
+        MainDecideFrame.Size = UDim2.new(1, 0, 0, 2)
+        MainDecideFrame.Name = "MainDecideFrame"
+        MainDecideFrame.Parent = MainSection
+
+        MainUICorner1.Parent = MainDecideFrame
+
+        MainUIGradient.Color = ColorSequence.new {
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
+            ColorSequenceKeypoint.new(0.5, GuiConfig.Color),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
+        }
+        MainUIGradient.Parent = MainDecideFrame
+
         --// Sub-tab Section Layout
         local SubTabHolder = Instance.new("Frame")
         SubTabHolder.Name = "SubTabHolder"
         SubTabHolder.BackgroundTransparency = 1
-        SubTabHolder.Size = UDim2.new(1, 0, 0, 0) -- Akan resize otomatis
-        SubTabHolder.Parent = ScrolLayers
-        SubTabHolder.LayoutOrder = -100
+        SubTabHolder.Size = UDim2.new(1, -10, 0, 0)
+        SubTabHolder.Position = UDim2.new(0, 5, 0, 45)
+        SubTabHolder.Parent = MainSection
+        SubTabHolder.LayoutOrder = 1
 
         local SubTabList = Instance.new("UIListLayout")
         SubTabList.FillDirection = Enum.FillDirection.Horizontal
         SubTabList.SortOrder = Enum.SortOrder.LayoutOrder
         SubTabList.Padding = UDim.new(0, 5)
-        SubTabList.Wraps = true -- MENDUKUNG WRAPPING (BERTINGKAT)
+        SubTabList.Wraps = true
         SubTabList.Parent = SubTabHolder
 
         local SectionFolder = Instance.new("Frame")
         SectionFolder.Name = "SectionFolder"
         SectionFolder.BackgroundTransparency = 1
-        SectionFolder.Size = UDim2.new(1, 0, 1, 0)
-        SectionFolder.Parent = ScrolLayers
+        SectionFolder.Size = UDim2.new(1, -10, 0, 0)
+        SectionFolder.Position = UDim2.new(0, 5, 0, 45)
+        SectionFolder.Parent = MainSection
+        SectionFolder.ClipsDescendants = true
 
         local SectionPageLayout = Instance.new("UIPageLayout")
         SectionPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
         SectionPageLayout.TweenTime = 0.4
         SectionPageLayout.Parent = SectionFolder
+        local function UpdateSizeScroll()
+            local layout = ScrolLayers:FindFirstChildOfClass("UIListLayout")
+            if layout then
+                ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+            end
+            
+            local sfHeight = 0
+            for _, sf in pairs(SectionFolder:GetChildren()) do
+                if sf:IsA("ScrollingFrame") or sf:IsA("Frame") then
+                    local list = sf:FindFirstChildOfClass("UIListLayout")
+                    if list and list.AbsoluteContentSize.Y > sfHeight then
+                        sfHeight = list.AbsoluteContentSize.Y
+                    end
+                    -- Update individual canvas sizes dynamically to prevent scrolling loop issues inside pages
+                    if list and sf:IsA("ScrollingFrame") then
+                        sf.CanvasSize = UDim2.new(0,0,0, list.AbsoluteContentSize.Y + 10)
+                    end
+                end
+            end
+            
+            if MainSection then
+                SubTabHolder.Size = UDim2.new(1, -10, 0, SubTabList.AbsoluteContentSize.Y)
+                SectionFolder.Position = UDim2.new(0, 5, 0, 45 + SubTabList.AbsoluteContentSize.Y + 5)
+                
+                -- Resize section folder to content
+                SectionFolder.Size = UDim2.new(1, -10, 0, sfHeight)
+                
+                -- Expand MainSection wrapper
+                MainSection.Size = UDim2.new(1, 0, 0, 45 + SubTabList.AbsoluteContentSize.Y + 5 + sfHeight + 10)
+            end
+        end
 
-        SubTabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            SubTabHolder.Size = UDim2.new(1, 0, 0, SubTabList.AbsoluteContentSize.Y + 5)
-            SectionFolder.Size = UDim2.new(1, 0, 1, -(SubTabList.AbsoluteContentSize.Y + 10))
-            UpdateSizeScroll()
-        end)
+        SubTabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateSizeScroll)
 
         local Sections = {}
         local CountSection = 0
@@ -1635,9 +1716,7 @@ function nexhub:Window(GuiConfig)
             SectionList.SortOrder = Enum.SortOrder.LayoutOrder
             SectionList.Parent = SectionScroller
             
-            SectionList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                SectionScroller.CanvasSize = UDim2.new(0, 0, 0, SectionList.AbsoluteContentSize.Y + 20)
-            end)
+            SectionList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateSizeScroll)
 
             local SectionAdd = SectionScroller
 
@@ -1658,6 +1737,7 @@ function nexhub:Window(GuiConfig)
                 
                 SectionNameLabel.Text = SectionConfig.Title
                 SectionPageLayout:JumpToIndex(SecOrder)
+                UpdateSizeScroll() -- Pastikan wrapper box berubah ukuran saat halaman section berpindah
             end)
 
             local Items = {}
