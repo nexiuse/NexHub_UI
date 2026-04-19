@@ -523,8 +523,8 @@ function Chloex:Window(GuiConfig)
     DropShadowHolder.Name = "DropShadowHolder"
     DropShadowHolder.Parent = Chloeex
 
-    DropShadowHolder.Position = UDim2.new(0, (Chloeex.AbsoluteSize.X // 2 - DropShadowHolder.Size.X.Offset // 2), 0,
-        (Chloeex.AbsoluteSize.Y // 2 - DropShadowHolder.Size.Y.Offset // 2))
+    -- Keep true center; offset-based recalc can push UI off-screen on mobile/scale sizing.
+    DropShadowHolder.Position = UDim2.new(0.5, 0, 0.5, 0)
     DropShadow.Image = "rbxassetid://6015897843"
     DropShadow.ImageColor3 = Color3.fromRGB(15, 15, 15)
     DropShadow.ImageTransparency = 1
@@ -694,13 +694,13 @@ function Chloex:Window(GuiConfig)
     NameTab.Name = "NameTab"
     NameTab.Parent = Layers
 
-    LayersReal.AnchorPoint = Vector2.new(0, 1)
+    LayersReal.AnchorPoint = Vector2.new(0, 0)
     LayersReal.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     LayersReal.BackgroundTransparency = 0.9990000128746033
     LayersReal.BorderColor3 = Color3.fromRGB(0, 0, 0)
     LayersReal.BorderSizePixel = 0
     LayersReal.ClipsDescendants = true
-    LayersReal.Position = UDim2.new(0, 0, 1, 0)
+    LayersReal.Position = UDim2.new(0, 0, 0, 0)
     LayersReal.Size = UDim2.new(1, 0, 1, -33)
     LayersReal.Name = "LayersReal"
     LayersReal.Parent = Layers
