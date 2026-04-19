@@ -641,7 +641,6 @@ function NexHubLib:Window(GuiConfig)
     NexHubGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     NexHubGui.Name = "NexHubUI"
     NexHubGui.ResetOnSpawn = false
-    NexHubGui.Enabled = false  -- Hide initially to prevent flickering
     NexHubGui.Parent = game:GetService("CoreGui")
 
     DropShadowHolder.BackgroundTransparency = 1
@@ -1216,8 +1215,8 @@ function NexHubLib:Window(GuiConfig)
             local show = (info.Index == activeIndex) and info.State.Enabled
             info.Holder.Visible = show
             info.Pages.Visible = show
-            -- When overlay is active, hide the ScrolLayers content so it doesn't overlap
-            if info.ScrolLayers then
+            -- Only modify ScrolLayers children for the currently active tab
+            if info.ScrolLayers and info.Index == activeIndex then
                 for _, child in ipairs(info.ScrolLayers:GetChildren()) do
                     if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
                         child.Visible = not show
@@ -1328,7 +1327,6 @@ function NexHubLib:Window(GuiConfig)
                     child.Visible = false
                 end
             end
-            ScrolLayers.Visible = false
             SubTabPages.Position = UDim2.new(0, 0, 0, 64)
             SubTabPages.Size = UDim2.new(1, 0, 1, -64)
             ApplyOverlayVisibility(Tab.LayoutOrder)
@@ -3350,12 +3348,10 @@ function NexHubLib:Window(GuiConfig)
         end
     end
 
-    -- Show UI after a short delay so all elements are built first (prevents flickering)
-    task.delay(0.3, function()
-        NexHubGui.Enabled = true
-    end)
-    -- Re-enable notifications after init is complete (3s should cover all element creation)
-    task.delay(3, function()
+    -- Removed initial hiding so elements pop in sequentially (one by one)
+
+    -- Re-enable notifications after init is complete (10s handles heavy script like STA that loops workspace)
+    task.delay(10, function()
         _notifySuppressed = false
         _G._NexHubNotifySuppressed = false
     end)
