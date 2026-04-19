@@ -1115,6 +1115,7 @@ function Chloex:Window(GuiConfig)
         local Tab = Instance.new("Frame");
         local UICorner3 = Instance.new("UICorner");
         local TabButton = Instance.new("TextButton");
+        local TabName = Instance.new("TextLabel");
         local FeatureImg = Instance.new("ImageLabel");
         local UIStroke2 = Instance.new("UIStroke");
         local UICorner4 = Instance.new("UICorner");
