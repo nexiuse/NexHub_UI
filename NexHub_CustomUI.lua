@@ -797,6 +797,7 @@ function Chloex:Window(GuiConfig)
     Layers.Position = UDim2.new(0, GuiConfig["Tab Width"] + 18, 0, 50)
     Layers.Size = UDim2.new(1, -(GuiConfig["Tab Width"] + 9 + 18), 1, -59)
     Layers.Name = "Layers"
+    Layers.ClipsDescendants = true
     Layers.Parent = Main
 
     UICorner6.CornerRadius = UDim.new(0, 2)
@@ -1202,6 +1203,14 @@ function Chloex:Window(GuiConfig)
             local show = (info.Index == activeIndex) and info.State.Enabled
             info.Holder.Visible = show
             info.Pages.Visible = show
+            -- When overlay is active, hide the ScrolLayers content so it doesn't overlap
+            if info.ScrolLayers then
+                for _, child in ipairs(info.ScrolLayers:GetChildren()) do
+                    if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+                        child.Visible = not show
+                    end
+                end
+            end
         end
     end
     function Tabs:AddTab(TabConfig, IconArg)
@@ -1273,6 +1282,7 @@ function Chloex:Window(GuiConfig)
         SubTabPages.Position = UDim2.new(0, 0, 0, 0)
         SubTabPages.Size = UDim2.new(1, 0, 1, 0)
         SubTabPages.Visible = false
+        SubTabPages.ClipsDescendants = true
 
         SubTabPageLayout.Parent = SubTabPages
         SubTabPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1298,6 +1308,12 @@ function Chloex:Window(GuiConfig)
             OverlayState.Enabled = true
             SubTabHolder.Size = UDim2.new(1, 0, 0, 36)
             SubTabHolder.Position = UDim2.new(0, 0, 0, 0)
+            -- Hide all section content inside ScrolLayers (UIPageLayout may reset Visible)
+            for _, child in ipairs(ScrolLayers:GetChildren()) do
+                if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+                    child.Visible = false
+                end
+            end
             ScrolLayers.Visible = false
             SubTabPages.Position = UDim2.new(0, 0, 0, 40)
             SubTabPages.Size = UDim2.new(1, 0, 1, -40)
@@ -1310,6 +1326,7 @@ function Chloex:Window(GuiConfig)
             Holder = SubTabHolder,
             Pages = SubTabPages,
             State = OverlayState,
+            ScrolLayers = ScrolLayers,
         })
 
         Tab = Instance.new("Frame");
