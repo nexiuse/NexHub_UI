@@ -473,11 +473,10 @@ function Chloex:Window(GuiConfig)
     GuiConfig              = GuiConfig or {}
     GuiConfig.Title        = GuiConfig.Title or "NexHub"
     GuiConfig.Footer       = GuiConfig.Footer or "developed by Nex"
-    
+
     if typeof(GuiConfig.Color) ~= "Color3" then
         GuiConfig.Color = Color3.fromRGB(255, 0, 255)
     end
-
     GuiConfig["Tab Width"] = GuiConfig["Tab Width"] or 120
     GuiConfig.Version      = GuiConfig.Version or 1
 
@@ -654,9 +653,8 @@ function Chloex:Window(GuiConfig)
     LayersTab.BackgroundTransparency = 0.9990000128746033
     LayersTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
     LayersTab.BorderSizePixel = 0
-    -- Memindah tab ke atas, format horisontal 
-    LayersTab.Position = UDim2.new(0, 10, 0, 42)
-    LayersTab.Size = UDim2.new(1, -20, 0, 36)
+    LayersTab.Position = UDim2.new(0, 9, 0, 50)
+    LayersTab.Size = UDim2.new(0, GuiConfig["Tab Width"], 1, -59)
     LayersTab.Name = "LayersTab"
     LayersTab.Parent = Main
 
@@ -668,7 +666,6 @@ function Chloex:Window(GuiConfig)
     DecideFrame.BackgroundTransparency = 0.85
     DecideFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
     DecideFrame.BorderSizePixel = 0
-    -- Memindahkan decide frame ke bawah Top menu
     DecideFrame.Position = UDim2.new(0.5, 0, 0, 38)
     DecideFrame.Size = UDim2.new(1, 0, 0, 1)
     DecideFrame.Name = "DecideFrame"
@@ -678,16 +675,15 @@ function Chloex:Window(GuiConfig)
     Layers.BackgroundTransparency = 0.9990000128746033
     Layers.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Layers.BorderSizePixel = 0
-    -- Konten diturunkan full-width
-    Layers.Position = UDim2.new(0, 10, 0, 80)
-    Layers.Size = UDim2.new(1, -20, 1, -85)
+    Layers.Position = UDim2.new(0, GuiConfig["Tab Width"] + 18, 0, 50)
+    Layers.Size = UDim2.new(1, -(GuiConfig["Tab Width"] + 9 + 18), 1, -59)
     Layers.Name = "Layers"
     Layers.Parent = Main
 
     UICorner6.CornerRadius = UDim.new(0, 2)
     UICorner6.Parent = Layers
 
-    -- NameTab dihapus agar tidak duplikat dengan nama Section
+    -- NameTab dihapus
 
     LayersReal.AnchorPoint = Vector2.new(0, 1)
     LayersReal.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -713,9 +709,7 @@ function Chloex:Window(GuiConfig)
     local ScrollTab = Instance.new("ScrollingFrame");
     local UIListLayout = Instance.new("UIListLayout");
 
-    -- Horizontal scrolling untuk main tabs di atas layar
-    ScrollTab.CanvasSize = UDim2.new(0, 0, 0, 0)
-    ScrollTab.ScrollingDirection = Enum.ScrollingDirection.X
+    ScrollTab.CanvasSize = UDim2.new(0, 0, 1.10000002, 0)
     ScrollTab.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
     ScrollTab.ScrollBarThickness = 0
     ScrollTab.Active = true
@@ -727,19 +721,18 @@ function Chloex:Window(GuiConfig)
     ScrollTab.Name = "ScrollTab"
     ScrollTab.Parent = LayersTab
 
-    UIListLayout.Padding = UDim.new(0, 5)
-    UIListLayout.FillDirection = Enum.FillDirection.Horizontal
+    UIListLayout.Padding = UDim.new(0, 3)
     UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     UIListLayout.Parent = ScrollTab
 
     local function UpdateSize1()
-        local OffsetX = 0
+        local OffsetY = 0
         for _, child in ScrollTab:GetChildren() do
             if child.Name ~= "UIListLayout" then
-                OffsetX = OffsetX + 5 + child.Size.X.Offset
+                OffsetY = OffsetY + 3 + child.Size.Y.Offset
             end
         end
-        ScrollTab.CanvasSize = UDim2.new(0, OffsetX, 0, 0)
+        ScrollTab.CanvasSize = UDim2.new(0, 0, 0, OffsetY)
     end
     ScrollTab.ChildAdded:Connect(UpdateSize1)
     ScrollTab.ChildRemoved:Connect(UpdateSize1)
@@ -1059,12 +1052,13 @@ function Chloex:Window(GuiConfig)
         TabConfig.Name = TabConfig.Name or "Tab"
         TabConfig.Icon = TabConfig.Icon or ""
 
-        local ScrolLayers = Instance.new("ScrollingFrame");
+        local ScrolLayers = Instance.new("Frame"); -- Mengganti ScrollFrame agar pinned
+        local SubTabHolder = Instance.new("ScrollingFrame");
         local UIListLayout1 = Instance.new("UIListLayout");
+        local UIPadding1 = Instance.new("UIPadding");
+        local SectionFolder = Instance.new("Folder");
+        local SectionPageLayout = Instance.new("UIPageLayout");
 
-        ScrolLayers.ScrollBarImageColor3 = Color3.fromRGB(80.00000283122063, 80.00000283122063, 80.00000283122063)
-        ScrolLayers.ScrollBarThickness = 0
-        ScrolLayers.Active = true
         ScrolLayers.LayoutOrder = CountTab
         ScrolLayers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ScrolLayers.BackgroundTransparency = 0.9990000128746033
@@ -1074,31 +1068,71 @@ function Chloex:Window(GuiConfig)
         ScrolLayers.Name = "ScrolLayers"
         ScrolLayers.Parent = LayersFolder
 
-        UIListLayout1.Padding = UDim.new(0, 3)
+        -- Bagian bar horizontal untuk tombol SubTab (ESP Settings, dsb)
+        SubTabHolder.Name = "SubTabHolder"
+        SubTabHolder.Parent = ScrolLayers
+        SubTabHolder.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        SubTabHolder.BackgroundTransparency = 0.999
+        SubTabHolder.Size = UDim2.new(1, 0, 0, 32)
+        SubTabHolder.Position = UDim2.new(0, 0, 0, 0)
+        SubTabHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
+        SubTabHolder.ScrollBarThickness = 0
+        SubTabHolder.ScrollingDirection = Enum.ScrollingDirection.X
+
+        UIListLayout1.Padding = UDim.new(0, 5)
+        UIListLayout1.FillDirection = Enum.FillDirection.Horizontal
         UIListLayout1.SortOrder = Enum.SortOrder.LayoutOrder
-        UIListLayout1.Parent = ScrolLayers
+        UIListLayout1.VerticalAlignment = Enum.VerticalAlignment.Center
+        UIListLayout1.Parent = SubTabHolder
+
+        UIPadding1.PaddingLeft = UDim.new(0, 2)
+        UIPadding1.PaddingRight = UDim.new(0, 2)
+        UIPadding1.Parent = SubTabHolder
+
+        local function UpdateSubSize()
+            local OffsetX = 0
+            for _, child in SubTabHolder:GetChildren() do
+                if child:IsA("GuiObject") then
+                    OffsetX = OffsetX + 5 + child.Size.X.Offset
+                end
+            end
+            SubTabHolder.CanvasSize = UDim2.new(0, OffsetX, 0, 0)
+        end
+        SubTabHolder.ChildAdded:Connect(UpdateSubSize)
+        SubTabHolder.ChildRemoved:Connect(UpdateSubSize)
+
+        -- Wadah terpisah untuk konten setiap SubTab agar tidak nge-bounce
+        SectionFolder.Name = "SectionFolder"
+        SectionFolder.Parent = ScrolLayers
+        
+        SectionPageLayout.Name = "SectionPageLayout"
+        SectionPageLayout.Parent = SectionFolder
+        SectionPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        SectionPageLayout.EasingDirection = Enum.EasingDirection.InOut
+        SectionPageLayout.EasingStyle = Enum.EasingStyle.Quad
+        SectionPageLayout.TweenTime = 0.35
 
         local Tab = Instance.new("Frame");
         local UICorner3 = Instance.new("UICorner");
         local TabButton = Instance.new("TextButton");
-        local TabName = Instance.new("TextLabel")
         local FeatureImg = Instance.new("ImageLabel");
         local UIStroke2 = Instance.new("UIStroke");
         local UICorner4 = Instance.new("UICorner");
 
-        Tab.BackgroundColor3 = GuiConfig.Color
+        Tab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         if CountTab == 0 then
-            Tab.BackgroundTransparency = 0.05
+            Tab.BackgroundTransparency = 0.9200000166893005
         else
-            Tab.BackgroundTransparency = 0.85
+            Tab.BackgroundTransparency = 0.9990000128746033
         end
         Tab.BorderColor3 = Color3.fromRGB(0, 0, 0)
         Tab.BorderSizePixel = 0
         Tab.LayoutOrder = CountTab
+        Tab.Size = UDim2.new(1, 0, 0, 30)
         Tab.Name = "Tab"
         Tab.Parent = ScrollTab
 
-        UICorner3.CornerRadius = UDim.new(0, 6)
+        UICorner3.CornerRadius = UDim.new(0, 4)
         UICorner3.Parent = Tab
 
         TabButton.Font = Enum.Font.GothamBold
@@ -1107,7 +1141,7 @@ function Chloex:Window(GuiConfig)
         TabButton.TextSize = 13
         TabButton.TextXAlignment = Enum.TextXAlignment.Left
         TabButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        TabButton.BackgroundTransparency = 0.999
+        TabButton.BackgroundTransparency = 0.9990000128746033
         TabButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
         TabButton.BorderSizePixel = 0
         TabButton.Size = UDim2.new(1, 0, 1, 0)
@@ -1115,36 +1149,43 @@ function Chloex:Window(GuiConfig)
         TabButton.Parent = Tab
 
         TabName.Font = Enum.Font.GothamBold
-        TabName.Text = tostring(TabConfig.Name)
+        TabName.Text = "| " .. tostring(TabConfig.Name)
         TabName.TextColor3 = Color3.fromRGB(255, 255, 255)
         TabName.TextSize = 13
         TabName.TextXAlignment = Enum.TextXAlignment.Left
         TabName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        TabName.BackgroundTransparency = 0.999
+        TabName.BackgroundTransparency = 0.9990000128746033
         TabName.BorderColor3 = Color3.fromRGB(0, 0, 0)
         TabName.BorderSizePixel = 0
-        TabName.Position = UDim2.new(0, 28, 0, 0)
-        TabName.Size = UDim2.new(1, -28, 1, 0)
+        TabName.Size = UDim2.new(1, 0, 1, 0)
+        TabName.Position = UDim2.new(0, 30, 0, 0)
         TabName.Name = "TabName"
         TabName.Parent = Tab
 
         FeatureImg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        FeatureImg.BackgroundTransparency = 0.999
+        FeatureImg.BackgroundTransparency = 0.9990000128746033
         FeatureImg.BorderColor3 = Color3.fromRGB(0, 0, 0)
         FeatureImg.BorderSizePixel = 0
-        FeatureImg.Position = UDim2.new(0, 8, 0, 10)
+        FeatureImg.Position = UDim2.new(0, 9, 0, 7)
         FeatureImg.Size = UDim2.new(0, 16, 0, 16)
         FeatureImg.Name = "FeatureImg"
         FeatureImg.Parent = Tab
-
-        -- Auto-sizing Horizontal Tab Based On Text
-        local textW = TabName.TextBounds.X
-        if textW < 30 then textW = 30 end
-        Tab.Size = UDim2.new(0, textW + 40, 1, 0)
         if CountTab == 0 then
             LayersPageLayout:JumpToIndex(0)
-            -- NameTab.Text = TabConfig.Name
-            -- Penanda vertical (ChooseFrame) dihapus.
+            local ChooseFrame = Instance.new("Frame");
+            ChooseFrame.BackgroundColor3 = GuiConfig.Color
+            ChooseFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            ChooseFrame.BorderSizePixel = 0
+            ChooseFrame.Position = UDim2.new(0, 2, 0, 9)
+            ChooseFrame.Size = UDim2.new(0, 1, 0, 12)
+            ChooseFrame.Name = "ChooseFrame"
+            ChooseFrame.Parent = Tab
+
+            UIStroke2.Color = GuiConfig.Color
+            UIStroke2.Thickness = 1.600000023841858
+            UIStroke2.Parent = ChooseFrame
+
+            UICorner4.Parent = ChooseFrame
         end
 
         if TabConfig.Icon ~= "" then
@@ -1157,25 +1198,48 @@ function Chloex:Window(GuiConfig)
 
         TabButton.Activated:Connect(function()
             CircleClick(TabButton, Mouse.X, Mouse.Y)
-            if Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
+            local FrameChoose
+            for a, s in ScrollTab:GetChildren() do
+                for i, v in s:GetChildren() do
+                    if v.Name == "ChooseFrame" then
+                        FrameChoose = v
+                        break
+                    end
+                end
+            end
+            if FrameChoose ~= nil and Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
                 for _, TabFrame in ScrollTab:GetChildren() do
                     if TabFrame.Name == "Tab" then
                         TweenService:Create(
                             TabFrame,
-                            TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
-                            { BackgroundTransparency = 0.85 }
+                            TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
+                            { BackgroundTransparency = 0.9990000128746033 }
                         ):Play()
                     end
                 end
                 TweenService:Create(
                     Tab,
-                    TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
-                    { BackgroundTransparency = 0.05 }
+                    TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
+                    { BackgroundTransparency = 0.9200000166893005 }
                 ):Play()
-                
+                TweenService:Create(
+                    FrameChoose,
+                    TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+                    { Position = UDim2.new(0, 2, 0, 9 + (33 * Tab.LayoutOrder)) }
+                ):Play()
                 LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
                 task.wait(0.05)
-                -- NameTab.Text = TabConfig.Name
+                TweenService:Create(
+                    FrameChoose,
+                    TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+                    { Size = UDim2.new(0, 1, 0, 20) }
+                ):Play()
+                task.wait(0.2)
+                TweenService:Create(
+                    FrameChoose,
+                    TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+                    { Size = UDim2.new(0, 1, 0, 12) }
+                ):Play()
             end
         end)
         --// Section
@@ -1320,7 +1384,9 @@ function Chloex:Window(GuiConfig)
             local function UpdateSizeScroll()
                 local OffsetY = 0
                 for _, child in ScrolLayers:GetChildren() do
-                    if child.Name ~= "UIListLayout" then
+                    if child.Name ~= "UIListLayout" and child.ClassName ~= "Folder" and child.ClassName ~= "Frame" then
+                        OffsetY = OffsetY + 3 + child.Size.Y.Offset
+                    elseif child.Name == "Section" or child.Name == "SubTabHolder" then
                         OffsetY = OffsetY + 3 + child.Size.Y.Offset
                     end
                 end
@@ -1332,7 +1398,12 @@ function Chloex:Window(GuiConfig)
                     local SectionSizeYWitdh = 38
                     for _, v in SectionAdd:GetChildren() do
                         if v.Name ~= "UIListLayout" and v.Name ~= "UICorner" then
-                            SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
+                            if v.Name == "SectionSubFolder" and SectionSubPageLayout and SectionSubPageLayout.CurrentPage then
+                                local pt = SectionSubPageLayout.CurrentPage:FindFirstChild("UIListLayout")
+                                if pt then SectionSizeYWitdh = SectionSizeYWitdh + pt.AbsoluteContentSize.Y + 3 end
+                            else
+                                SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
+                            end
                         end
                     end
                     TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 90 }):Play()
@@ -1403,6 +1474,156 @@ function Chloex:Window(GuiConfig)
 
             local Items = {}
             local CountItem = 0
+            
+            -- Variabel internal untuk menampung SubTab jika AddTabbox dipanggil
+            local HasSubTabs = false
+            local SectionSubTabHolder = nil
+            local SectionSubFolder = nil
+            local SectionSubPageLayout = nil
+            local SubTabCount = 0
+
+            function Items:AddTabbox(TabboxConfig)
+                TabboxConfig = type(TabboxConfig) == "table" and TabboxConfig or {}
+                local SubTitle = TabboxConfig.Title or "SubTab"
+
+                if not HasSubTabs then
+                    HasSubTabs = true
+                    SectionSubTabHolder = Instance.new("ScrollingFrame")
+                    local STUIListLayout = Instance.new("UIListLayout")
+                    local STUIPadding = Instance.new("UIPadding")
+
+                    SectionSubTabHolder.Name = "SectionSubTabHolder"
+                    SectionSubTabHolder.Parent = SectionAdd
+                    SectionSubTabHolder.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
+                    SectionSubTabHolder.BackgroundTransparency = 0 -- Beri sedikit background agar rapi
+                    SectionSubTabHolder.BorderSizePixel = 0
+                    SectionSubTabHolder.Size = UDim2.new(1, -10, 0, 36)
+                    SectionSubTabHolder.Position = UDim2.new(0, 5, 0, 0)
+                    SectionSubTabHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
+                    SectionSubTabHolder.ScrollBarThickness = 0
+                    SectionSubTabHolder.ScrollingDirection = Enum.ScrollingDirection.X
+                    SectionSubTabHolder.LayoutOrder = 0
+                    Instance.new("UICorner", SectionSubTabHolder).CornerRadius = UDim.new(0, 6)
+
+                    STUIListLayout.Padding = UDim.new(0, 5)
+                    STUIListLayout.FillDirection = Enum.FillDirection.Horizontal
+                    STUIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                    STUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+                    STUIListLayout.Parent = SectionSubTabHolder
+
+                    STUIPadding.PaddingLeft = UDim.new(0, 5)
+                    STUIPadding.PaddingRight = UDim.new(0, 5)
+                    STUIPadding.Parent = SectionSubTabHolder
+
+                    local function AdjustSTCanvas()
+                        local ox = 0
+                        for _, c in pairs(SectionSubTabHolder:GetChildren()) do
+                            if c:IsA("GuiObject") then ox = ox + c.Size.X.Offset + 5 end
+                        end
+                        SectionSubTabHolder.CanvasSize = UDim2.new(0, ox + 10, 0, 0)
+                    end
+                    SectionSubTabHolder.ChildAdded:Connect(AdjustSTCanvas)
+                    SectionSubTabHolder.ChildRemoved:Connect(AdjustSTCanvas)
+
+                    SectionSubFolder = Instance.new("Folder")
+                    SectionSubFolder.Name = "SectionSubFolder"
+                    SectionSubFolder.Parent = SectionAdd
+
+                    SectionSubPageLayout = Instance.new("UIPageLayout")
+                    SectionSubPageLayout.Parent = SectionSubFolder
+                    SectionSubPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                    SectionSubPageLayout.EasingDirection = Enum.EasingDirection.InOut
+                    SectionSubPageLayout.EasingStyle = Enum.EasingStyle.Quad
+                    SectionSubPageLayout.TweenTime = 0.25
+                end
+
+                SubTabCount = SubTabCount + 1
+                local OrderIndex = SubTabCount
+
+                local SubBtn = Instance.new("TextButton")
+                SubBtn.Parent = SectionSubTabHolder
+                SubBtn.BackgroundColor3 = GuiConfig.Color
+                SubBtn.BackgroundTransparency = (OrderIndex == 1) and 0.8 or 0.999
+                SubBtn.BorderSizePixel = 0
+                SubBtn.Font = Enum.Font.GothamBold
+                SubBtn.Text = " " .. SubTitle .. " "
+                SubBtn.TextColor3 = (OrderIndex == 1) and GuiConfig.Color or Color3.fromRGB(180, 180, 180)
+                SubBtn.TextSize = 13
+                SubBtn.LayoutOrder = OrderIndex
+                local txW = SubBtn.TextBounds.X
+                SubBtn.Size = UDim2.new(0, txW + 20, 0, 26)
+                Instance.new("UICorner", SubBtn).CornerRadius = UDim.new(0, 4)
+
+                SubBtn.Activated:Connect(function()
+                    CircleClick(SubBtn, Mouse.X, Mouse.Y)
+                    for _, b in pairs(SectionSubTabHolder:GetChildren()) do
+                        if b:IsA("TextButton") then
+                            game:GetService("TweenService"):Create(b, TweenInfo.new(0.3), {
+                                BackgroundTransparency = 0.999,
+                                TextColor3 = Color3.fromRGB(180, 180, 180)
+                            }):Play()
+                        end
+                    end
+                    game:GetService("TweenService"):Create(SubBtn, TweenInfo.new(0.3), {
+                        BackgroundTransparency = 0.8,
+                        TextColor3 = GuiConfig.Color
+                    }):Play()
+                    SectionSubPageLayout:JumpToIndex(OrderIndex)
+                end)
+
+                local STPage = Instance.new("Frame")
+                STPage.Name = "STPage_" .. OrderIndex
+                STPage.Parent = SectionSubFolder
+                STPage.BackgroundTransparency = 1
+                STPage.Size = UDim2.new(1, 0, 1, 0)
+                STPage.LayoutOrder = OrderIndex
+
+                local STUIList = Instance.new("UIListLayout")
+                STUIList.Parent = STPage
+                STUIList.SortOrder = Enum.SortOrder.LayoutOrder
+                STUIList.Padding = UDim.new(0, 3)
+
+                -- Wrapper Items khusus untuk page ini agar tidak tercampur
+                local TabboxItems = {}
+                local countTB = 0
+
+                -- Helper koneksi child untuk auto-resize section utama
+                STUIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                    if OrderIndex == SectionSubPageLayout.CurrentPage.LayoutOrder then
+                        UpdateSizeSection()
+                    end
+                end)
+                
+                -- Kita teruskan fungsi Toggle dsb yang diinjeksi ke page baru
+                for k, v in pairs(Items) do
+                    if type(v) == "function" and k ~= "AddTabbox" then
+                        TabboxItems[k] = function(self_, config)
+                            local oldAdd = SectionAdd
+                            local oldIL = UIListLayout2
+                            local oldU = UpdateSizeSection
+                            
+                            -- Bajak parent render sementara
+                            SectionAdd = STPage
+                            UIListLayout2 = STUIList
+                            local result = v(self_, config)
+                            -- Kembalikan render parent
+                            SectionAdd = oldAdd
+                            UIListLayout2 = oldIL
+                            return result
+                        end
+                    end
+                end
+                
+                -- Support legacy API call like left/right group
+                TabboxItems.AddLeftGroupbox = Items.AddTabbox
+                TabboxItems.AddRightGroupbox = Items.AddTabbox
+                
+                return TabboxItems
+            end
+            
+            -- Support langsung STA adapter
+            Items.AddLeftGroupbox = Items.AddTabbox
+            Items.AddRightGroupbox = Items.AddTabbox
 
             function Items:AddParagraph(ParagraphConfig)
                 local ParagraphConfig = ParagraphConfig or {}
