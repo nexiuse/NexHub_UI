@@ -1378,12 +1378,9 @@ function nexhub:Window(GuiConfig)
         TabConfig.Name = TabConfig.Name or "Tab"
         TabConfig.Icon = TabConfig.Icon or ""
 
-        local ScrolLayers = Instance.new("ScrollingFrame");
+        local ScrolLayers = Instance.new("Frame");
         local UIListLayout1 = Instance.new("UIListLayout");
 
-        ScrolLayers.ScrollBarImageColor3 = Color3.fromRGB(80.00000283122063, 80.00000283122063, 80.00000283122063)
-        ScrolLayers.ScrollBarThickness = 0
-        ScrolLayers.Active = true
         ScrolLayers.LayoutOrder = CountTab
         ScrolLayers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ScrolLayers.BackgroundTransparency = 0.9990000128746033
@@ -1537,108 +1534,51 @@ function nexhub:Window(GuiConfig)
             end
         end)
         --// Container Utama Box (Meniru Photo 3 STA)
-        local MainSection = Instance.new("Frame")
-        local MainCorner = Instance.new("UICorner")
-        local MainDecideFrame = Instance.new("Frame")
-        local MainUICorner1 = Instance.new("UICorner")
-        local MainUIGradient = Instance.new("UIGradient")
-
-        MainSection.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        MainSection.BackgroundTransparency = 0.935
-        MainSection.BorderSizePixel = 0
-        MainSection.Position = UDim2.new(0.5, 0, 0, 0)
-        MainSection.AnchorPoint = Vector2.new(0.5, 0)
-        MainSection.Size = UDim2.new(1, 0, 0, 150)
-        MainSection.Name = "MainSection"
-        MainSection.Parent = ScrolLayers
-        MainSection.ClipsDescendants = true
-        MainSection.LayoutOrder = -101
-
-        MainCorner.CornerRadius = UDim.new(0, 4)
-        MainCorner.Parent = MainSection
-
-        -- MainTitle ("Visuals") di dalam box dihapus sesuai permintaan
-
-        MainDecideFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        MainDecideFrame.BorderSizePixel = 0
-        MainDecideFrame.AnchorPoint = Vector2.new(0.5, 0)
-        MainDecideFrame.Position = UDim2.new(0.5, 0, 0, 2) -- Karena title tidak ada, posisi line pindah ke atas (2px padding)
-        MainDecideFrame.Size = UDim2.new(1, 0, 0, 2)
-        MainDecideFrame.Name = "MainDecideFrame"
-        MainDecideFrame.Parent = MainSection
-
-        MainUICorner1.Parent = MainDecideFrame
-
-        MainUIGradient.Color = ColorSequence.new {
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
-            ColorSequenceKeypoint.new(0.5, GuiConfig.Color),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
-        }
-        MainUIGradient.Parent = MainDecideFrame
-
         local SubTabHolder = Instance.new("Frame")
         SubTabHolder.Name = "SubTabHolder"
         SubTabHolder.BackgroundTransparency = 1
         SubTabHolder.Size = UDim2.new(1, -10, 0, 0)
-        SubTabHolder.Position = UDim2.new(0, 5, 0, 12) -- 10px spacing dari glow line
-        SubTabHolder.Parent = MainSection
+        SubTabHolder.Position = UDim2.new(0, 5, 0, 5)
+        SubTabHolder.Parent = ScrolLayers
         SubTabHolder.LayoutOrder = 1
 
         local SubTabList = Instance.new("UIListLayout")
         SubTabList.FillDirection = Enum.FillDirection.Horizontal
         SubTabList.SortOrder = Enum.SortOrder.LayoutOrder
-        SubTabList.Padding = UDim.new(0, 6) -- Add slight more padding max size tab
+        SubTabList.Padding = UDim.new(0, 6) 
         SubTabList.Wraps = true
         SubTabList.Parent = SubTabHolder
 
         local SectionFolder = Instance.new("Frame")
         SectionFolder.Name = "SectionFolder"
         SectionFolder.BackgroundTransparency = 1
-        SectionFolder.Size = UDim2.new(1, -10, 0, 0)
-        SectionFolder.Position = UDim2.new(0, 5, 0, 12) 
-        SectionFolder.Parent = MainSection
+        SectionFolder.Size = UDim2.new(1, -10, 1, -10)
+        SectionFolder.Position = UDim2.new(0, 5, 0, 5) 
+        SectionFolder.Parent = ScrolLayers
         SectionFolder.ClipsDescendants = true
+        SectionFolder.LayoutOrder = 2
 
         local SectionPageLayout = Instance.new("UIPageLayout")
         SectionPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
         SectionPageLayout.TweenTime = 0.4
         SectionPageLayout.Parent = SectionFolder
+        
         local function UpdateSizeScroll()
-            local sfHeight = 50 -- Minimal height to prevent glitch
-            
-            -- Cari tinggi maksimum dari page yang aktif
+            -- Adjust section CanvasSizes dynamically to prevent scrolling loop issues inside pages
             for _, sf in pairs(SectionFolder:GetChildren()) do
-                if sf:IsA("ScrollingFrame") or sf:IsA("Frame") then
+                if sf:IsA("ScrollingFrame") then
                     local list = sf:FindFirstChildOfClass("UIListLayout")
-                    if list and list.AbsoluteContentSize.Y > sfHeight then
-                        sfHeight = list.AbsoluteContentSize.Y
-                    end
-                    -- Update individual canvas sizes dynamically to prevent scrolling loop issues inside pages
-                    if list and sf:IsA("ScrollingFrame") then
-                        sf.CanvasSize = UDim2.new(0,0,0, list.AbsoluteContentSize.Y + 20)
+                    if list then
+                        sf.CanvasSize = UDim2.new(0, 0, 0, list.AbsoluteContentSize.Y + 20)
                     end
                 end
             end
             
-            if MainSection then
+            -- SubTabHolder auto adjusts its outer height to fit wrapped tabs
+            if SubTabHolder and SubTabList then
                 SubTabHolder.Size = UDim2.new(1, -10, 0, SubTabList.AbsoluteContentSize.Y)
-                SectionFolder.Position = UDim2.new(0, 5, 0, 12 + SubTabList.AbsoluteContentSize.Y + 10)
-                
-                -- Resize section folder to content
-                SectionFolder.Size = UDim2.new(1, -10, 0, sfHeight + 10)
-                
-                -- Expand MainSection wrapper
-                local totalMainHeight = 12 + SubTabList.AbsoluteContentSize.Y + 10 + sfHeight + 25
-                MainSection.Size = UDim2.new(1, 0, 0, totalMainHeight)
-            end
-
-            -- Update Layout ScrollLayers Outer by referencing MainSection manual calculation to prevent bounce sync issues
-            local layout = ScrolLayers:FindFirstChildOfClass("UIListLayout")
-            if layout then
-                -- Add some extra padding to bottom for comfortable scrolling
-                task.delay(0.02, function()
-                    ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 50)
-                end)
+                -- Expand SectionFolder's remaining layout space below the SubTabHolder safely
+                SectionFolder.Size = UDim2.new(1, -10, 1, -(SubTabList.AbsoluteContentSize.Y + 15))
             end
         end
 
