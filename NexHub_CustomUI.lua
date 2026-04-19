@@ -1415,7 +1415,9 @@ function Chloex:Window(GuiConfig)
                             end
                         end
                     end
-                    TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 90 }):Play()
+                    if FeatureFrame.Parent ~= nil and FeatureFrame.Visible then
+                        TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 90 }):Play()
+                    end
                     TweenService:Create(Section, TweenInfo.new(0.5), { Size = UDim2.new(1, 1, 0, SectionSizeYWitdh) })
                         :Play()
                     TweenService:Create(SectionAdd, TweenInfo.new(0.5),
@@ -1427,8 +1429,8 @@ function Chloex:Window(GuiConfig)
             end
 
             if AlwaysOpen == true then
-                SectionButton:Destroy()
-                FeatureFrame:Destroy()
+                SectionButton.Visible = false
+                FeatureFrame.Visible = false
                 OpenSection = true
                 UpdateSizeSection()
             elseif AlwaysOpen == false then
@@ -1442,7 +1444,9 @@ function Chloex:Window(GuiConfig)
                 SectionButton.Activated:Connect(function()
                     CircleClick(SectionButton, Mouse.X, Mouse.Y)
                     if OpenSection then
-                        TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 0 }):Play()
+                        if FeatureFrame.Parent ~= nil and FeatureFrame.Visible then
+                            TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 0 }):Play()
+                        end
                         TweenService:Create(Section, TweenInfo.new(0.5), { Size = UDim2.new(1, 1, 0, 30) }):Play()
                         TweenService:Create(SectionDecideFrame, TweenInfo.new(0.5), { Size = UDim2.new(0, 0, 0, 2) })
                             :Play()
@@ -1464,7 +1468,9 @@ function Chloex:Window(GuiConfig)
                         SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
                     end
                 end
-                FeatureFrame.Rotation = 90
+                if FeatureFrame.Parent ~= nil and FeatureFrame.Visible then
+                    FeatureFrame.Rotation = 90
+                end
                 Section.Size = UDim2.new(1, 1, 0, SectionSizeYWitdh)
                 SectionAdd.Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38)
                 SectionDecideFrame.Size = UDim2.new(1, 0, 0, 2)
@@ -1598,8 +1604,10 @@ function Chloex:Window(GuiConfig)
 
                 -- Helper koneksi child untuk auto-resize section utama
                 STUIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                    if OrderIndex == SectionSubPageLayout.CurrentPage.LayoutOrder then
-                        UpdateSizeSection()
+                    if SectionSubPageLayout and SectionSubPageLayout.CurrentPage then
+                        if OrderIndex == SectionSubPageLayout.CurrentPage.LayoutOrder then
+                            UpdateSizeSection()
+                        end
                     end
                 end)
                 
