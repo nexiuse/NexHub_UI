@@ -1063,7 +1063,11 @@ function Chloex:Window(GuiConfig)
 
     GuiFunc:ToggleUI()
 
-    DropShadowHolder.Size = UDim2.new(0, 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X, 0, 350)
+    -- Ensure window is wide enough: at least Tab Width + 200, or text-based width
+    local textBasedWidth = 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X
+    local minWidth = GuiConfig["Tab Width"] + 250
+    local finalWidth = math.max(textBasedWidth, minWidth, 500)
+    DropShadowHolder.Size = UDim2.new(0, finalWidth, 0, 400)
     MakeDraggable(Top, DropShadowHolder)
 
     local MoreBlur = Instance.new("Frame");
@@ -3031,6 +3035,18 @@ function Chloex:Window(GuiConfig)
             -- no-op
         end
         return tagObj
+    end
+
+    -- Notify: delegate to Chloex:MakeNotify (scripts call Window:Notify)
+    function Tabs:Notify(cfg)
+        cfg = cfg or {}
+        return Chloex:MakeNotify({
+            Title = cfg.Title or "NexHub",
+            Description = cfg.Description or "Notification",
+            Content = cfg.Content or "",
+            Color = NormalizeColor(cfg.Color, Color3.fromRGB(0, 208, 255)),
+            Delay = cfg.Duration or cfg.Delay or cfg.Time or 4,
+        })
     end
 
     -- SetCornerRadius: no-op
