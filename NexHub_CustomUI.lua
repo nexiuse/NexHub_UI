@@ -1754,6 +1754,18 @@ function Chloex:Window(GuiConfig)
             local Items = {}
             local CountItem = 0
 
+            -- VelarisUI compatibility: scripts call AddTabbox/AddSection on the return
+            -- value of AddSection (Items). Delegate these back to parent Sections.
+            function Items:AddTabbox(cfg)
+                return Sections:AddTabbox(cfg)
+            end
+            Items.AddLeftGroupbox = Items.AddTabbox
+            Items.AddRightGroupbox = Items.AddTabbox
+
+            function Items:AddSection(cfg, alwaysOpen)
+                return Sections:AddSection(cfg, alwaysOpen)
+            end
+
             function Items:AddParagraph(ParagraphConfig)
                 local ParagraphConfig = ParagraphConfig or {}
                 ParagraphConfig.Title = ParagraphConfig.Title or "Title"
