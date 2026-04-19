@@ -1,17 +1,17 @@
 local HttpService = game:GetService("HttpService")
 
-if not isfolder("NexHub") then
-    makefolder("NexHub")
+if not isfolder("Chloe X") then
+    makefolder("Chloe X")
 end
-if not isfolder("NexHub/Config") then
-    makefolder("NexHub/Config")
+if not isfolder("Chloe X/Config") then
+    makefolder("Chloe X/Config")
 end
 
 local gameName   = tostring(game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name)
 gameName         = gameName:gsub("[^%w_ ]", "")
 gameName         = gameName:gsub("%s+", "_")
 
-local ConfigFile = "NexHub/Config/NexHub_" .. gameName .. ".json"
+local ConfigFile = "Chloe X/Config/Chloe_" .. gameName .. ".json"
 
 ConfigData       = {}
 Elements         = {}
@@ -226,7 +226,6 @@ end
 
 function CircleClick(Button, X, Y)
     spawn(function()
-        if not Button or not Button.Parent then return end
         Button.ClipsDescendants = true
         local Circle = Instance.new("ImageLabel")
         Circle.Image = "rbxassetid://266543268"
@@ -238,8 +237,6 @@ function CircleClick(Button, X, Y)
         Circle.Name = "Circle"
         Circle.Parent = Button
 
-        X = tonumber(X) or (Button.AbsolutePosition.X + (Button.AbsoluteSize.X / 2))
-        Y = tonumber(Y) or (Button.AbsolutePosition.Y + (Button.AbsoluteSize.Y / 2))
         local NewX = X - Circle.AbsolutePosition.X
         local NewY = Y - Circle.AbsolutePosition.Y
         Circle.Position = UDim2.new(0, NewX, 0, NewY)
@@ -263,10 +260,10 @@ function CircleClick(Button, X, Y)
     end)
 end
 
-local NexHubLib = {}
-function NexHubLib:MakeNotify(NotifyConfig)
+local Chloex = {}
+function Chloex:MakeNotify(NotifyConfig)
     local NotifyConfig = NotifyConfig or {}
-    NotifyConfig.Title = NotifyConfig.Title or "NexHub"
+    NotifyConfig.Title = NotifyConfig.Title or "Chloe X"
     NotifyConfig.Description = NotifyConfig.Description or "Notification"
     NotifyConfig.Content = NotifyConfig.Content or "Content"
     NotifyConfig.Color = NotifyConfig.Color or Color3.fromRGB(255, 0, 255)
@@ -462,9 +459,9 @@ function NexHubLib:MakeNotify(NotifyConfig)
     return NotifyFunction
 end
 
-function nexhub(msg, delay, color, title, desc)
-    return NexHubLib:MakeNotify({
-        Title = title or "NexHub",
+function chloex(msg, delay, color, title, desc)
+    return Chloex:MakeNotify({
+        Title = title or "Chloe X",
         Description = desc or "Notification",
         Content = msg or "Content",
         Color = color or Color3.fromRGB(0, 208, 255),
@@ -472,14 +469,11 @@ function nexhub(msg, delay, color, title, desc)
     })
 end
 
-function NexHubLib:Window(GuiConfig)
+function Chloex:Window(GuiConfig)
     GuiConfig              = GuiConfig or {}
-    GuiConfig.Title        = GuiConfig.Title or "NexHub"
-    GuiConfig.Footer       = GuiConfig.Footer or "developed by Nex"
-
-    if typeof(GuiConfig.Color) ~= "Color3" then
-        GuiConfig.Color = Color3.fromRGB(255, 0, 255)
-    end
+    GuiConfig.Title        = GuiConfig.Title or "Chloe X"
+    GuiConfig.Footer       = GuiConfig.Footer or "Chloee :3"
+    GuiConfig.Color        = GuiConfig.Color or Color3.fromRGB(255, 0, 255)
     GuiConfig["Tab Width"] = GuiConfig["Tab Width"] or 120
     GuiConfig.Version      = GuiConfig.Version or 1
 
@@ -488,7 +482,7 @@ function NexHubLib:Window(GuiConfig)
 
     local GuiFunc = {}
 
-    local NexHubGui = Instance.new("ScreenGui");
+    local Chloeex = Instance.new("ScreenGui");
     local DropShadowHolder = Instance.new("Frame");
     local DropShadow = Instance.new("ImageLabel");
     local Main = Instance.new("Frame");
@@ -508,13 +502,13 @@ function NexHubLib:Window(GuiConfig)
     local UICorner6 = Instance.new("UICorner");
     local NameTab = Instance.new("TextLabel");
     local LayersReal = Instance.new("Frame");
-    local LayersFolder = Instance.new("Frame");
+    local LayersFolder = Instance.new("Folder");
     local LayersPageLayout = Instance.new("UIPageLayout");
 
-    NexHubGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    NexHubGui.Name = "NexHubGui"
-    NexHubGui.ResetOnSpawn = false
-    NexHubGui.Parent = game:GetService("CoreGui")
+    Chloeex.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    Chloeex.Name = "Chloeex"
+    Chloeex.ResetOnSpawn = false
+    Chloeex.Parent = game:GetService("CoreGui")
 
     DropShadowHolder.BackgroundTransparency = 1
     DropShadowHolder.BorderSizePixel = 0
@@ -527,10 +521,10 @@ function NexHubLib:Window(GuiConfig)
     end
     DropShadowHolder.ZIndex = 0
     DropShadowHolder.Name = "DropShadowHolder"
-    DropShadowHolder.Parent = NexHubGui
+    DropShadowHolder.Parent = Chloeex
 
-    DropShadowHolder.Position = UDim2.new(0, (NexHubGui.AbsoluteSize.X // 2 - DropShadowHolder.Size.X.Offset // 2), 0,
-        (NexHubGui.AbsoluteSize.Y // 2 - DropShadowHolder.Size.Y.Offset // 2))
+    DropShadowHolder.Position = UDim2.new(0, (Chloeex.AbsoluteSize.X // 2 - DropShadowHolder.Size.X.Offset // 2), 0,
+        (Chloeex.AbsoluteSize.Y // 2 - DropShadowHolder.Size.Y.Offset // 2))
     DropShadow.Image = "rbxassetid://6015897843"
     DropShadow.ImageColor3 = Color3.fromRGB(15, 15, 15)
     DropShadow.ImageTransparency = 1
@@ -686,25 +680,32 @@ function NexHubLib:Window(GuiConfig)
     UICorner6.CornerRadius = UDim.new(0, 2)
     UICorner6.Parent = Layers
 
-    -- NameTab dihapus
+    NameTab.Font = Enum.Font.GothamBold
+    NameTab.Text = ""
+    NameTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    NameTab.TextSize = 24
+    NameTab.TextWrapped = true
+    NameTab.TextXAlignment = Enum.TextXAlignment.Left
+    NameTab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    NameTab.BackgroundTransparency = 0.9990000128746033
+    NameTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    NameTab.BorderSizePixel = 0
+    NameTab.Size = UDim2.new(1, 0, 0, 30)
+    NameTab.Name = "NameTab"
+    NameTab.Parent = Layers
 
-    LayersReal.AnchorPoint = Vector2.new(0, 0)
+    LayersReal.AnchorPoint = Vector2.new(0, 1)
     LayersReal.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     LayersReal.BackgroundTransparency = 0.9990000128746033
     LayersReal.BorderColor3 = Color3.fromRGB(0, 0, 0)
     LayersReal.BorderSizePixel = 0
     LayersReal.ClipsDescendants = true
-    LayersReal.Position = UDim2.new(0, 0, 0, 0)
-    LayersReal.Size = UDim2.new(1, 0, 1, 0)
+    LayersReal.Position = UDim2.new(0, 0, 1, 0)
+    LayersReal.Size = UDim2.new(1, 0, 1, -33)
     LayersReal.Name = "LayersReal"
     LayersReal.Parent = Layers
 
     LayersFolder.Name = "LayersFolder"
-    LayersFolder.BackgroundTransparency = 1
-    LayersFolder.BorderSizePixel = 0
-    LayersFolder.Size = UDim2.new(1, 0, 1, 0)
-    LayersFolder.Position = UDim2.new(0, 0, 0, 0)
-    LayersFolder.ClipsDescendants = true
     LayersFolder.Parent = LayersReal
 
     LayersPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -746,8 +747,8 @@ function NexHubLib:Window(GuiConfig)
     ScrollTab.ChildRemoved:Connect(UpdateSize1)
 
     function GuiFunc:DestroyGui()
-        if CoreGui:FindFirstChild("NexHubGui") then
-            NexHubGui:Destroy()
+        if CoreGui:FindFirstChild("Chloeex") then
+            Chloeex:Destroy()
         end
     end
 
@@ -804,7 +805,7 @@ function NexHubLib:Window(GuiConfig)
         Title.Position = UDim2.new(0, 0, 0, 4)
         Title.BackgroundTransparency = 1
         Title.Font = Enum.Font.GothamBold
-        Title.Text = "NexHub Dialog"
+        Title.Text = "Chloe X Window"
         Title.TextSize = 22
         Title.TextColor3 = Color3.fromRGB(255, 255, 255)
         Title.ZIndex = 52
@@ -853,7 +854,7 @@ function NexHubLib:Window(GuiConfig)
         Instance.new("UICorner", Cancel).CornerRadius = UDim.new(0, 6)
 
         Yes.MouseButton1Click:Connect(function()
-            if NexHubGui then NexHubGui:Destroy() end
+            if Chloeex then Chloeex:Destroy() end
             if game.CoreGui:FindFirstChild("ToggleUIButton") then
                 game.CoreGui.ToggleUIButton:Destroy()
             end
@@ -939,13 +940,7 @@ function NexHubLib:Window(GuiConfig)
 
     GuiFunc:ToggleUI()
 
-    local desiredWidth = 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X
-    local minWidthForSidebar = (GuiConfig["Tab Width"] or 120) + 260
-    local maxAllowedWidth = math.max(320, viewport.X - 20)
-    local finalWidth = math.clamp(math.max(desiredWidth, minWidthForSidebar), 320, maxAllowedWidth)
-    local finalHeight = isMobile and 270 or 350
-    DropShadowHolder.Size = UDim2.new(0, finalWidth, 0, finalHeight)
-    DropShadowHolder.Position = UDim2.new(0.5, -(finalWidth // 2), 0.5, -(finalHeight // 2))
+    DropShadowHolder.Size = UDim2.new(0, 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X, 0, 350)
     MakeDraggable(Top, DropShadowHolder)
 
     local MoreBlur = Instance.new("Frame");
@@ -1005,7 +1000,7 @@ function NexHubLib:Window(GuiConfig)
     local UICorner36 = Instance.new("UICorner");
     local UIStroke14 = Instance.new("UIStroke");
     local DropdownSelectReal = Instance.new("Frame");
-    local DropdownFolder = Instance.new("Frame");
+    local DropdownFolder = Instance.new("Folder");
     local DropPageLayout = Instance.new("UIPageLayout");
 
     DropdownSelect.AnchorPoint = Vector2.new(1, 0.5)
@@ -1047,11 +1042,6 @@ function NexHubLib:Window(GuiConfig)
     DropdownSelectReal.Parent = DropdownSelect
 
     DropdownFolder.Name = "DropdownFolder"
-    DropdownFolder.BackgroundTransparency = 1
-    DropdownFolder.BorderSizePixel = 0
-    DropdownFolder.Size = UDim2.new(1, 0, 1, 0)
-    DropdownFolder.Position = UDim2.new(0, 0, 0, 0)
-    DropdownFolder.ClipsDescendants = true
     DropdownFolder.Parent = DropdownSelectReal
 
     DropPageLayout.EasingDirection = Enum.EasingDirection.InOut
@@ -1066,6 +1056,14 @@ function NexHubLib:Window(GuiConfig)
     local Tabs = {}
     local CountTab = 0
     local CountDropdown = 0
+    local TabOverlayPairs = {}
+    local function ApplyOverlayVisibility(activeIndex)
+        for _, info in ipairs(TabOverlayPairs) do
+            local show = (info.Index == activeIndex) and info.State.Enabled
+            info.Holder.Visible = show
+            info.Pages.Visible = show
+        end
+    end
     function Tabs:AddTab(TabConfig, IconArg)
         if type(TabConfig) ~= "table" then
             TabConfig = {
@@ -1078,78 +1076,105 @@ function NexHubLib:Window(GuiConfig)
         TabConfig.Name = TabConfig.Name or "Tab"
         TabConfig.Icon = TabConfig.Icon or ""
 
-        local PageFrame = Instance.new("Frame");
-        local SubTabHolder = Instance.new("ScrollingFrame");
-        local UIListLayoutST = Instance.new("UIListLayout");
-        local UIPaddingST = Instance.new("UIPadding");
         local ScrolLayers = Instance.new("ScrollingFrame");
         local UIListLayout1 = Instance.new("UIListLayout");
 
-        PageFrame.LayoutOrder = CountTab
-        PageFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        PageFrame.BackgroundTransparency = 1
-        PageFrame.BorderSizePixel = 0
-        PageFrame.Size = UDim2.new(1, 0, 1, 0)
-        PageFrame.Name = "PageFrame"
-        PageFrame.Parent = LayersFolder
+        ScrolLayers.ScrollBarImageColor3 = Color3.fromRGB(80.00000283122063, 80.00000283122063, 80.00000283122063)
+        ScrolLayers.ScrollBarThickness = 0
+        ScrolLayers.Active = true
+        ScrolLayers.LayoutOrder = CountTab
+        ScrolLayers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        ScrolLayers.BackgroundTransparency = 0.9990000128746033
+        ScrolLayers.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        ScrolLayers.BorderSizePixel = 0
+        ScrolLayers.Size = UDim2.new(1, 0, 1, 0)
+        ScrolLayers.Name = "ScrolLayers"
+        ScrolLayers.Parent = LayersFolder
 
-        -- Bagian bar horizontal untuk tombol SubTab (ESP Settings, dsb)
+        UIListLayout1.Padding = UDim.new(0, 3)
+        UIListLayout1.SortOrder = Enum.SortOrder.LayoutOrder
+        UIListLayout1.Parent = ScrolLayers
+
+        -- Horizontal SubTab host (right side) for AddTabbox/AddLeftGroupbox/AddRightGroupbox
+        local SubTabHolder = Instance.new("ScrollingFrame")
+        local SubTabLayout = Instance.new("UIListLayout")
+        local SubTabPadding = Instance.new("UIPadding")
+        local SubTabPages = Instance.new("Frame")
+        local SubTabPageLayout = Instance.new("UIPageLayout")
+        local SubTabCount = 0
+        local OverlayState = { Enabled = false }
+
         SubTabHolder.Name = "SubTabHolder"
-        SubTabHolder.Parent = PageFrame
+        SubTabHolder.Parent = Layers
         SubTabHolder.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
         SubTabHolder.BackgroundTransparency = 0.999
-        SubTabHolder.Size = UDim2.new(1, 0, 0, 0) -- Default height 0, terbuka jika AddTabbox dipanggil
+        SubTabHolder.BorderSizePixel = 0
+        SubTabHolder.Size = UDim2.new(1, 0, 0, 0)
         SubTabHolder.Position = UDim2.new(0, 0, 0, 0)
         SubTabHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
         SubTabHolder.ScrollBarThickness = 0
         SubTabHolder.ScrollingDirection = Enum.ScrollingDirection.X
         SubTabHolder.Visible = false
 
-        UIListLayoutST.Padding = UDim.new(0, 5)
-        UIListLayoutST.FillDirection = Enum.FillDirection.Horizontal
-        UIListLayoutST.SortOrder = Enum.SortOrder.LayoutOrder
-        UIListLayoutST.VerticalAlignment = Enum.VerticalAlignment.Center
-        UIListLayoutST.Parent = SubTabHolder
+        SubTabLayout.Padding = UDim.new(0, 5)
+        SubTabLayout.FillDirection = Enum.FillDirection.Horizontal
+        SubTabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        SubTabLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        SubTabLayout.Parent = SubTabHolder
 
-        UIPaddingST.PaddingLeft = UDim.new(0, 5)
-        UIPaddingST.PaddingRight = UDim.new(0, 5)
-        UIPaddingST.Parent = SubTabHolder
+        SubTabPadding.PaddingLeft = UDim.new(0, 5)
+        SubTabPadding.PaddingRight = UDim.new(0, 5)
+        SubTabPadding.Parent = SubTabHolder
 
-        local function UpdateSubSize()
-            local OffsetX = 0
-            local hasChild = false
-            for _, child in SubTabHolder:GetChildren() do
-                if child:IsA("TextButton") then
-                    hasChild = true
-                    OffsetX = OffsetX + 5 + child.Size.X.Offset
+        SubTabPages.Name = "SubTabPages"
+        SubTabPages.Parent = Layers
+        SubTabPages.BackgroundTransparency = 1
+        SubTabPages.BorderSizePixel = 0
+        SubTabPages.Position = UDim2.new(0, 0, 0, 0)
+        SubTabPages.Size = UDim2.new(1, 0, 1, 0)
+        SubTabPages.Visible = false
+
+        SubTabPageLayout.Parent = SubTabPages
+        SubTabPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        SubTabPageLayout.EasingDirection = Enum.EasingDirection.InOut
+        SubTabPageLayout.EasingStyle = Enum.EasingStyle.Quad
+        SubTabPageLayout.TweenTime = 0.25
+
+        local function UpdateSubTabCanvas()
+            local ox = 0
+            for _, c in ipairs(SubTabHolder:GetChildren()) do
+                if c:IsA("TextButton") then
+                    ox = ox + c.Size.X.Offset + 5
                 end
             end
-            SubTabHolder.CanvasSize = UDim2.new(0, OffsetX, 0, 0)
+            SubTabHolder.CanvasSize = UDim2.new(0, ox + 10, 0, 0)
         end
-        SubTabHolder.ChildAdded:Connect(UpdateSubSize)
-        SubTabHolder.ChildRemoved:Connect(UpdateSubSize)
+        SubTabHolder.ChildAdded:Connect(UpdateSubTabCanvas)
+        SubTabHolder.ChildRemoved:Connect(UpdateSubTabCanvas)
 
-        -- Wadah terpisah untuk konten setiap SubTab agar tidak nge-bounce
-        -- SectionFolder dan SectionPageLayout digabungkan dalam logikan ScrolLayers
-        ScrolLayers.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
-        ScrolLayers.ScrollBarThickness = 0
-        ScrolLayers.Active = true
-        ScrolLayers.BackgroundColor3 = Color3.fromRGB(244, 244, 244)
-        ScrolLayers.BackgroundTransparency = 0.999
-        ScrolLayers.BorderSizePixel = 0
-        ScrolLayers.Size = UDim2.new(1, 0, 1, 0) -- Full size jika tak ada SubTab
-        ScrolLayers.Position = UDim2.new(0, 0, 0, 0)
-        ScrolLayers.Name = "ScrolLayers"
-        ScrolLayers.Parent = PageFrame
+        local function EnsureSubTabsEnabled()
+            if OverlayState.Enabled then return end
+            OverlayState.Enabled = true
+            SubTabHolder.Size = UDim2.new(1, 0, 0, 36)
+            SubTabHolder.Position = UDim2.new(0, 0, 0, 0)
+            ScrolLayers.Visible = false
+            SubTabPages.Position = UDim2.new(0, 0, 0, 40)
+            SubTabPages.Size = UDim2.new(1, 0, 1, -40)
+            ApplyOverlayVisibility(Tab.LayoutOrder)
+        end
 
-        UIListLayout1.Padding = UDim.new(0, 3)
-        UIListLayout1.SortOrder = Enum.SortOrder.LayoutOrder
-        UIListLayout1.Parent = ScrolLayers
+        local CurrentSectionRoot = ScrolLayers
+        table.insert(TabOverlayPairs, {
+            Index = CountTab,
+            Holder = SubTabHolder,
+            Pages = SubTabPages,
+            State = OverlayState,
+        })
 
         local Tab = Instance.new("Frame");
         local UICorner3 = Instance.new("UICorner");
         local TabButton = Instance.new("TextButton");
-        local TabName = Instance.new("TextLabel");
+        local TabName = Instance.new("TextLabel")
         local FeatureImg = Instance.new("ImageLabel");
         local UIStroke2 = Instance.new("UIStroke");
         local UICorner4 = Instance.new("UICorner");
@@ -1207,6 +1232,7 @@ function NexHubLib:Window(GuiConfig)
         FeatureImg.Parent = Tab
         if CountTab == 0 then
             LayersPageLayout:JumpToIndex(0)
+            NameTab.Text = TabConfig.Name
             local ChooseFrame = Instance.new("Frame");
             ChooseFrame.BackgroundColor3 = GuiConfig.Color
             ChooseFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -1264,6 +1290,8 @@ function NexHubLib:Window(GuiConfig)
                 ):Play()
                 LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
                 task.wait(0.05)
+                NameTab.Text = TabConfig.Name
+                ApplyOverlayVisibility(Tab.LayoutOrder)
                 TweenService:Create(
                     FrameChoose,
                     TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
@@ -1277,13 +1305,89 @@ function NexHubLib:Window(GuiConfig)
                 ):Play()
             end
         end)
+        if CountTab == 0 then
+            ApplyOverlayVisibility(0)
+        end
         --// Section
         local Sections = {}
         local CountSection = 0
-        function Sections:AddSection(TitleOrConfig, AlwaysOpen)
-            local SectionConfig = type(TitleOrConfig) == "table" and TitleOrConfig or {}
-            local Title = SectionConfig.Title or (type(TitleOrConfig) == "string" and TitleOrConfig) or "Title"
-            local AlwaysOpen = SectionConfig.Opened or AlwaysOpen
+        function Sections:AddTabbox(TabboxConfig)
+            TabboxConfig = type(TabboxConfig) == "table" and TabboxConfig or { Title = tostring(TabboxConfig or "Tabbox") }
+            local SubTitle = TabboxConfig.Title or "Tabbox"
+
+            EnsureSubTabsEnabled()
+
+            SubTabCount = SubTabCount + 1
+            local order = SubTabCount
+
+            local SubBtn = Instance.new("TextButton")
+            SubBtn.Parent = SubTabHolder
+            SubBtn.BackgroundColor3 = GuiConfig.Color
+            SubBtn.BackgroundTransparency = (order == 1) and 0.8 or 0.999
+            SubBtn.BorderSizePixel = 0
+            SubBtn.Font = Enum.Font.GothamBold
+            SubBtn.Text = " " .. tostring(SubTitle) .. " "
+            SubBtn.TextColor3 = (order == 1) and GuiConfig.Color or Color3.fromRGB(180, 180, 180)
+            SubBtn.TextSize = 13
+            SubBtn.LayoutOrder = order
+            SubBtn.Size = UDim2.new(0, SubBtn.TextBounds.X + 20, 0, 26)
+            Instance.new("UICorner", SubBtn).CornerRadius = UDim.new(0, 4)
+
+            local page = Instance.new("ScrollingFrame")
+            local pageLayout = Instance.new("UIListLayout")
+            page.Name = "SubTabPage_" .. tostring(order)
+            page.Parent = SubTabPages
+            page.BackgroundTransparency = 1
+            page.BorderSizePixel = 0
+            page.ScrollBarThickness = 0
+            page.Active = true
+            page.Size = UDim2.new(1, 0, 1, 0)
+            page.CanvasSize = UDim2.new(0, 0, 0, 0)
+            page.LayoutOrder = order - 1
+
+            pageLayout.Padding = UDim.new(0, 3)
+            pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            pageLayout.Parent = page
+            pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 10)
+            end)
+
+            local function SelectSubTab()
+                for _, b in ipairs(SubTabHolder:GetChildren()) do
+                    if b:IsA("TextButton") then
+                        TweenService:Create(b, TweenInfo.new(0.25), {
+                            BackgroundTransparency = 0.999,
+                            TextColor3 = Color3.fromRGB(180, 180, 180)
+                        }):Play()
+                    end
+                end
+                TweenService:Create(SubBtn, TweenInfo.new(0.25), {
+                    BackgroundTransparency = 0.8,
+                    TextColor3 = GuiConfig.Color
+                }):Play()
+                SubTabPageLayout:JumpToIndex(order - 1)
+            end
+
+            SubBtn.Activated:Connect(function()
+                CircleClick(SubBtn, Mouse.X, Mouse.Y)
+                SelectSubTab()
+            end)
+
+            if order == 1 then
+                task.defer(SelectSubTab)
+            end
+
+            local prevRoot = CurrentSectionRoot
+            CurrentSectionRoot = page
+            local items = self:AddSection(SubTitle, true)
+            CurrentSectionRoot = prevRoot
+            return items
+        end
+        Sections.AddLeftGroupbox = Sections.AddTabbox
+        Sections.AddRightGroupbox = Sections.AddTabbox
+
+        function Sections:AddSection(Title, AlwaysOpen)
+            local Title = Title or "Title"
             local Section = Instance.new("Frame");
             local SectionDecideFrame = Instance.new("Frame");
             local UICorner1 = Instance.new("UICorner");
@@ -1298,7 +1402,7 @@ function NexHubLib:Window(GuiConfig)
             Section.LayoutOrder = 1
             Section.Size = UDim2.new(1, 0, 0, 30)
             Section.Name = "Section"
-            Section.Parent = ScrolLayers
+            Section.Parent = CurrentSectionRoot
 
             local SectionReal = Instance.new("Frame");
             local UICorner = Instance.new("UICorner");
@@ -1419,9 +1523,7 @@ function NexHubLib:Window(GuiConfig)
             local function UpdateSizeScroll()
                 local OffsetY = 0
                 for _, child in ScrolLayers:GetChildren() do
-                    if child.Name ~= "UIListLayout" and child.ClassName ~= "Folder" and child.ClassName ~= "Frame" then
-                        OffsetY = OffsetY + 3 + child.Size.Y.Offset
-                    elseif child.Name == "Section" or child.Name == "SubTabHolder" then
+                    if child.Name ~= "UIListLayout" then
                         OffsetY = OffsetY + 3 + child.Size.Y.Offset
                     end
                 end
@@ -1433,17 +1535,10 @@ function NexHubLib:Window(GuiConfig)
                     local SectionSizeYWitdh = 38
                     for _, v in SectionAdd:GetChildren() do
                         if v.Name ~= "UIListLayout" and v.Name ~= "UICorner" then
-                            if v.Name == "SectionSubFolder" and SectionSubPageLayout and SectionSubPageLayout.CurrentPage then
-                                local pt = SectionSubPageLayout.CurrentPage:FindFirstChild("UIListLayout")
-                                if pt then SectionSizeYWitdh = SectionSizeYWitdh + pt.AbsoluteContentSize.Y + 3 end
-                            else
-                                SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
-                            end
+                            SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
                         end
                     end
-                    if FeatureFrame.Parent ~= nil and FeatureFrame.Visible then
-                        TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 90 }):Play()
-                    end
+                    TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 90 }):Play()
                     TweenService:Create(Section, TweenInfo.new(0.5), { Size = UDim2.new(1, 1, 0, SectionSizeYWitdh) })
                         :Play()
                     TweenService:Create(SectionAdd, TweenInfo.new(0.5),
@@ -1455,8 +1550,8 @@ function NexHubLib:Window(GuiConfig)
             end
 
             if AlwaysOpen == true then
-                SectionButton.Visible = false
-                FeatureFrame.Visible = false
+                SectionButton:Destroy()
+                FeatureFrame:Destroy()
                 OpenSection = true
                 UpdateSizeSection()
             elseif AlwaysOpen == false then
@@ -1470,9 +1565,7 @@ function NexHubLib:Window(GuiConfig)
                 SectionButton.Activated:Connect(function()
                     CircleClick(SectionButton, Mouse.X, Mouse.Y)
                     if OpenSection then
-                        if FeatureFrame.Parent ~= nil and FeatureFrame.Visible then
-                            TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 0 }):Play()
-                        end
+                        TweenService:Create(FeatureFrame, TweenInfo.new(0.5), { Rotation = 0 }):Play()
                         TweenService:Create(Section, TweenInfo.new(0.5), { Size = UDim2.new(1, 1, 0, 30) }):Play()
                         TweenService:Create(SectionDecideFrame, TweenInfo.new(0.5), { Size = UDim2.new(0, 0, 0, 2) })
                             :Play()
@@ -1494,9 +1587,7 @@ function NexHubLib:Window(GuiConfig)
                         SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
                     end
                 end
-                if FeatureFrame.Parent ~= nil and FeatureFrame.Visible then
-                    FeatureFrame.Rotation = 90
-                end
+                FeatureFrame.Rotation = 90
                 Section.Size = UDim2.new(1, 1, 0, SectionSizeYWitdh)
                 SectionAdd.Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38)
                 SectionDecideFrame.Size = UDim2.new(1, 0, 0, 2)
@@ -1515,168 +1606,6 @@ function NexHubLib:Window(GuiConfig)
 
             local Items = {}
             local CountItem = 0
-            
-            -- Variabel internal untuk menampung SubTab jika AddTabbox dipanggil
-            local HasSubTabs = false
-            local SectionSubTabHolder = nil
-            local SectionSubFolder = nil
-            local SectionSubPageLayout = nil
-            local SubTabCount = 0
-
-            function Items:AddTabbox(TabboxConfig)
-                TabboxConfig = type(TabboxConfig) == "table" and TabboxConfig or {}
-                local SubTitle = TabboxConfig.Title or "SubTab"
-
-                if not HasSubTabs then
-                    HasSubTabs = true
-                    SectionSubTabHolder = Instance.new("ScrollingFrame")
-                    local STUIListLayout = Instance.new("UIListLayout")
-                    local STUIPadding = Instance.new("UIPadding")
-
-                    SectionSubTabHolder.Name = "SectionSubTabHolder"
-                    SectionSubTabHolder.Parent = SectionAdd
-                    SectionSubTabHolder.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
-                    SectionSubTabHolder.BackgroundTransparency = 0 -- Beri sedikit background agar rapi
-                    SectionSubTabHolder.BorderSizePixel = 0
-                    SectionSubTabHolder.Size = UDim2.new(1, -10, 0, 36)
-                    SectionSubTabHolder.Position = UDim2.new(0, 5, 0, 0)
-                    SectionSubTabHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
-                    SectionSubTabHolder.ScrollBarThickness = 0
-                    SectionSubTabHolder.ScrollingDirection = Enum.ScrollingDirection.X
-                    SectionSubTabHolder.LayoutOrder = 0
-                    Instance.new("UICorner", SectionSubTabHolder).CornerRadius = UDim.new(0, 6)
-
-                    STUIListLayout.Padding = UDim.new(0, 5)
-                    STUIListLayout.FillDirection = Enum.FillDirection.Horizontal
-                    STUIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                    STUIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-                    STUIListLayout.Parent = SectionSubTabHolder
-
-                    STUIPadding.PaddingLeft = UDim.new(0, 5)
-                    STUIPadding.PaddingRight = UDim.new(0, 5)
-                    STUIPadding.Parent = SectionSubTabHolder
-
-                    local function AdjustSTCanvas()
-                        local ox = 0
-                        for _, c in pairs(SectionSubTabHolder:GetChildren()) do
-                            if c:IsA("GuiObject") then ox = ox + c.Size.X.Offset + 5 end
-                        end
-                        SectionSubTabHolder.CanvasSize = UDim2.new(0, ox + 10, 0, 0)
-                    end
-                    SectionSubTabHolder.ChildAdded:Connect(AdjustSTCanvas)
-                    SectionSubTabHolder.ChildRemoved:Connect(AdjustSTCanvas)
-
-                    SectionSubFolder = Instance.new("Frame")
-                    SectionSubFolder.Name = "SectionSubFolder"
-                    SectionSubFolder.BackgroundTransparency = 1
-                    SectionSubFolder.BorderSizePixel = 0
-                    SectionSubFolder.Size = UDim2.new(1, 0, 0, 100)
-                    SectionSubFolder.Position = UDim2.new(0, 0, 0, 0)
-                    SectionSubFolder.LayoutOrder = 1
-                    SectionSubFolder.ClipsDescendants = true
-                    SectionSubFolder.Parent = SectionAdd
-
-                    SectionSubPageLayout = Instance.new("UIPageLayout")
-                    SectionSubPageLayout.Parent = SectionSubFolder
-                    SectionSubPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                    SectionSubPageLayout.EasingDirection = Enum.EasingDirection.InOut
-                    SectionSubPageLayout.EasingStyle = Enum.EasingStyle.Quad
-                    SectionSubPageLayout.TweenTime = 0.25
-                end
-
-                SubTabCount = SubTabCount + 1
-                local OrderIndex = SubTabCount
-
-                local SubBtn = Instance.new("TextButton")
-                SubBtn.Parent = SectionSubTabHolder
-                SubBtn.BackgroundColor3 = GuiConfig.Color
-                SubBtn.BackgroundTransparency = (OrderIndex == 1) and 0.8 or 0.999
-                SubBtn.BorderSizePixel = 0
-                SubBtn.Font = Enum.Font.GothamBold
-                SubBtn.Text = " " .. SubTitle .. " "
-                SubBtn.TextColor3 = (OrderIndex == 1) and GuiConfig.Color or Color3.fromRGB(180, 180, 180)
-                SubBtn.TextSize = 13
-                SubBtn.LayoutOrder = OrderIndex
-                local txW = SubBtn.TextBounds.X
-                SubBtn.Size = UDim2.new(0, txW + 20, 0, 26)
-                Instance.new("UICorner", SubBtn).CornerRadius = UDim.new(0, 4)
-
-                SubBtn.Activated:Connect(function()
-                    CircleClick(SubBtn, Mouse.X, Mouse.Y)
-                    for _, b in pairs(SectionSubTabHolder:GetChildren()) do
-                        if b:IsA("TextButton") then
-                            game:GetService("TweenService"):Create(b, TweenInfo.new(0.3), {
-                                BackgroundTransparency = 0.999,
-                                TextColor3 = Color3.fromRGB(180, 180, 180)
-                            }):Play()
-                        end
-                    end
-                    game:GetService("TweenService"):Create(SubBtn, TweenInfo.new(0.3), {
-                        BackgroundTransparency = 0.8,
-                        TextColor3 = GuiConfig.Color
-                    }):Play()
-                    SectionSubPageLayout:JumpToIndex(OrderIndex - 1)
-                end)
-
-                local STPage = Instance.new("Frame")
-                STPage.Name = "STPage_" .. OrderIndex
-                STPage.Parent = SectionSubFolder
-                STPage.BackgroundTransparency = 1
-                STPage.Size = UDim2.new(1, 0, 1, 0)
-                STPage.LayoutOrder = OrderIndex
-
-                if OrderIndex == 1 then
-                    task.defer(function()
-                        if SectionSubPageLayout and SectionSubPageLayout.Parent then
-                            SectionSubPageLayout:JumpToIndex(0)
-                        end
-                    end)
-                end
-
-                local STUIList = Instance.new("UIListLayout")
-                STUIList.Parent = STPage
-                STUIList.SortOrder = Enum.SortOrder.LayoutOrder
-                STUIList.Padding = UDim.new(0, 3)
-
-                -- Wrapper Items khusus untuk page ini agar tidak tercampur
-                -- IMPORTANT: Menggunakan metatable proxy karena AddToggle/AddSlider/dll
-                -- didefinisikan SETELAH AddTabbox di source code. Jika kita copy via
-                -- pairs(Items) di sini, fungsi-fungsi itu belum ada sehingga TabboxItems kosong.
-                local TabboxItems = {}
-                local countTB = 0
-
-                -- Helper koneksi child untuk auto-resize section utama
-                STUIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                    if SectionSubPageLayout and SectionSubPageLayout.CurrentPage then
-                        if OrderIndex == SectionSubPageLayout.CurrentPage.LayoutOrder then
-                            UpdateSizeSection()
-                        end
-                    end
-                end)
-                
-                -- Metatable proxy: saat STA memanggil TabboxItems:AddToggle(cfg),
-                -- kita resolve Items.AddToggle pada saat itu (lazy), bukan saat AddTabbox dipanggil.
-                setmetatable(TabboxItems, {
-                    __index = function(_, key)
-                        if key == "AddTabbox" or key == "AddLeftGroupbox" or key == "AddRightGroupbox" then
-                            return Items.AddTabbox
-                        end
-                        local fn = Items[key]
-                        if type(fn) == "function" then
-                            return function(self_, ...)
-                                return fn(self_, ...)
-                            end
-                        end
-                        return fn
-                    end
-                })
-                
-                return TabboxItems
-            end
-            
-            -- Support langsung STA adapter
-            Items.AddLeftGroupbox = Items.AddTabbox
-            Items.AddRightGroupbox = Items.AddTabbox
 
             function Items:AddParagraph(ParagraphConfig)
                 local ParagraphConfig = ParagraphConfig or {}
@@ -2947,4 +2876,4 @@ function NexHubLib:Window(GuiConfig)
     return Tabs
 end
 
-return NexHubLib
+return Chloex
