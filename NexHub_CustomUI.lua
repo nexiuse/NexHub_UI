@@ -334,12 +334,18 @@ function Chloex:SetDPIScale(scale)
     -- no-op for VelarisUI compatibility
 end
 
+-- Notification suppression during init (prevents flickering from mass notif spam)
+local _notifySuppressed = false
+_G._NexHubNotifySuppressed = false
+
 function Chloex:Notify(cfg)
     return self:MakeNotify(cfg)
 end
 
 function Chloex:MakeNotify(NotifyConfig)
     local NotifyConfig = NotifyConfig or {}
+    -- Skip notifications during init to prevent flickering
+    if _notifySuppressed then return { Close = function() end } end
     NotifyConfig.Title = NotifyConfig.Title or "Chloe X"
     NotifyConfig.Description = NotifyConfig.Description or "Notification"
     NotifyConfig.Content = NotifyConfig.Content or "Content"
@@ -560,6 +566,7 @@ end
 
 -- Global Nt() function used by many NexHub scripts
 Nt = function(msg, delay, color)
+    if _notifySuppressed then return { Close = function() end } end
     return Chloex:MakeNotify({
         Title = "NexHub",
         Description = "Notification",
@@ -589,6 +596,10 @@ function Chloex:Window(GuiConfig)
     GuiConfig.Color        = NormalizeColor(GuiConfig.Color, Color3.fromRGB(147, 51, 234))
     GuiConfig["Tab Width"] = GuiConfig["Tab Width"] or 120
     GuiConfig.Version      = GuiConfig.Version or 1
+
+    -- Suppress notifications during UI build to prevent flickering
+    _notifySuppressed = true
+    _G._NexHubNotifySuppressed = true
     -- VelarisUI extra params silently handled: Image, Icon, Content, Author, Folder,
     -- Size, Config, Animation, TypeDelay, TypePause, NewElements, Uitransparent,
     -- ShowUser, Search, Configname, Keybind, HideSearchBar, KeySystem
@@ -3342,6 +3353,11 @@ function Chloex:Window(GuiConfig)
     -- Show UI after a short delay so all elements are built first (prevents flickering)
     task.delay(0.3, function()
         Chloeex.Enabled = true
+    end)
+    -- Re-enable notifications after init is complete
+    task.delay(1.5, function()
+        _notifySuppressed = false
+        _G._NexHubNotifySuppressed = false
     end)
     return Tabs
 end
