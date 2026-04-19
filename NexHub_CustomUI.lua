@@ -96,11 +96,36 @@ local Mouse = LocalPlayer:GetMouse()
 local CoreGui = game:GetService("CoreGui")
 local viewport = workspace.CurrentCamera.ViewportSize
 
+-- Theme color presets (VelarisUI compatibility)
+local ThemeColors = {
+    ["default"]  = Color3.fromRGB(0, 208, 255),
+    ["nex"]      = Color3.fromRGB(20, 173, 199),
+    ["success"]  = Color3.fromRGB(0, 255, 100),
+    ["error"]    = Color3.fromRGB(255, 50, 50),
+    ["warning"]  = Color3.fromRGB(255, 170, 0),
+    ["info"]     = Color3.fromRGB(0, 170, 255),
+    ["purple"]   = Color3.fromRGB(170, 85, 255),
+    ["pink"]     = Color3.fromRGB(255, 0, 255),
+    ["cyan"]     = Color3.fromRGB(0, 208, 255),
+    ["red"]      = Color3.fromRGB(255, 50, 50),
+    ["green"]    = Color3.fromRGB(0, 200, 100),
+    ["blue"]     = Color3.fromRGB(0, 100, 255),
+    ["orange"]   = Color3.fromRGB(255, 140, 0),
+    ["yellow"]   = Color3.fromRGB(255, 255, 0),
+    ["white"]    = Color3.fromRGB(255, 255, 255),
+}
+
 local function NormalizeColor(input, fallback)
     if typeof(input) == "Color3" then
         return input
     end
     if type(input) == "string" then
+        -- Check theme name first
+        local themeLower = input:lower():gsub("%s+", "")
+        if ThemeColors[themeLower] then
+            return ThemeColors[themeLower]
+        end
+        -- Try hex (#RRGGBB)
         local hex = input:gsub("%s+", "")
         hex = hex:gsub("^#", "")
         if #hex == 6 and hex:match("^[%x]+$") then
@@ -111,12 +136,13 @@ local function NormalizeColor(input, fallback)
                 return Color3.fromRGB(r, g, b)
             end
         end
+        -- Try R,G,B format
         local rs, gs, bs = input:match("(%d+)%s*,%s*(%d+)%s*,%s*(%d+)")
         if rs and gs and bs then
             return Color3.fromRGB(tonumber(rs), tonumber(gs), tonumber(bs))
         end
     end
-    return fallback
+    return fallback or Color3.fromRGB(0, 208, 255)
 end
 
 local function isMobileDevice()
@@ -284,14 +310,35 @@ function CircleClick(Button, X, Y)
 end
 
 local Chloex = {}
+
+-- VelarisUI compatibility: no-op methods
+function Chloex:AddTheme(themeConfig)
+    -- Store custom theme colors if provided
+    if type(themeConfig) == "table" and themeConfig.Name then
+        local name = themeConfig.Name:lower():gsub("%s+", "")
+        if themeConfig.Accent and typeof(themeConfig.Accent) == "Color3" then
+            ThemeColors[name] = themeConfig.Accent
+        end
+    end
+end
+
+function Chloex:SetDPIScale(scale)
+    -- no-op for VelarisUI compatibility
+end
+
+function Chloex:Notify(cfg)
+    return self:MakeNotify(cfg)
+end
+
 function Chloex:MakeNotify(NotifyConfig)
     local NotifyConfig = NotifyConfig or {}
     NotifyConfig.Title = NotifyConfig.Title or "Chloe X"
     NotifyConfig.Description = NotifyConfig.Description or "Notification"
     NotifyConfig.Content = NotifyConfig.Content or "Content"
-    NotifyConfig.Color = NormalizeColor(NotifyConfig.Color, Color3.fromRGB(255, 0, 255))
+    NotifyConfig.Color = NormalizeColor(NotifyConfig.Color, Color3.fromRGB(0, 208, 255))
     NotifyConfig.Time = NotifyConfig.Time or 0.5
-    NotifyConfig.Delay = NotifyConfig.Delay or 5
+    -- VelarisUI uses "Duration", Chloe X uses "Delay"
+    NotifyConfig.Delay = NotifyConfig.Delay or NotifyConfig.Duration or 5
     local NotifyFunction = {}
     spawn(function()
         if not CoreGui:FindFirstChild("NotifyGui") then
@@ -492,15 +539,59 @@ function chloex(msg, delay, color, title, desc)
     })
 end
 
+-- VelarisUI compatibility: global notify functions
+function nexhub(msg, delay, color, title, desc)
+    return Chloex:MakeNotify({
+        Title = title or "NexHub",
+        Description = desc or "Notification",
+        Content = msg or "Content",
+        Color = color or Color3.fromRGB(0, 208, 255),
+        Delay = delay or 4
+    })
+end
+
+-- Global Nt() function used by many NexHub scripts
+Nt = function(msg, delay, color)
+    return Chloex:MakeNotify({
+        Title = "NexHub",
+        Description = "Notification",
+        Content = tostring(msg or "Content"),
+        Color = NormalizeColor(color, Color3.fromRGB(0, 208, 255)),
+        Delay = delay or 4
+    })
+end
+
+-- Global Library table used by STA and other scripts
+Library = Library or {}
+Library.Notify = function(self, cfg)
+    if type(cfg) ~= "table" then cfg = {} end
+    return Chloex:MakeNotify({
+        Title = cfg.Title or "NexHub",
+        Description = cfg.Description or "Notification",
+        Content = cfg.Content or "",
+        Color = NormalizeColor(cfg.Color, Color3.fromRGB(0, 208, 255)),
+        Delay = cfg.Duration or cfg.Delay or cfg.Time or 4
+    })
+end
+
 function Chloex:Window(GuiConfig)
     GuiConfig              = GuiConfig or {}
     GuiConfig.Title        = GuiConfig.Title or "Chloe X"
     GuiConfig.Footer       = GuiConfig.Footer or "Chloee :3"
-    GuiConfig.Color        = NormalizeColor(GuiConfig.Color, Color3.fromRGB(255, 0, 255))
+    GuiConfig.Color        = NormalizeColor(GuiConfig.Color, Color3.fromRGB(0, 208, 255))
     GuiConfig["Tab Width"] = GuiConfig["Tab Width"] or 120
     GuiConfig.Version      = GuiConfig.Version or 1
+    -- VelarisUI extra params silently handled: Image, Icon, Content, Author, Folder,
+    -- Size, Config, Animation, TypeDelay, TypePause, NewElements, Uitransparent,
+    -- ShowUser, Search, Configname, Keybind, HideSearchBar, KeySystem
+    local configFolder     = GuiConfig.Folder or "Chloe X"
 
     CURRENT_VERSION        = GuiConfig.Version
+    -- Override config path if Folder is specified
+    if GuiConfig.Folder then
+        if not isfolder(GuiConfig.Folder) then pcall(makefolder, GuiConfig.Folder) end
+        if not isfolder(GuiConfig.Folder .. "/Config") then pcall(makefolder, GuiConfig.Folder .. "/Config") end
+    end
     LoadConfigFromFile()
 
     local GuiFunc = {}
@@ -893,7 +984,11 @@ function Chloex:Window(GuiConfig)
         end)
     end)
 
-    local ToggleKey = Enum.KeyCode.F3
+    local ToggleKey = GuiConfig.Keybind or Enum.KeyCode.F3
+    if type(ToggleKey) == "string" then
+        pcall(function() ToggleKey = Enum.KeyCode[ToggleKey] end)
+        if not ToggleKey then ToggleKey = Enum.KeyCode.F3 end
+    end
     UserInputService.InputBegan:Connect(function(input, gpe)
         if gpe then return end
         if input.KeyCode == ToggleKey then
@@ -1419,8 +1514,23 @@ function Chloex:Window(GuiConfig)
         Sections.AddLeftGroupbox = Sections.AddTabbox
         Sections.AddRightGroupbox = Sections.AddTabbox
 
-        function Sections:AddSection(Title, AlwaysOpen)
-            local Title = Title or "Title"
+        function Sections:AddSection(TitleOrConfig, AlwaysOpen)
+            -- VelarisUI compatibility: accept table config {Title, Icon, Open, Box, Opened}
+            local Title
+            if type(TitleOrConfig) == "table" then
+                Title = TitleOrConfig.Title or "Title"
+                -- VelarisUI uses Open/Opened/Box; map to AlwaysOpen
+                if AlwaysOpen == nil then
+                    if TitleOrConfig.Open ~= nil then
+                        AlwaysOpen = TitleOrConfig.Open
+                    elseif TitleOrConfig.Opened ~= nil then
+                        AlwaysOpen = TitleOrConfig.Opened
+                    end
+                end
+                -- Ignore: Icon, Box, Column (VelarisUI-specific)
+            else
+                Title = TitleOrConfig or "Title"
+            end
             local Section = Instance.new("Frame");
             local SectionDecideFrame = Instance.new("Frame");
             local UICorner1 = Instance.new("UICorner");
@@ -2904,6 +3014,271 @@ function Chloex:Window(GuiConfig)
         local safeName = TabConfig.Name:gsub("%s+", "_")
         _G[safeName] = Sections
         return Sections
+    end
+
+    -- ============================================
+    -- VelarisUI Compatibility: Window-level methods
+    -- ============================================
+
+    -- Tag: stub that returns a dummy object with SetTitle
+    function Tabs:Tag(tagConfig)
+        tagConfig = tagConfig or {}
+        local tagObj = {}
+        function tagObj:SetTitle(newTitle)
+            -- no-op (tag is visual only in VelarisUI)
+        end
+        function tagObj:SetColor(newColor)
+            -- no-op
+        end
+        return tagObj
+    end
+
+    -- SetCornerRadius: no-op
+    function Tabs:SetCornerRadius(n)
+        -- no-op for VelarisUI compatibility
+    end
+
+    -- ToggleUI: expose the existing toggle
+    function Tabs:ToggleUI()
+        if DropShadowHolder then
+            DropShadowHolder.Visible = not DropShadowHolder.Visible
+        end
+    end
+
+    -- DestroyGui: cleanup
+    function Tabs:DestroyGui()
+        GuiFunc:DestroyGui()
+    end
+
+    -- SaveConfig: named config system
+    function Tabs:SaveConfig(name)
+        if not name or name == "" then return end
+        local folder = configFolder .. "/Config"
+        if not isfolder(folder) then pcall(makefolder, folder) end
+        local path = folder .. "/" .. tostring(name) .. ".json"
+        if writefile then
+            local data = {}
+            for k, v in pairs(ConfigData) do
+                data[k] = v
+            end
+            data._version = CURRENT_VERSION
+            pcall(function()
+                writefile(path, HttpService:JSONEncode(data))
+            end)
+        end
+    end
+
+    -- LoadConfig: load named config
+    function Tabs:LoadConfig(name)
+        if not name or name == "" then return false end
+        local folder = configFolder .. "/Config"
+        local path = folder .. "/" .. tostring(name) .. ".json"
+        if isfile and isfile(path) then
+            local success, result = pcall(function()
+                return HttpService:JSONDecode(readfile(path))
+            end)
+            if success and type(result) == "table" then
+                ConfigData = result
+                LoadConfigElements()
+                return true
+            end
+        end
+        return false
+    end
+
+    -- DeleteConfig: remove named config
+    function Tabs:DeleteConfig(name)
+        if not name or name == "" then return end
+        local folder = configFolder .. "/Config"
+        local path = folder .. "/" .. tostring(name) .. ".json"
+        if isfile and isfile(path) and delfile then
+            pcall(delfile, path)
+        end
+    end
+
+    -- ListConfigs: return array of config names
+    function Tabs:ListConfigs()
+        local folder = configFolder .. "/Config"
+        local configs = {}
+        if isfolder and isfolder(folder) and listfiles then
+            local ok, files = pcall(listfiles, folder)
+            if ok and files then
+                for _, filePath in ipairs(files) do
+                    local fileName = filePath:match("([^/\\]+)%.json$")
+                    if fileName then
+                        table.insert(configs, fileName)
+                    end
+                end
+            end
+        end
+        return configs
+    end
+
+    -- ============================================
+    -- KEY SYSTEM: Blocking auth UI
+    -- ============================================
+    if GuiConfig.KeySystem and type(GuiConfig.KeySystem) == "table" then
+        local ks = GuiConfig.KeySystem
+        local keyValid = false
+
+        -- Create overlay
+        local KeyOverlay = Instance.new("Frame")
+        KeyOverlay.Size = UDim2.new(1, 0, 1, 0)
+        KeyOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        KeyOverlay.BackgroundTransparency = 0.3
+        KeyOverlay.ZIndex = 100
+        KeyOverlay.Parent = DropShadowHolder
+
+        local KeyDialog = Instance.new("Frame")
+        KeyDialog.Size = UDim2.new(0, 340, 0, 260)
+        KeyDialog.Position = UDim2.new(0.5, -170, 0.5, -130)
+        KeyDialog.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        KeyDialog.BorderSizePixel = 0
+        KeyDialog.ZIndex = 101
+        KeyDialog.Parent = KeyOverlay
+        Instance.new("UICorner", KeyDialog).CornerRadius = UDim.new(0, 10)
+
+        local KeyTitle = Instance.new("TextLabel")
+        KeyTitle.Size = UDim2.new(1, 0, 0, 36)
+        KeyTitle.Position = UDim2.new(0, 0, 0, 8)
+        KeyTitle.BackgroundTransparency = 1
+        KeyTitle.Font = Enum.Font.GothamBold
+        KeyTitle.Text = ks.Title or "Key System"
+        KeyTitle.TextSize = 18
+        KeyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        KeyTitle.ZIndex = 102
+        KeyTitle.Parent = KeyDialog
+
+        -- Steps text
+        if ks.Steps and type(ks.Steps) == "table" then
+            local stepsText = table.concat(ks.Steps, "\n")
+            local StepsLabel = Instance.new("TextLabel")
+            StepsLabel.Size = UDim2.new(1, -30, 0, 60)
+            StepsLabel.Position = UDim2.new(0, 15, 0, 44)
+            StepsLabel.BackgroundTransparency = 1
+            StepsLabel.Font = Enum.Font.Gotham
+            StepsLabel.Text = stepsText
+            StepsLabel.TextSize = 12
+            StepsLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+            StepsLabel.TextWrapped = true
+            StepsLabel.TextYAlignment = Enum.TextYAlignment.Top
+            StepsLabel.ZIndex = 102
+            StepsLabel.Parent = KeyDialog
+        end
+
+        -- Input box
+        local KeyInputFrame = Instance.new("Frame")
+        KeyInputFrame.Size = UDim2.new(1, -30, 0, 35)
+        KeyInputFrame.Position = UDim2.new(0, 15, 0, 120)
+        KeyInputFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        KeyInputFrame.BorderSizePixel = 0
+        KeyInputFrame.ZIndex = 102
+        KeyInputFrame.Parent = KeyDialog
+        Instance.new("UICorner", KeyInputFrame).CornerRadius = UDim.new(0, 6)
+
+        local KeyInput = Instance.new("TextBox")
+        KeyInput.Size = UDim2.new(1, -16, 1, -8)
+        KeyInput.Position = UDim2.new(0, 8, 0, 4)
+        KeyInput.BackgroundTransparency = 1
+        KeyInput.Font = Enum.Font.Gotham
+        KeyInput.PlaceholderText = ks.Placeholder or "Enter Key..."
+        KeyInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+        KeyInput.Text = ks.Default or ""
+        KeyInput.TextSize = 13
+        KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+        KeyInput.TextXAlignment = Enum.TextXAlignment.Left
+        KeyInput.ZIndex = 103
+        KeyInput.Parent = KeyInputFrame
+
+        -- Status label
+        local StatusLabel = Instance.new("TextLabel")
+        StatusLabel.Size = UDim2.new(1, -30, 0, 16)
+        StatusLabel.Position = UDim2.new(0, 15, 0, 158)
+        StatusLabel.BackgroundTransparency = 1
+        StatusLabel.Font = Enum.Font.Gotham
+        StatusLabel.Text = ""
+        StatusLabel.TextSize = 11
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+        StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+        StatusLabel.ZIndex = 102
+        StatusLabel.Parent = KeyDialog
+
+        -- Verify button
+        local VerifyBtn = Instance.new("TextButton")
+        VerifyBtn.Size = UDim2.new(1, -30, 0, 32)
+        VerifyBtn.Position = UDim2.new(0, 15, 0, 180)
+        VerifyBtn.BackgroundColor3 = GuiConfig.Color
+        VerifyBtn.Font = Enum.Font.GothamBold
+        VerifyBtn.Text = "Verify Key"
+        VerifyBtn.TextSize = 14
+        VerifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        VerifyBtn.ZIndex = 102
+        VerifyBtn.Parent = KeyDialog
+        Instance.new("UICorner", VerifyBtn).CornerRadius = UDim.new(0, 6)
+
+        -- Discord button (optional)
+        if ks.DiscordText and ks.DiscordUrl then
+            local DiscordBtn = Instance.new("TextButton")
+            DiscordBtn.Size = UDim2.new(1, -30, 0, 28)
+            DiscordBtn.Position = UDim2.new(0, 15, 0, 218)
+            DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+            DiscordBtn.Font = Enum.Font.GothamBold
+            DiscordBtn.Text = ks.DiscordText
+            DiscordBtn.TextSize = 12
+            DiscordBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            DiscordBtn.ZIndex = 102
+            DiscordBtn.Parent = KeyDialog
+            Instance.new("UICorner", DiscordBtn).CornerRadius = UDim.new(0, 6)
+
+            DiscordBtn.MouseButton1Click:Connect(function()
+                if setclipboard then
+                    setclipboard(ks.DiscordUrl)
+                    StatusLabel.Text = "Discord link copied!"
+                    StatusLabel.TextColor3 = Color3.fromRGB(0, 200, 100)
+                end
+            end)
+        end
+
+        -- Verify logic
+        local verifying = false
+        VerifyBtn.MouseButton1Click:Connect(function()
+            if verifying then return end
+            verifying = true
+            StatusLabel.Text = "Verifying..."
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 100)
+
+            local inputKey = KeyInput.Text
+            local result = false
+
+            if ks.Callback then
+                local ok, res = pcall(ks.Callback, inputKey)
+                if ok then
+                    result = res
+                else
+                    StatusLabel.Text = "Error: " .. tostring(res)
+                    StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+                end
+            end
+
+            if result then
+                keyValid = true
+                StatusLabel.Text = "Key Verified!"
+                StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+                task.wait(0.5)
+                KeyOverlay:Destroy()
+            else
+                if StatusLabel.Text == "Verifying..." then
+                    StatusLabel.Text = "Invalid Key!"
+                    StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+                end
+            end
+            verifying = false
+        end)
+
+        -- Block execution until key is valid
+        while not keyValid do
+            task.wait(0.1)
+        end
     end
 
     return Tabs
