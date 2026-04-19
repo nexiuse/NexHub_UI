@@ -1,11 +1,11 @@
 local HttpService = game:GetService("HttpService")
 
 pcall(function()
-    if not isfolder("Chloe X") then
-        makefolder("Chloe X")
+    if not isfolder("NexHub") then
+        makefolder("NexHub")
     end
-    if not isfolder("Chloe X/Config") then
-        makefolder("Chloe X/Config")
+    if not isfolder("NexHub/Config") then
+        makefolder("NexHub/Config")
     end
 end)
 
@@ -19,7 +19,7 @@ end)
 gameName         = gameName:gsub("[^%w_ ]", "")
 gameName         = gameName:gsub("%s+", "_")
 
-local ConfigFile = "Chloe X/Config/Chloe_" .. gameName .. ".json"
+local ConfigFile = "NexHub/Config/NexHub_" .. gameName .. ".json"
 
 ConfigData       = {}
 Elements         = {}
@@ -317,10 +317,10 @@ function CircleClick(Button, X, Y)
     end)
 end
 
-local Chloex = {}
+local NexHubLib = {}
 
 -- VelarisUI compatibility: no-op methods
-function Chloex:AddTheme(themeConfig)
+function NexHubLib:AddTheme(themeConfig)
     -- Store custom theme colors if provided
     if type(themeConfig) == "table" and themeConfig.Name then
         local name = themeConfig.Name:lower():gsub("%s+", "")
@@ -330,7 +330,7 @@ function Chloex:AddTheme(themeConfig)
     end
 end
 
-function Chloex:SetDPIScale(scale)
+function NexHubLib:SetDPIScale(scale)
     -- no-op for VelarisUI compatibility
 end
 
@@ -338,20 +338,20 @@ end
 local _notifySuppressed = false
 _G._NexHubNotifySuppressed = false
 
-function Chloex:Notify(cfg)
+function NexHubLib:Notify(cfg)
     return self:MakeNotify(cfg)
 end
 
-function Chloex:MakeNotify(NotifyConfig)
+function NexHubLib:MakeNotify(NotifyConfig)
     local NotifyConfig = NotifyConfig or {}
     -- Skip notifications during init to prevent flickering
     if _notifySuppressed then return { Close = function() end } end
-    NotifyConfig.Title = NotifyConfig.Title or "Chloe X"
+    NotifyConfig.Title = NotifyConfig.Title or "NexHub"
     NotifyConfig.Description = NotifyConfig.Description or "Notification"
     NotifyConfig.Content = NotifyConfig.Content or "Content"
     NotifyConfig.Color = NormalizeColor(NotifyConfig.Color, Color3.fromRGB(147, 51, 234))
     NotifyConfig.Time = NotifyConfig.Time or 0.5
-    -- VelarisUI uses "Duration", Chloe X uses "Delay"
+    -- VelarisUI uses "Duration", NexHub uses "Delay"
     NotifyConfig.Delay = NotifyConfig.Delay or NotifyConfig.Duration or 5
     local NotifyFunction = {}
     spawn(function()
@@ -543,9 +543,9 @@ function Chloex:MakeNotify(NotifyConfig)
     return NotifyFunction
 end
 
-function chloex(msg, delay, color, title, desc)
-    return Chloex:MakeNotify({
-        Title = title or "Chloe X",
+function nexhubNotify(msg, delay, color, title, desc)
+    return NexHubLib:MakeNotify({
+        Title = title or "NexHub",
         Description = desc or "Notification",
         Content = msg or "Content",
         Color = color or Color3.fromRGB(147, 51, 234),
@@ -555,7 +555,7 @@ end
 
 -- VelarisUI compatibility: global notify functions
 function nexhub(msg, delay, color, title, desc)
-    return Chloex:MakeNotify({
+    return NexHubLib:MakeNotify({
         Title = title or "NexHub",
         Description = desc or "Notification",
         Content = msg or "Content",
@@ -567,7 +567,7 @@ end
 -- Global Nt() function used by many NexHub scripts
 Nt = function(msg, delay, color)
     if _notifySuppressed then return { Close = function() end } end
-    return Chloex:MakeNotify({
+    return NexHubLib:MakeNotify({
         Title = "NexHub",
         Description = "Notification",
         Content = tostring(msg or "Content"),
@@ -580,7 +580,7 @@ end
 Library = Library or {}
 Library.Notify = function(self, cfg)
     if type(cfg) ~= "table" then cfg = {} end
-    return Chloex:MakeNotify({
+    return NexHubLib:MakeNotify({
         Title = cfg.Title or "NexHub",
         Description = cfg.Description or "Notification",
         Content = cfg.Content or "",
@@ -589,10 +589,10 @@ Library.Notify = function(self, cfg)
     })
 end
 
-function Chloex:Window(GuiConfig)
+function NexHubLib:Window(GuiConfig)
     GuiConfig              = GuiConfig or {}
-    GuiConfig.Title        = GuiConfig.Title or "Chloe X"
-    GuiConfig.Footer       = GuiConfig.Footer or "Chloee :3"
+    GuiConfig.Title        = GuiConfig.Title or "NexHub"
+    GuiConfig.Footer       = GuiConfig.Footer or "NexHub"
     GuiConfig.Color        = NormalizeColor(GuiConfig.Color, Color3.fromRGB(147, 51, 234))
     GuiConfig["Tab Width"] = GuiConfig["Tab Width"] or 120
     GuiConfig.Version      = GuiConfig.Version or 1
@@ -603,7 +603,7 @@ function Chloex:Window(GuiConfig)
     -- VelarisUI extra params silently handled: Image, Icon, Content, Author, Folder,
     -- Size, Config, Animation, TypeDelay, TypePause, NewElements, Uitransparent,
     -- ShowUser, Search, Configname, Keybind, HideSearchBar, KeySystem
-    local configFolder     = GuiConfig.Folder or "Chloe X"
+    local configFolder     = GuiConfig.Folder or "NexHub"
 
     CURRENT_VERSION        = GuiConfig.Version
     -- Override config path if Folder is specified
@@ -615,7 +615,7 @@ function Chloex:Window(GuiConfig)
 
     local GuiFunc = {}
 
-    local Chloeex = Instance.new("ScreenGui");
+    local NexHubGui = Instance.new("ScreenGui");
     local DropShadowHolder = Instance.new("Frame");
     local DropShadow = Instance.new("ImageLabel");
     local Main = Instance.new("Frame");
@@ -638,11 +638,11 @@ function Chloex:Window(GuiConfig)
     local LayersFolder = Instance.new("Frame");
     local LayersPageLayout = Instance.new("UIPageLayout");
 
-    Chloeex.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    Chloeex.Name = "Chloeex"
-    Chloeex.ResetOnSpawn = false
-    Chloeex.Enabled = false  -- Hide initially to prevent flickering
-    Chloeex.Parent = game:GetService("CoreGui")
+    NexHubGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    NexHubGui.Name = "NexHubUI"
+    NexHubGui.ResetOnSpawn = false
+    NexHubGui.Enabled = false  -- Hide initially to prevent flickering
+    NexHubGui.Parent = game:GetService("CoreGui")
 
     DropShadowHolder.BackgroundTransparency = 1
     DropShadowHolder.BorderSizePixel = 0
@@ -655,7 +655,7 @@ function Chloex:Window(GuiConfig)
     end
     DropShadowHolder.ZIndex = 0
     DropShadowHolder.Name = "DropShadowHolder"
-    DropShadowHolder.Parent = Chloeex
+    DropShadowHolder.Parent = NexHubGui
 
     -- Keep true center; offset-based recalc can push UI off-screen on mobile/scale sizing.
     DropShadowHolder.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -887,8 +887,8 @@ function Chloex:Window(GuiConfig)
     ScrollTab.ChildRemoved:Connect(UpdateSize1)
 
     function GuiFunc:DestroyGui()
-        if CoreGui:FindFirstChild("Chloeex") then
-            Chloeex:Destroy()
+        if CoreGui:FindFirstChild("NexHubUI") then
+            NexHubGui:Destroy()
         end
     end
 
@@ -945,7 +945,7 @@ function Chloex:Window(GuiConfig)
         Title.Position = UDim2.new(0, 0, 0, 4)
         Title.BackgroundTransparency = 1
         Title.Font = Enum.Font.GothamBold
-        Title.Text = "Chloe X Window"
+        Title.Text = "NexHub Key System"
         Title.TextSize = 22
         Title.TextColor3 = Color3.fromRGB(255, 255, 255)
         Title.ZIndex = 52
@@ -994,7 +994,7 @@ function Chloex:Window(GuiConfig)
         Instance.new("UICorner", Cancel).CornerRadius = UDim.new(0, 6)
 
         Yes.MouseButton1Click:Connect(function()
-            if Chloeex then Chloeex:Destroy() end
+            if NexHubGui then NexHubGui:Destroy() end
             if game.CoreGui:FindFirstChild("ToggleUIButton") then
                 game.CoreGui.ToggleUIButton:Destroy()
             end
@@ -3090,10 +3090,10 @@ function Chloex:Window(GuiConfig)
         return tagObj
     end
 
-    -- Notify: delegate to Chloex:MakeNotify (scripts call Window:Notify)
+    -- Notify: delegate to NexHubLib:MakeNotify (scripts call Window:Notify)
     function Tabs:Notify(cfg)
         cfg = cfg or {}
-        return Chloex:MakeNotify({
+        return NexHubLib:MakeNotify({
             Title = cfg.Title or "NexHub",
             Description = cfg.Description or "Notification",
             Content = cfg.Content or "",
@@ -3352,7 +3352,7 @@ function Chloex:Window(GuiConfig)
 
     -- Show UI after a short delay so all elements are built first (prevents flickering)
     task.delay(0.3, function()
-        Chloeex.Enabled = true
+        NexHubGui.Enabled = true
     end)
     -- Re-enable notifications after init is complete (3s should cover all element creation)
     task.delay(3, function()
@@ -3362,4 +3362,4 @@ function Chloex:Window(GuiConfig)
     return Tabs
 end
 
-return Chloex
+return NexHubLib
