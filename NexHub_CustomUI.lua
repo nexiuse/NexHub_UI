@@ -385,9 +385,19 @@ function Chloex:Window(GuiConfig)
     -- ══════════════════════════════════════════════════════════════
     -- GUI UTAMA
     -- ══════════════════════════════════════════════════════════════
-    for _, v in ipairs(game:GetService("CoreGui"):GetChildren()) do
-        if v.Name == "VelarisUI" then
-            pcall(function() v:Destroy() end)
+    local cleanupTargets = { game:GetService("CoreGui") }
+    pcall(function() 
+        if gethui then table.insert(cleanupTargets, gethui()) end 
+    end)
+    pcall(function() 
+        table.insert(cleanupTargets, game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")) 
+    end)
+    
+    for _, container in ipairs(cleanupTargets) do
+        for _, v in ipairs(container:GetChildren()) do
+            if v.Name == "VelarisUI" or v.Name == "Chloeex" or v.Name == "NexHub" then
+                pcall(function() v:Destroy() end)
+            end
         end
     end
 
