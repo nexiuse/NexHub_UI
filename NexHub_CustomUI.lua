@@ -1599,6 +1599,9 @@ function Chloex:Window(GuiConfig)
                 STUIList.Padding = UDim.new(0, 3)
 
                 -- Wrapper Items khusus untuk page ini agar tidak tercampur
+                -- IMPORTANT: Menggunakan metatable proxy karena AddToggle/AddSlider/dll
+                -- didefinisikan SETELAH AddTabbox di source code. Jika kita copy via
+                -- pairs(Items) di sini, fungsi-fungsi itu belum ada sehingga TabboxItems kosong.
                 local TabboxItems = {}
                 local countTB = 0
 
@@ -1611,29 +1614,22 @@ function Chloex:Window(GuiConfig)
                     end
                 end)
                 
-                -- Kita teruskan fungsi Toggle dsb yang diinjeksi ke page baru
-                for k, v in pairs(Items) do
-                    if type(v) == "function" and k ~= "AddTabbox" then
-                        TabboxItems[k] = function(self_, config)
-                            local oldAdd = SectionAdd
-                            local oldIL = UIListLayout2
-                            local oldU = UpdateSizeSection
-                            
-                            -- Bajak parent render sementara
-                            SectionAdd = STPage
-                            UIListLayout2 = STUIList
-                            local result = v(self_, config)
-                            -- Kembalikan render parent
-                            SectionAdd = oldAdd
-                            UIListLayout2 = oldIL
-                            return result
+                -- Metatable proxy: saat STA memanggil TabboxItems:AddToggle(cfg),
+                -- kita resolve Items.AddToggle pada saat itu (lazy), bukan saat AddTabbox dipanggil.
+                setmetatable(TabboxItems, {
+                    __index = function(_, key)
+                        if key == "AddTabbox" or key == "AddLeftGroupbox" or key == "AddRightGroupbox" then
+                            return Items.AddTabbox
                         end
+                        local fn = Items[key]
+                        if type(fn) == "function" then
+                            return function(self_, ...)
+                                return fn(self_, ...)
+                            end
+                        end
+                        return fn
                     end
-                end
-                
-                -- Support legacy API call like left/right group
-                TabboxItems.AddLeftGroupbox = Items.AddTabbox
-                TabboxItems.AddRightGroupbox = Items.AddTabbox
+                })
                 
                 return TabboxItems
             end
