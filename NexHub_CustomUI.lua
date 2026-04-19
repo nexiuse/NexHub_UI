@@ -226,6 +226,7 @@ end
 
 function CircleClick(Button, X, Y)
     spawn(function()
+        if not Button or not Button.Parent then return end
         Button.ClipsDescendants = true
         local Circle = Instance.new("ImageLabel")
         Circle.Image = "rbxassetid://266543268"
@@ -237,6 +238,8 @@ function CircleClick(Button, X, Y)
         Circle.Name = "Circle"
         Circle.Parent = Button
 
+        X = tonumber(X) or (Button.AbsolutePosition.X + (Button.AbsoluteSize.X / 2))
+        Y = tonumber(Y) or (Button.AbsolutePosition.Y + (Button.AbsoluteSize.Y / 2))
         local NewX = X - Circle.AbsolutePosition.X
         local NewY = Y - Circle.AbsolutePosition.Y
         Circle.Position = UDim2.new(0, NewX, 0, NewY)
@@ -931,7 +934,13 @@ function Chloex:Window(GuiConfig)
 
     GuiFunc:ToggleUI()
 
-    DropShadowHolder.Size = UDim2.new(0, 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X, 0, 350)
+    local desiredWidth = 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X
+    local minWidthForSidebar = (GuiConfig["Tab Width"] or 120) + 260
+    local maxAllowedWidth = math.max(320, viewport.X - 20)
+    local finalWidth = math.clamp(math.max(desiredWidth, minWidthForSidebar), 320, maxAllowedWidth)
+    local finalHeight = isMobile and 270 or 350
+    DropShadowHolder.Size = UDim2.new(0, finalWidth, 0, finalHeight)
+    DropShadowHolder.Position = UDim2.new(0.5, -(finalWidth // 2), 0.5, -(finalHeight // 2))
     MakeDraggable(Top, DropShadowHolder)
 
     local MoreBlur = Instance.new("Frame");
@@ -1047,8 +1056,15 @@ function Chloex:Window(GuiConfig)
     local Tabs = {}
     local CountTab = 0
     local CountDropdown = 0
-    function Tabs:AddTab(TabConfig)
-        local TabConfig = TabConfig or {}
+    function Tabs:AddTab(TabConfig, IconArg)
+        if type(TabConfig) ~= "table" then
+            TabConfig = {
+                Name = tostring(TabConfig or "Tab"),
+                Icon = IconArg or "",
+            }
+        else
+            TabConfig = TabConfig or {}
+        end
         TabConfig.Name = TabConfig.Name or "Tab"
         TabConfig.Icon = TabConfig.Icon or ""
 
@@ -1583,7 +1599,7 @@ function Chloex:Window(GuiConfig)
                         BackgroundTransparency = 0.8,
                         TextColor3 = GuiConfig.Color
                     }):Play()
-                    SectionSubPageLayout:JumpToIndex(OrderIndex)
+                    SectionSubPageLayout:JumpToIndex(OrderIndex - 1)
                 end)
 
                 local STPage = Instance.new("Frame")
@@ -1592,6 +1608,14 @@ function Chloex:Window(GuiConfig)
                 STPage.BackgroundTransparency = 1
                 STPage.Size = UDim2.new(1, 0, 1, 0)
                 STPage.LayoutOrder = OrderIndex
+
+                if OrderIndex == 1 then
+                    task.defer(function()
+                        if SectionSubPageLayout and SectionSubPageLayout.Parent then
+                            SectionSubPageLayout:JumpToIndex(0)
+                        end
+                    end)
+                end
 
                 local STUIList = Instance.new("UIListLayout")
                 STUIList.Parent = STPage
