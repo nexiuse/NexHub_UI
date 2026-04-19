@@ -630,6 +630,7 @@ function Chloex:Window(GuiConfig)
     Chloeex.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     Chloeex.Name = "Chloeex"
     Chloeex.ResetOnSpawn = false
+    Chloeex.Enabled = false  -- Hide initially to prevent flickering
     Chloeex.Parent = game:GetService("CoreGui")
 
     DropShadowHolder.BackgroundTransparency = 1
@@ -1306,6 +1307,8 @@ function Chloex:Window(GuiConfig)
         local function EnsureSubTabsEnabled()
             if OverlayState.Enabled then return end
             OverlayState.Enabled = true
+            -- Hide NameTab when subtabs are active
+            NameTab.Visible = false
             SubTabHolder.Size = UDim2.new(1, 0, 0, 36)
             SubTabHolder.Position = UDim2.new(0, 0, 0, 0)
             -- Hide all section content inside ScrolLayers (UIPageLayout may reset Visible)
@@ -1419,49 +1422,64 @@ function Chloex:Window(GuiConfig)
             CircleClick(TabButton, Mouse.X, Mouse.Y)
             local FrameChoose
             for a, s in ScrollTab:GetChildren() do
-                for i, v in s:GetChildren() do
-                    if v.Name == "ChooseFrame" then
-                        FrameChoose = v
-                        break
+                if s:IsA("Frame") then
+                    for i, v in s:GetChildren() do
+                        if v.Name == "ChooseFrame" then
+                            FrameChoose = v
+                            break
+                        end
                     end
+                end
+                if FrameChoose then break end
+            end
+            if not FrameChoose then return end
+            if Tab.LayoutOrder == LayersPageLayout.CurrentPage.LayoutOrder then return end
+
+            for _, TabFrame in ScrollTab:GetChildren() do
+                if TabFrame.Name == "Tab" then
+                    TweenService:Create(
+                        TabFrame,
+                        TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
+                        { BackgroundTransparency = 0.9990000128746033 }
+                    ):Play()
                 end
             end
-            if FrameChoose ~= nil and Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
-                for _, TabFrame in ScrollTab:GetChildren() do
-                    if TabFrame.Name == "Tab" then
-                        TweenService:Create(
-                            TabFrame,
-                            TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
-                            { BackgroundTransparency = 0.9990000128746033 }
-                        ):Play()
-                    end
-                end
-                TweenService:Create(
-                    Tab,
-                    TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
-                    { BackgroundTransparency = 0.9200000166893005 }
-                ):Play()
+            TweenService:Create(
+                Tab,
+                TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
+                { BackgroundTransparency = 0.9200000166893005 }
+            ):Play()
+            TweenService:Create(
+                FrameChoose,
+                TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+                { Position = UDim2.new(0, 2, 0, 9 + (33 * Tab.LayoutOrder)) }
+            ):Play()
+            LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
+            -- Show/hide NameTab based on whether this tab uses subtabs
+            local tabInfo
+            for _, info in ipairs(TabOverlayPairs) do
+                if info.Index == Tab.LayoutOrder then tabInfo = info break end
+            end
+            if tabInfo and tabInfo.State.Enabled then
+                NameTab.Visible = false
+            else
+                NameTab.Visible = true
+            end
+            NameTab.Text = TabConfig.Name
+            ApplyOverlayVisibility(Tab.LayoutOrder)
+            spawn(function()
                 TweenService:Create(
                     FrameChoose,
-                    TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
-                    { Position = UDim2.new(0, 2, 0, 9 + (33 * Tab.LayoutOrder)) }
-                ):Play()
-                LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
-                task.wait(0.05)
-                NameTab.Text = TabConfig.Name
-                ApplyOverlayVisibility(Tab.LayoutOrder)
-                TweenService:Create(
-                    FrameChoose,
-                    TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+                    TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
                     { Size = UDim2.new(0, 1, 0, 20) }
                 ):Play()
-                task.wait(0.2)
+                task.wait(0.15)
                 TweenService:Create(
                     FrameChoose,
-                    TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+                    TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
                     { Size = UDim2.new(0, 1, 0, 12) }
                 ):Play()
-            end
+            end)
         end)
         if CountTab == 0 then
             ApplyOverlayVisibility(0)
@@ -3335,6 +3353,8 @@ function Chloex:Window(GuiConfig)
         end
     end
 
+    -- Show UI now that everything is built (prevents flickering)
+    Chloeex.Enabled = true
     return Tabs
 end
 
