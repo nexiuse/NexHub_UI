@@ -1292,6 +1292,7 @@ function Chloex:Window(GuiConfig)
         SubTabHolder.ChildAdded:Connect(UpdateSubTabCanvas)
         SubTabHolder.ChildRemoved:Connect(UpdateSubTabCanvas)
 
+        local Tab  -- forward-declare so EnsureSubTabsEnabled closure can reference it
         local function EnsureSubTabsEnabled()
             if OverlayState.Enabled then return end
             OverlayState.Enabled = true
@@ -1311,7 +1312,7 @@ function Chloex:Window(GuiConfig)
             State = OverlayState,
         })
 
-        local Tab = Instance.new("Frame");
+        Tab = Instance.new("Frame");
         local UICorner3 = Instance.new("UICorner");
         local TabButton = Instance.new("TextButton");
         local TabName = Instance.new("TextLabel")
