@@ -1,13 +1,21 @@
 local HttpService = game:GetService("HttpService")
 
-if not isfolder("Chloe X") then
-    makefolder("Chloe X")
-end
-if not isfolder("Chloe X/Config") then
-    makefolder("Chloe X/Config")
-end
+pcall(function()
+    if not isfolder("Chloe X") then
+        makefolder("Chloe X")
+    end
+    if not isfolder("Chloe X/Config") then
+        makefolder("Chloe X/Config")
+    end
+end)
 
-local gameName   = tostring(game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name)
+local gameName   = "Game_" .. tostring(game.PlaceId)
+pcall(function()
+    local info = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
+    if info and info.Name then
+        gameName = tostring(info.Name)
+    end
+end)
 gameName         = gameName:gsub("[^%w_ ]", "")
 gameName         = gameName:gsub("%s+", "_")
 
