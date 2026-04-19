@@ -989,18 +989,8 @@ function nexhub:Window(GuiConfig)
     NameTab.Name = "NameTab"
     NameTab.Parent = Layers
 
-    local SectionNameLabel = Instance.new("TextLabel")
-    SectionNameLabel.Font = Enum.Font.GothamBold
-    SectionNameLabel.Text = ""
-    SectionNameLabel.TextColor3 = Color3.fromRGB(155, 89, 255)
-    SectionNameLabel.TextSize = 14
-    SectionNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    SectionNameLabel.BackgroundTransparency = 1
-    SectionNameLabel.Position = UDim2.new(0, 5, 0, 25)
-    SectionNameLabel.Size = UDim2.new(1, -10, 0, 18)
-    SectionNameLabel.Name = "SectionNameLabel"
-    SectionNameLabel.Parent = Layers
-
+    -- SectionNameLabel dihapus agar tidak bentrok atau membingungkan
+    
     local GlowLine = Instance.new("Frame")
     GlowLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     GlowLine.BorderSizePixel = 0
@@ -1549,7 +1539,6 @@ function nexhub:Window(GuiConfig)
         --// Container Utama Box (Meniru Photo 3 STA)
         local MainSection = Instance.new("Frame")
         local MainCorner = Instance.new("UICorner")
-        local MainTitle = Instance.new("TextLabel")
         local MainDecideFrame = Instance.new("Frame")
         local MainUICorner1 = Instance.new("UICorner")
         local MainUIGradient = Instance.new("UIGradient")
@@ -1559,7 +1548,7 @@ function nexhub:Window(GuiConfig)
         MainSection.BorderSizePixel = 0
         MainSection.Position = UDim2.new(0.5, 0, 0, 0)
         MainSection.AnchorPoint = Vector2.new(0.5, 0)
-        MainSection.Size = UDim2.new(1, 0, 0, 150) -- Akan resize di UpdateScrollSize
+        MainSection.Size = UDim2.new(1, 0, 0, 150)
         MainSection.Name = "MainSection"
         MainSection.Parent = ScrolLayers
         MainSection.ClipsDescendants = true
@@ -1568,22 +1557,12 @@ function nexhub:Window(GuiConfig)
         MainCorner.CornerRadius = UDim.new(0, 4)
         MainCorner.Parent = MainSection
 
-        MainTitle.Font = Enum.Font.GothamBold
-        MainTitle.Text = TabConfig.Name
-        MainTitle.TextColor3 = Color3.fromRGB(230, 230, 230)
-        MainTitle.TextSize = 13
-        MainTitle.TextXAlignment = Enum.TextXAlignment.Left
-        MainTitle.AnchorPoint = Vector2.new(0, 0)
-        MainTitle.BackgroundTransparency = 1
-        MainTitle.Position = UDim2.new(0, 10, 0, 10)
-        MainTitle.Size = UDim2.new(1, -20, 0, 15)
-        MainTitle.Name = "MainTitle"
-        MainTitle.Parent = MainSection
+        -- MainTitle ("Visuals") di dalam box dihapus sesuai permintaan
 
         MainDecideFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         MainDecideFrame.BorderSizePixel = 0
         MainDecideFrame.AnchorPoint = Vector2.new(0.5, 0)
-        MainDecideFrame.Position = UDim2.new(0.5, 0, 0, 33)
+        MainDecideFrame.Position = UDim2.new(0.5, 0, 0, 2) -- Karena title tidak ada, posisi line pindah ke atas (2px padding)
         MainDecideFrame.Size = UDim2.new(1, 0, 0, 2)
         MainDecideFrame.Name = "MainDecideFrame"
         MainDecideFrame.Parent = MainSection
@@ -1597,19 +1576,18 @@ function nexhub:Window(GuiConfig)
         }
         MainUIGradient.Parent = MainDecideFrame
 
-        --// Sub-tab Section Layout
         local SubTabHolder = Instance.new("Frame")
         SubTabHolder.Name = "SubTabHolder"
         SubTabHolder.BackgroundTransparency = 1
         SubTabHolder.Size = UDim2.new(1, -10, 0, 0)
-        SubTabHolder.Position = UDim2.new(0, 5, 0, 45)
+        SubTabHolder.Position = UDim2.new(0, 5, 0, 12) -- 10px spacing dari glow line
         SubTabHolder.Parent = MainSection
         SubTabHolder.LayoutOrder = 1
 
         local SubTabList = Instance.new("UIListLayout")
         SubTabList.FillDirection = Enum.FillDirection.Horizontal
         SubTabList.SortOrder = Enum.SortOrder.LayoutOrder
-        SubTabList.Padding = UDim.new(0, 5)
+        SubTabList.Padding = UDim.new(0, 6) -- Add slight more padding max size tab
         SubTabList.Wraps = true
         SubTabList.Parent = SubTabHolder
 
@@ -1617,7 +1595,7 @@ function nexhub:Window(GuiConfig)
         SectionFolder.Name = "SectionFolder"
         SectionFolder.BackgroundTransparency = 1
         SectionFolder.Size = UDim2.new(1, -10, 0, 0)
-        SectionFolder.Position = UDim2.new(0, 5, 0, 45)
+        SectionFolder.Position = UDim2.new(0, 5, 0, 12) 
         SectionFolder.Parent = MainSection
         SectionFolder.ClipsDescendants = true
 
@@ -1626,12 +1604,9 @@ function nexhub:Window(GuiConfig)
         SectionPageLayout.TweenTime = 0.4
         SectionPageLayout.Parent = SectionFolder
         local function UpdateSizeScroll()
-            local layout = ScrolLayers:FindFirstChildOfClass("UIListLayout")
-            if layout then
-                ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-            end
+            local sfHeight = 50 -- Minimal height to prevent glitch
             
-            local sfHeight = 0
+            -- Cari tinggi maksimum dari page yang aktif
             for _, sf in pairs(SectionFolder:GetChildren()) do
                 if sf:IsA("ScrollingFrame") or sf:IsA("Frame") then
                     local list = sf:FindFirstChildOfClass("UIListLayout")
@@ -1640,20 +1615,30 @@ function nexhub:Window(GuiConfig)
                     end
                     -- Update individual canvas sizes dynamically to prevent scrolling loop issues inside pages
                     if list and sf:IsA("ScrollingFrame") then
-                        sf.CanvasSize = UDim2.new(0,0,0, list.AbsoluteContentSize.Y + 10)
+                        sf.CanvasSize = UDim2.new(0,0,0, list.AbsoluteContentSize.Y + 20)
                     end
                 end
             end
             
             if MainSection then
                 SubTabHolder.Size = UDim2.new(1, -10, 0, SubTabList.AbsoluteContentSize.Y)
-                SectionFolder.Position = UDim2.new(0, 5, 0, 45 + SubTabList.AbsoluteContentSize.Y + 5)
+                SectionFolder.Position = UDim2.new(0, 5, 0, 12 + SubTabList.AbsoluteContentSize.Y + 10)
                 
                 -- Resize section folder to content
-                SectionFolder.Size = UDim2.new(1, -10, 0, sfHeight)
+                SectionFolder.Size = UDim2.new(1, -10, 0, sfHeight + 10)
                 
                 -- Expand MainSection wrapper
-                MainSection.Size = UDim2.new(1, 0, 0, 45 + SubTabList.AbsoluteContentSize.Y + 5 + sfHeight + 10)
+                local totalMainHeight = 12 + SubTabList.AbsoluteContentSize.Y + 10 + sfHeight + 25
+                MainSection.Size = UDim2.new(1, 0, 0, totalMainHeight)
+            end
+
+            -- Update Layout ScrollLayers Outer by referencing MainSection manual calculation to prevent bounce sync issues
+            local layout = ScrolLayers:FindFirstChildOfClass("UIListLayout")
+            if layout then
+                -- Add some extra padding to bottom for comfortable scrolling
+                task.delay(0.02, function()
+                    ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 50)
+                end)
             end
         end
 
@@ -1684,22 +1669,21 @@ function nexhub:Window(GuiConfig)
             SubBtn.LayoutOrder = SecOrder
             SubBtn.Parent = SubTabHolder
             
-            SubBtnCorner.CornerRadius = UDim.new(0, 4)
+            SubBtnCorner.CornerRadius = UDim.new(0, 6)
             SubBtnCorner.Parent = SubBtn
             
             SubBtnText.Font = Enum.Font.GothamBold
             SubBtnText.Text = SectionConfig.Title
-            SubBtnText.TextColor3 = (SecOrder == 0) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 180)
-            SubBtnText.TextSize = 14
+            SubBtnText.TextColor3 = (SecOrder == 0) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 200, 200)
+            SubBtnText.TextSize = 15 -- Increased font size
             SubBtnText.BackgroundTransparency = 1
             SubBtnText.Size = UDim2.new(1, 0, 1, 0)
             SubBtnText.Parent = SubBtn
             
-            SubBtn.Size = UDim2.new(0, SubBtnText.TextBounds.X + 25, 0, 32)
+            -- Menambahkan padding agar kotak subtab lebih luas & tombol gampang diklik
+            SubBtn.Size = UDim2.new(0, SubBtnText.TextBounds.X + 36, 0, 36)
 
-            if SecOrder == 0 then
-                SectionNameLabel.Text = SectionConfig.Title
-            end
+            -- (SectionNameLabel sudah dihapus global jadi trigger if SecOrder == 0 kita hapus juga)
 
             -- Kontainer Konten Section
             local SectionScroller = Instance.new("ScrollingFrame")
@@ -1735,9 +1719,9 @@ function nexhub:Window(GuiConfig)
                 TweenService:Create(SubBtn, TweenInfo.new(0.3), { BackgroundColor3 = GuiConfig.Color, BackgroundTransparency = 0 }):Play()
                 TweenService:Create(SubBtnText, TweenInfo.new(0.3), { TextColor3 = Color3.fromRGB(255, 255, 255) }):Play()
                 
-                SectionNameLabel.Text = SectionConfig.Title
                 SectionPageLayout:JumpToIndex(SecOrder)
-                UpdateSizeScroll() -- Pastikan wrapper box berubah ukuran saat halaman section berpindah
+                -- Pastikan GUI dirender stabil sebelum adjust height untuk mencegah bounce
+                task.delay(0.05, UpdateSizeScroll) 
             end)
 
             local Items = {}
