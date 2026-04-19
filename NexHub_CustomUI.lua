@@ -687,19 +687,7 @@ function Chloex:Window(GuiConfig)
     UICorner6.CornerRadius = UDim.new(0, 2)
     UICorner6.Parent = Layers
 
-    NameTab.Font = Enum.Font.GothamBold
-    NameTab.Text = ""
-    NameTab.TextColor3 = Color3.fromRGB(255, 255, 255)
-    NameTab.TextSize = 24
-    NameTab.TextWrapped = true
-    NameTab.TextXAlignment = Enum.TextXAlignment.Left
-    NameTab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    NameTab.BackgroundTransparency = 0.9990000128746033
-    NameTab.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    NameTab.BorderSizePixel = 0
-    NameTab.Size = UDim2.new(1, 0, 0, 30)
-    NameTab.Name = "NameTab"
-    NameTab.Parent = Layers
+    -- NameTab dihapus agar tidak duplikat dengan nama Section
 
     LayersReal.AnchorPoint = Vector2.new(0, 1)
     LayersReal.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -707,8 +695,8 @@ function Chloex:Window(GuiConfig)
     LayersReal.BorderColor3 = Color3.fromRGB(0, 0, 0)
     LayersReal.BorderSizePixel = 0
     LayersReal.ClipsDescendants = true
-    LayersReal.Position = UDim2.new(0, 0, 1, 0)
-    LayersReal.Size = UDim2.new(1, 0, 1, -33)
+    LayersReal.Position = UDim2.new(0, 0, 0, 0)
+    LayersReal.Size = UDim2.new(1, 0, 1, 0)
     LayersReal.Name = "LayersReal"
     LayersReal.Parent = Layers
 
@@ -1155,7 +1143,7 @@ function Chloex:Window(GuiConfig)
         Tab.Size = UDim2.new(0, textW + 40, 1, 0)
         if CountTab == 0 then
             LayersPageLayout:JumpToIndex(0)
-            NameTab.Text = TabConfig.Name
+            -- NameTab.Text = TabConfig.Name
             -- Penanda vertical (ChooseFrame) dihapus.
         end
 
@@ -1187,14 +1175,16 @@ function Chloex:Window(GuiConfig)
                 
                 LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
                 task.wait(0.05)
-                NameTab.Text = TabConfig.Name
+                -- NameTab.Text = TabConfig.Name
             end
         end)
         --// Section
         local Sections = {}
         local CountSection = 0
-        function Sections:AddSection(Title, AlwaysOpen)
-            local Title = Title or "Title"
+        function Sections:AddSection(TitleOrConfig, AlwaysOpen)
+            local SectionConfig = type(TitleOrConfig) == "table" and TitleOrConfig or {}
+            local Title = SectionConfig.Title or (type(TitleOrConfig) == "string" and TitleOrConfig) or "Title"
+            local AlwaysOpen = SectionConfig.Opened or AlwaysOpen
             local Section = Instance.new("Frame");
             local SectionDecideFrame = Instance.new("Frame");
             local UICorner1 = Instance.new("UICorner");
