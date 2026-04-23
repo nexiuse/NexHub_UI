@@ -419,6 +419,7 @@ local function MakeNotifyModule(TweenService, CoreGui, getIconId, defaultColor)
         if NotifyConfig.Delay > 0 then
             autoCloseTask = task.delay(NotifyConfig.Delay, function()
                 if not isClosing then
+                    autoCloseTask = nil -- CLEARED SO IT DOESNT CANCEL ITSELF!
                     NotifyFunction:Close()
                 end
             end)
